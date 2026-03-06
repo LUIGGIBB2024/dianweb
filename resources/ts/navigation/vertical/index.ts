@@ -18,7 +18,7 @@ const menu: NavItem[] = [
     icon: { icon: 'tabler-building-broadcast-tower' },
     roles: ['admin', 'operador'],    
     children: [
-      { title: 'Documentos Electrónicos 20ok',to:{name:'documentosdian'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
+      { title: 'Documentos Electrónicos Mio',to:{name:'documentosdian'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
       { title: 'Notas Electrónicas', to: { name: 'documentosdian-notes' }, icon: { icon: 'tabler-brand-notion', size: 18 }, roles: ['admin'] },
       { title: 'Nómina Electrónica', to: { name: 'documentosdian-payroll' }, icon: { icon: 'tabler-user-circle', size: 18 }, roles: ['admin'] },
       { title: 'Documento Soporte', to: { name: 'documentosdian-support' }, icon: { icon: 'tabler-file-invoice', size: 18 }, roles: ['admin'] },
