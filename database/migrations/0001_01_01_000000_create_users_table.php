@@ -17,6 +17,7 @@ return new class extends Migration
             $table->string('name');
             $table->string('email')->unique();
             $table->unsignedBigInteger('company_id')->index();
+            $table->unsignedBigInteger('companies_id')->nullable();
             $table->foreign('companies_id')->references('id')->on('companies')->onDelete('set null');
             $table->string('type', 20);
             $table->timestamp('email_verified_at')->nullable();
@@ -24,6 +25,8 @@ return new class extends Migration
             $table->rememberToken();
             $table->timestamp('created_at')->default(DB::raw('CURRENT_TIMESTAMP'));
             $table->timestamp('updated_at')->default(DB::raw('CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP'));
+
+            
         });
 
         Schema::create('password_reset_tokens', function (Blueprint $table) {
