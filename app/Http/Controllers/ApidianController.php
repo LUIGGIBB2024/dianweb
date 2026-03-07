@@ -25,7 +25,7 @@ class ApidianController extends Controller
 
         $cuantos = 0;
 
-        return response()->json(['message' => 'Voy Aqui 200', 'Empresa :' => $info_control, 'Id:' => $id_company]);
+        //return response()->json(['message' => 'Voy Aqui 200', 'Empresa :' => $info_control, 'Id:' => $id_company]);
 
         if ($desde && $hasta) {
 
