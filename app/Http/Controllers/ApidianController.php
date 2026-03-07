@@ -33,6 +33,11 @@ class ApidianController extends Controller
             $nit = trim($info_control->nit);
             $endpoint = "{$endpoint}/information/{$nit}/{$desde}/{$hasta}";
 
+            return response()->json([
+                'message' => 'Información generada exitosamente',
+                'data' => $endpoint,
+            ], 200);
+
             $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
             $response = Http::withHeaders(['Content-Type' => 'application/json; charset=UTF-8'])
@@ -180,8 +185,7 @@ class ApidianController extends Controller
 
         //return response()->json(['message' => 'Voy Aqui 200', 'Empresa :' => $info_control,'Id:' => $id_company]);
 
-        if ($desde && $hasta) 
-        {
+        if ($desde && $hasta) {
 
             $endpoint = trim($info_control->endpoint1);
             $nit = trim($info_control->nit);
@@ -198,30 +202,26 @@ class ApidianController extends Controller
             ])->get($endpoint);
 
             //return response()->json($response->data);
-           
-            if ($response->successful())
-            {
+
+            if ($response->successful()) {
                 // Decodificar el JSON
                 //return response()->json(['Data 100' => ('data'),'nit'=>$nit,'endpoint:'=>$endpoint], 200);
 
                 $registros = $response->json();
                 //$registros = $response;
 
-                $datos = $registros['data'];                   
+                $datos = $registros['data'];
 
                 $payroll = collect($datos)
-                    ->filter(function ($tipoDoc) use ($desde, $hasta) 
-                    {
+                    ->filter(function ($tipoDoc) use ($desde, $hasta) {
                         // 👇 Solo incluir si el type_document_id es mayor que 1
-                        $fecha = Carbon::parse($tipoDoc['date_issue']);             
+                        $fecha = Carbon::parse($tipoDoc['date_issue']);
 
-                        return $tipoDoc['state_document_id'] == 1 && $fecha->between(Carbon::parse($desde)->startOfDay(),Carbon::parse($hasta)->endOfDay());
-
+                        return $tipoDoc['state_document_id'] == 1 && $fecha->between(Carbon::parse($desde)->startOfDay(), Carbon::parse($hasta)->endOfDay());
                     })->sortBy('date_issue')->values();
 
-                $mapped = $payroll->map(function ($item) 
-                {
-                    $requestApi = json_decode($item['request_api'], true);       
+                $mapped = $payroll->map(function ($item) {
+                    $requestApi = json_decode($item['request_api'], true);
 
                     $typeDocumentName = ($item['type_document_id'] == 9)
                         ? 'Nómina Individual'
@@ -247,7 +247,7 @@ class ApidianController extends Controller
                         'employee_name' => $requestApi['worker']['surname'] . " " . $requestApi['worker']['first_name'] . " " .  $requestApi['worker']['second_surname'] ?? null,
                         'first_name' => $requestApi['worker']['first_name'] ?? null,
                     ];
-                });    
+                });
 
                 // Ordenar por apellido
                 $sorted = $mapped->sortBy('employee_name')->values();
@@ -273,14 +273,14 @@ class ApidianController extends Controller
                     'page' => $page,
                     'per_page' => $perPage,
                     'totaldctos' => $totalNomina,
-                ]);   
+                ]);
             }
-             return response()->json([
+            return response()->json([
                 'error' => 'Error de Cargue de Información',
                 'status' => $response->status(),
             ], $response->status());
         }
-                
+
         return response()->json([
             'error' => 'No Existe Información en este Rango de Fechas',
             'status' => $response()->status(),
