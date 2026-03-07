@@ -71,19 +71,19 @@ const handleLogin = async () => {
         // Guardar token
     localStorage.setItem('auth_token', data.token)
     localStorage.setItem('company_name', data.company_name)
-
+    
     const StoredName   = localStorage.getItem('company_name')
 
     window.company_user = StoredName
 
-    //console.log("Soy Empresa Login:",window.company_user)
+    console.log("Soy Empresa Login:",data.company_name)
 
     // Redirigir al dashboard
     router.push({ name: 'dashboard'})
   } catch (error: any) {
     errorMessage.value =
       error.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.'
-  } finally {
+  } finally {    
     isLoading.value = false
   }
 }
@@ -127,7 +127,7 @@ const handleLogin = async () => {
       <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-6">
         <VCardText>
           <h4 class="text-h4 mb-1">
-            Bienvenido a <span class="text-capitalize">{{ themeConfig.app.title }}</span>! 👋🏻
+            Bienvenido a <span class="text-capitalize">{{ themeConfig.app.title }}</span> ! 👋🏻
           </h4>
           <p class="mb-0">Inicia sesión en tu cuenta</p>
         </VCardText>
