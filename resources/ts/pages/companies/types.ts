@@ -16,6 +16,7 @@ export interface Company {
   token: string  
   date_from:string
   date_to:string,
+  endpoint2:string,
   days_difference:number,
 }
 

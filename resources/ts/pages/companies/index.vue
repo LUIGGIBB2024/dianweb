@@ -519,7 +519,7 @@ const deleteCompany = async () => {
                       </template>
                     </AppTextarea>
               </VCol>
-            </VRow>
+            </VRow>            
           </VForm>
         </VCardText>
 
