@@ -12,7 +12,9 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('companies', function (Blueprint $table) {
-            //
+            $table->string('typecompany', 20)->nullable();
+            $table->string('endpoint3', 250)->nullable();
+            $table->string('endpoint4', 250)->nullable();
         });
     }
 
@@ -21,11 +23,6 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('companies', function (Blueprint $table) {
-            $table->string('typecompany', 20)->nullable();
-            $table->string('endpoint3', 250)->nullable();
-            $table->string('endpoint4', 250)->nullable();
-            //
-        });
+        Schema::table('companies', function (Blueprint $table) {});
     }
 };
