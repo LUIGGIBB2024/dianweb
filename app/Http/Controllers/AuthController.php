@@ -15,12 +15,14 @@ class AuthController extends Controller
             return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
 
-        return response()->json(['message' => $request->email . " - 200 - " . $request->password]);
 
         $user = Auth::user();
         //$token = $request->$user->createToken('auth_token')->plainTextToken;
         $token = $request->user()->createToken($user->email . '_Token')->plainTextToken;
         $companyname = Auth::user()->company->name;
+
+        return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
+
         return response()->json(['message' => 'Login exitoso', 'user' => $user, 'token' => $token, 'company_name' => $companyname]);
     }
 
