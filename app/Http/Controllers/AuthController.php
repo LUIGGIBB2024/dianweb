@@ -21,7 +21,7 @@ class AuthController extends Controller
         $token = $request->user()->createToken($user->email . '_Token')->plainTextToken;
         $companyname = Auth::user()->company->name;
 
-        return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
+        //return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
 
         return response()->json(['message' => 'Login exitoso', 'user' => $user, 'token' => $token, 'company_name' => $companyname]);
     }
