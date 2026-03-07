@@ -4,7 +4,8 @@
   <meta charset="UTF-8" />
   <link rel="icon" href="{{ asset('favicon.ico') }}" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Enlace Visual 2026</title>
+  <title>Phoenix24 2026</title>
+  {{--  <title>Enlace Visual 2026</title>  --}}
   <link rel="stylesheet" type="text/css" href="{{ asset('loader.css') }}" />
   @vite(['resources/ts/main.ts'])
 </head>
