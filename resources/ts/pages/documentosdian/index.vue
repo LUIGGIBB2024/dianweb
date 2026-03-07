@@ -122,7 +122,7 @@ import { VRow } from 'vuetify/components'
           
           loading.value = true
           try {
-            const { data } = await axios.post('http://127.0.0.1:8001/api/list/documents', {
+            const { data } = await axios.post('/api/list/documents', {
               ...datafechas.value,
               page: page.value,
               per_page: itemsPerPage.value,
