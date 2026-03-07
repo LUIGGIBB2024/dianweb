@@ -25,18 +25,13 @@ class ApidianController extends Controller
 
         $cuantos = 0;
 
-        //return response()->json(['message' => 'Voy Aqui 200', 'Empresa :' => $info_control,'Id:' => $id_company]);
+        return response()->json(['message' => 'Voy Aqui 200', 'Empresa :' => $info_control, 'Id:' => $id_company]);
 
         if ($desde && $hasta) {
 
             $endpoint = trim($info_control->endpoint1);
             $nit = trim($info_control->nit);
             $endpoint = "{$endpoint}/information/{$nit}/{$desde}/{$hasta}";
-
-            return response()->json([
-                'message' => 'Información generada exitosamente',
-                'data' => $endpoint,
-            ], 200);
 
             $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
