@@ -122,6 +122,7 @@ import { VRow } from 'vuetify/components'
           
           loading.value = true
           try {
+            console.log("Generando Consulta con Fechas:", datafechas.value.desdefecha, datafechas.value.hastafecha, "Page:", page.value, "Items/Page:", itemsPerPage.value)
             const { data } = await axios.post('/api/list/documents', {
               ...datafechas.value,
               page: page.value,
