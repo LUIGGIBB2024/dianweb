@@ -62,7 +62,7 @@ const StoredUserName = localStorage.getItem('user_name')
             </template>
 
             <VListItemTitle class="font-weight-semibold">
-              John Doe
+              {{StoredUserName}}
             </VListItemTitle>
             <VListItemSubtitle>Admin</VListItemSubtitle>
           </VListItem>
