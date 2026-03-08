@@ -37,7 +37,7 @@ const StoredUserName = localStorage.getItem('user_name')
           >
           
           </span>
-       {{StoredUserName}}
+      
 
         <VList>
           <!-- 👉 User Avatar & Name -->
@@ -61,7 +61,7 @@ const StoredUserName = localStorage.getItem('user_name')
               </VListItemAction>
             </template>
 
-            <VListItemTitle class="font-weight-semibold">
+            <VListItemTitle class="font-weight-semibold" style="size: 11;">
               {{StoredUserName}}
             </VListItemTitle>
             <VListItemSubtitle>Admin</VListItemSubtitle>
