@@ -71,12 +71,13 @@ const handleLogin = async () => {
         // Guardar token
     localStorage.setItem('auth_token', data.token)
     localStorage.setItem('company_name', data.company_name)
+    localStorage.setItem('user_name', data.user_name)
     
     const StoredName   = localStorage.getItem('company_name')
 
     window.company_user = StoredName
 
-    console.log("Soy Empresa Login:",data.company_name)
+    //console.log("Soy Empresa Login:",data.company_name)
 
     // Redirigir al dashboard
     router.push({ name: 'dashboard'})

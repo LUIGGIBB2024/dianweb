@@ -1,6 +1,11 @@
 <script setup lang="ts">
 import avatar1 from '@images/avatars/avatar-1.png';
+
+
+const StoredUserName = localStorage.getItem('user_name')
+
 </script>
+
 
 <template>
   <VBadge
@@ -32,7 +37,7 @@ import avatar1 from '@images/avatars/avatar-1.png';
           >
           
           </span>
-       {{ auth()->user()->name}}
+       {{StoredUserName}}
 
         <VList>
           <!-- 👉 User Avatar & Name -->

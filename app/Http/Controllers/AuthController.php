@@ -20,10 +20,11 @@ class AuthController extends Controller
         //$token = $request->$user->createToken('auth_token')->plainTextToken;
         $token = $request->user()->createToken($user->email . '_Token')->plainTextToken;
         $companyname = Auth::user()->company->name;
+        $username = Auth::user()->name;
 
         //return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
 
-        return response()->json(['message' => 'Login exitoso', 'user' => $user, 'token' => $token, 'company_name' => $companyname]);
+        return response()->json(['message' => 'Login exitoso', 'user' => $user, 'token' => $token, 'company_name' => $companyname, 'user_name' => $username]);
     }
 
     public function register(Request $request)
