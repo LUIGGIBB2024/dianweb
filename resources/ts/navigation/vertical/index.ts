@@ -27,7 +27,7 @@ const menu: NavItem[] = [
 
    {
     title: 'Info DIAN - Real',
-    icon: { icon: 'tabler-building-broadcast-tower' },
+    icon: { icon: 'tabler-database' },
     roles: ['admin', 'operador'],    
     children: [
       { title: 'Documentos Electrónicos - Dian- 2025 2026 123 ok LAB 1966',to:{name:'documentosdian'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
