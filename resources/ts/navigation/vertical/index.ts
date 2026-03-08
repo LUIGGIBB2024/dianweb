@@ -18,7 +18,7 @@ const menu: NavItem[] = [
     icon: { icon: 'tabler-building-broadcast-tower' },
     roles: ['admin', 'operador'],    
     children: [
-      { title: 'Documentos Electrónicos',to:{name:'documentosdian'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
+      { title: 'Documentos Electrónicos',to:{name:'documentosdian'}, icon: { icon: 'tabler-clipboard-text', size: 18}, roles: ['admin', 'operador',]},
       { title: 'Notas Electrónicas', to: { name: 'documentosdian-notes' }, icon: { icon: 'tabler-brand-notion', size: 18 }, roles: ['admin'] },
       { title: 'Nómina Electrónica', to: { name: 'documentosdian-payroll' }, icon: { icon: 'tabler-user-circle', size: 18 }, roles: ['admin'] },
       { title: 'Documento Soporte', to: { name: 'documentosdian-support' }, icon: { icon: 'tabler-file-invoice', size: 18 }, roles: ['admin'] },
@@ -30,8 +30,8 @@ const menu: NavItem[] = [
     icon: { icon: 'tabler-database' },
     roles: ['admin', 'operador'],    
     children: [
-      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18 }, roles: ['admin', 'operador',]},
-      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18 }, roles: ['admin'] },      
+      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18, color:'primary' }, roles: ['admin', 'operador',]},
+      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18, color: 'secondary'}, roles: ['admin'] },      
     ],
   },
 
