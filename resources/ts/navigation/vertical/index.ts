@@ -25,13 +25,13 @@ const menu: NavItem[] = [
     ],
   },
 
-   {
+  {
     title: 'Info DIAN - Real',
     icon: { icon: 'tabler-database' },
     roles: ['admin', 'operador'],    
     children: [
-      { title: 'Documentos Enviados',to:{name:'documentosdian'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
-      { title: 'Documentos Recibidos', to: { name: 'documentosdian-notes' }, icon: { icon: 'tabler-brand-notion', size: 18 }, roles: ['admin'] },      
+      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
+      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-brand-notion', size: 18 }, roles: ['admin'] },      
     ],
   },
 
