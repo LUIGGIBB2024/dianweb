@@ -30,9 +30,9 @@ import avatar1 from '@images/avatars/avatar-1.png';
             class="text-body-2 font-weight-medium text-high-emphasis"
             style="white-space: nowrap;"
           >
-            John Doe
+          
           </span>
-       
+       {{ auth()->user()->name}}
 
         <VList>
           <!-- 👉 User Avatar & Name -->
