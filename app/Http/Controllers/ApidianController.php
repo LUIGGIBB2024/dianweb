@@ -87,7 +87,6 @@ class ApidianController extends Controller
 
     public function load_notes(Request $request): JsonResponse
     {
-
         $desde = $request->desdefecha;
         $hasta = $request->hastafecha;
 

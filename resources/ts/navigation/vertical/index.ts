@@ -30,8 +30,9 @@ const menu: NavItem[] = [
     icon: { icon: 'tabler-database' },
     roles: ['admin', 'operador'],    
     children: [
-      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18, color: 'primary' }, roles: ['admin', 'operador',]},
-      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18, color: 'primary' }, roles: ['admin'] },      
+      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18, color: 'warning' }, roles: ['admin', 'operador',]},
+      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18, color: 'warning' }, roles: ['admin'] },  
+      { title: 'Procesar Iva', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-brand-databricks', size: 18, color: 'warning' }, roles: ['admin'] },      
     ],
   },
 
