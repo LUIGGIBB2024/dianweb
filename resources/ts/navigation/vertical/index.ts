@@ -30,8 +30,8 @@ const menu: NavItem[] = [
     icon: { icon: 'tabler-database' },
     roles: ['admin', 'operador'],    
     children: [
-      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-clipboard-text', size: 18 }, roles: ['admin', 'operador',]},
-      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-brand-notion', size: 18 }, roles: ['admin'] },      
+      { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18 }, roles: ['admin', 'operador',]},
+      { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18 }, roles: ['admin'] },      
     ],
   },
 
