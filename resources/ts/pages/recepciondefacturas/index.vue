@@ -176,7 +176,7 @@ import { VRow } from 'vuetify/components'
       <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
             <VCol cols="12" md="3" class="d-flex align-center flex-column">
-              <h3 class="text-primary mb-0">Recepción de Facturas 2026</h3>              
+              <h3 class="text-primary mb-0">Recepción de Facturas (01)</h3>              
             </VCol>
 
             <VCol cols="12" md="2">
