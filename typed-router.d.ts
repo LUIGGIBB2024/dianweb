@@ -39,6 +39,8 @@ declare module 'vue-router/auto-routes' {
     'documentosdian-payroll': RouteRecordInfo<'documentosdian-payroll', '/documentosdian/payroll', Record<never, never>, Record<never, never>>,
     'documentosdian-support': RouteRecordInfo<'documentosdian-support', '/documentosdian/support', Record<never, never>, Record<never, never>>,
     'forgot-password': RouteRecordInfo<'forgot-password', '/forgot-password', Record<never, never>, Record<never, never>>,
+    'infodianreal-enviados': RouteRecordInfo<'infodianreal-enviados', '/infodianreal/enviados', Record<never, never>, Record<never, never>>,
+    'infodianreal-recibidos': RouteRecordInfo<'infodianreal-recibidos', '/infodianreal/recibidos', Record<never, never>, Record<never, never>>,
     'inicio': RouteRecordInfo<'inicio', '/inicio', Record<never, never>, Record<never, never>>,
     'login': RouteRecordInfo<'login', '/login', Record<never, never>, Record<never, never>>,
     'recepciondefacturas': RouteRecordInfo<'recepciondefacturas', '/recepciondefacturas', Record<never, never>, Record<never, never>>,
