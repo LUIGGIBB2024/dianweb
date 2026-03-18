@@ -32,6 +32,7 @@ import { VRow } from 'vuetify/components'
             `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
         )
 
+        
         // Luego haces lo que necesites
         isLoading.value = true
     }
