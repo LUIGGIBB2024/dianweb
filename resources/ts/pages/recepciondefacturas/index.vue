@@ -272,7 +272,10 @@ import { VRow } from 'vuetify/components'
       <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
             <VCol cols="12" md="3" class="d-flex align-center flex-column">
-              <h3 class="text-primary mb-0">Recepción de Facturas 2026 - 110</h3>              
+              <h3 class="text-primary mb-0">Recepción de Facturas 2026 - 110</h3>     
+              <VBtn color="primary" variant="elevated" prepend-icon="tabler-world-www" @click="loadDianPortal">
+                Portal DIAN
+              </VBtn>         
             </VCol>
 
             <VCol cols="12" md="2">
@@ -309,9 +312,7 @@ import { VRow } from 'vuetify/components'
                 Generar Consulta
               </VBtn> 
 
-              <VBtn color="primary" variant="elevated" prepend-icon="tabler-world-www" @click="loadDianPortal">
-                Portal DIAN
-              </VBtn>
+              
               <!-- <div class="iframe-container position-relative">
                   <div v-if="isLoading" class="d-flex justify-center align-center loader-overlay">
                     <VProgressCircular indeterminate color="primary" />
