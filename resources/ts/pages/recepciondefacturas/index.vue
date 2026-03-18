@@ -5,6 +5,65 @@ import fileDownload from 'js-file-download'
 import { computed, onMounted, ref } from 'vue'
 import { VRow } from 'vuetify/components'
 
+    const iframeSource = ref<string | null>(null)
+    const isLoading = ref(false)
+    const showIframeDialog = ref(false) 
+    let  dianWindows = null// Nueva variable para controlar el modal
+
+    // 2. Función para cargar la URL
+    const loadDianPortal1 = () => {
+      console.log("Cargando portal de la DIAN...")
+      isLoading.value = true
+      //iframeSource.value = 'https://catalogo-vpfe.dian.gov.co/User/Login'
+      iframeSource.value = 'https://www.wikipedia.org'      
+    }
+
+    // ✅ BIEN - window.open es lo primero que se ejecuta
+    const loadDianPortal = () => {
+        const width = 1200
+        const height = 800
+        const left = (screen.width - width) / 2
+        const top = (screen.height - height) / 2
+
+        // Primero abres la ventana, en contexto síncrono
+        dianWindows = window.open(
+            'https://catalogo-vpfe.dian.gov.co/User/Login',
+            'PortalDIAN',
+            `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
+        )
+
+        // Luego haces lo que necesites
+        isLoading.value = true
+    }
+
+    const loadDianPortal2 = () => 
+    {
+        dianWindows = window.open(
+            'https://catalogo-vpfe.dian.gov.co/User/Login',
+            'PortalDIAN',
+            'width=1200,height=800,scrollbars=yes,resizable=yes'
+        )
+        
+        // Polling para detectar cuando el usuario cierra la ventana
+        const timer = setInterval(() => {
+            if (dianWindows?.closed) {
+                clearInterval(timer)
+                generarConsulta() // Recargas tus datos al volver
+            }
+        }, 1000)
+    }
+
+    const onIframeLoad = () => {
+        isLoading.value = false
+        console.log("Portal cargado con éxito")
+      }
+
+    const closeIframe = () => {
+        showIframeDialog.value = false
+        iframeSource.value = null
+        isLoading.value = false
+      }
+
     const formatCurrency = (value: number | string) => 
     {
         const num = Number(value) || 0
@@ -87,6 +146,43 @@ import { VRow } from 'vuetify/components'
    
 
     const generarConsulta = async () =>
+    {
+          
+        loading.value = true
+        //console.log("Soy Toke:", token)
+          
+        try {
+             const response = await axios.post(
+              '/api/scraping/dianf', 
+               {
+                        q: searchQuery.value,
+                        itemsPerPage: itemsPerPage.value,
+                        page: page.value,
+                        sortBy: sortBy.value,
+                        orderBy: orderBy.value,
+               } ,
+               {
+                  headers: 
+                  {
+                    Authorization: `Bearer ${token}`, // 👈 Aquí agregas el token
+                    'Content-Type': 'application/json', // opcional pero recomendable
+                  },
+            }) 
+
+          loading.value = false
+          //invoiceData.value = response.data   
+                //console.log("Soy Data:", invoiceData.value)
+
+         }
+                
+                
+                      //companyData.value = response.data   
+             catch (error) {
+                console.error('Error al intentar enviar correo :', error)
+            }      
+    }
+
+    const abrirDIAN = async () =>
     {
           
         loading.value = true
@@ -211,10 +307,77 @@ import { VRow } from 'vuetify/components'
                 @click="generarConsulta"
               >
                 Generar Consulta
+              </VBtn> 
+
+              <VBtn color="primary" variant="elevated" prepend-icon="tabler-world-www" @click="loadDianPortal">
+                Portal DIAN
               </VBtn>
-            </VCol>
+              <!-- <div class="iframe-container position-relative">
+                  <div v-if="isLoading" class="d-flex justify-center align-center loader-overlay">
+                    <VProgressCircular indeterminate color="primary" />
+                  </div>
+
+                  <template v-if="iframeSource">
+                    <iframe 
+                      :src="iframeSource" 
+                      class="dian-iframe"
+                      sandbox="allow-forms allow-modals allow-popups allow-scripts allow-same-origin"
+                      @load="onIframeLoad"
+                    ></iframe>
+                  </template>
+                  
+                  <VAlert
+                    v-else
+                    type="info"
+                    variant="tonal"
+                    text="Haz clic en el botón superior para cargar el portal de la DIAN."
+                  />
+           
+                </div> -->
+           </VCol>     
+                    
           </VRow>
       </VCard>
+
+      <VDialog
+          v-model="showIframeDialog"
+          fullscreen
+          transition="dialog-bottom-transition"
+        >
+          <VCard>
+            <VToolbar color="primary">
+              <VBtn icon @click="closeIframe">
+                <VIcon icon="tabler-x" color="white" />
+              </VBtn>
+              <VToolbarTitle class="text-white">Portal Catálogo DIAN - Facturación Electrónica</VToolbarTitle>
+              <VSpacer />
+              <VBtn 
+                variant="tonal" 
+                color="white" 
+                href="https://catalogo-vpfe.dian.gov.co/User/Login" 
+                target="_blank"
+                prepend-icon="tabler-external-link"
+              >
+                Abrir en pestaña nueva
+              </VBtn>
+            </VToolbar>
+
+            <VCardText class="pa-0 position-relative" style="height: calc(100vh - 64px);">
+              <div v-if="isLoading" class="d-flex flex-column justify-center align-center loader-overlay">
+                <VProgressCircular indeterminate size="64" color="primary" class="mb-4" />
+                <p class="text-h6">Conectando con el servidor de la DIAN...</p>
+              </div>
+
+              <iframe 
+                v-if="iframeSource"
+                :src="iframeSource" 
+                class="dian-iframe-full"
+                sandbox="allow-forms allow-modals allow-popups allow-scripts allow-same-origin"
+                @load="onIframeLoad"
+              ></iframe>
+            </VCardText>
+          </VCard>
+       </VDialog>
 
 
       <section v-if="facturas && facturas.length">
@@ -431,5 +594,43 @@ import { VRow } from 'vuetify/components'
   {
     height: 250px !important; /* Ajusta a tu necesidad */
   }
+
+  .dian-iframe {
+    width: 100%;
+    height: 700px;
+    border: 1px solid rgba(var(--v-border-color), var(--v-border-opacity));
+    border-radius: 8px;
+  }
+
+  .loader-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(var(--v-theme-surface), 0.7);
+    z-index: 2;
+  }
+
+  .dian-iframe-full {
+      width: 100%;
+      height: 100%;
+      border: none;
+      background-color: #fff;
+    }
+
+   .loader-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(var(--v-theme-surface), 0.9);
+      z-index: 10;
+    }
+
+  .gap-2 {
+      gap: 8px;
+    }
 
 </style>
