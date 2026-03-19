@@ -93,29 +93,11 @@ class DianController extends Controller
 
     public function recibirToken(Request $request)
     {
-        // Compara directamente los valores
         $secretRecibido = $request->header('X-N8N-SECRET');
-        //$secretEsperado = config('N8N_SECRET');
         $secretEsperado = config('app.n8n_secret');
 
-        // $secretRecibido = $request->header('X-N8N-SECRET');
-        // $secretEsperado = env('N8N_SECRET');
-
-        return response()->json([
-            'recibido'          => $secretRecibido,
-            'esperado'          => $secretEsperado,
-            'son_iguales'       => $secretRecibido === $secretEsperado,
-            'longitud_recibido' => strlen($secretRecibido),
-            'longitud_esperado' => strlen($secretEsperado),
-        ]);
-
-
         if ($secretRecibido !== $secretEsperado) {
-            return response()->json([
-                'error'    => 'No autorizado',
-                'recibido' => $secretRecibido,   // debug temporal
-                'esperado' => $secretEsperado    // debug temporal
-            ], 401);
+            return response()->json(['error' => 'No autorizado'], 401);
         }
 
         $token       = $request->input('token');
@@ -126,7 +108,6 @@ class DianController extends Controller
             return response()->json(['error' => 'Token no recibido'], 422);
         }
 
-        // Busca la solicitud en processing
         $enProceso = \App\Models\DianTokenQueue::where('status', 'processing')
             ->orderBy('processing_at', 'desc')
             ->first();
