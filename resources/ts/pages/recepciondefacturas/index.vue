@@ -34,6 +34,13 @@ import { VRow } from 'vuetify/components'
         
         // Luego haces lo que necesites
         isLoading.value = true
+        // Polling para detectar cuando el usuario cierra la ventana
+        const timer = setInterval(() => {
+            if (dianWindows?.closed) {
+                clearInterval(timer)
+                //generarConsulta() // Recargas tus datos al volver
+            }
+        }, 1000)
     }
 
     const loadDianPortal2 = () => 
