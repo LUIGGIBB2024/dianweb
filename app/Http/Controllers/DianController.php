@@ -93,29 +93,39 @@ class DianController extends Controller
 
     public function recibirToken(Request $request)
     {
-        return response()->json(['ok' => 'Token recibido'], 200);
-        $request->validate([
-            'token' => 'required|string',
-            'url_completa' => 'required|string'
-        ]);
-
-        $solicitud = DianTokenQueue::where('user_id', auth()->id())
-            ->where('status', 'processing')
-            ->first();
-
-        if (!$solicitud) {
-            return response()->json(['error' => 'No hay solicitud en procesamiento'], 404);
+        // Valida secret key
+        if ($request->header('X-N8N-SECRET') !== env('N8N_SECRET')) {
+            return response()->json(['error' => 'No autorizado'], 401);
         }
 
-        $solicitud->update([
-            'status' => 'received',
-            'token' => $request->token,
-            'url_completa' => $request->url_completa,
-            'received_at' => now()
+        $token       = $request->input('token');
+        $urlCompleta = $request->input('url_completa');
+        $fecha       = $request->input('fecha');
+
+        if (!$token) {
+            return response()->json(['error' => 'Token no recibido'], 422);
+        }
+
+        // Busca la solicitud en processing
+        $enProceso = DianTokenQueue::where('status', 'processing')
+            ->orderBy('processing_at', 'desc')
+            ->first();
+
+        if (!$enProceso) {
+            return response()->json(['error' => 'No hay solicitud en proceso'], 404);
+        }
+
+        $enProceso->update([
+            'token'       => $token,
+            'url_completa'=> $urlCompleta,
+            'received_at' => now(),
+            'status'      => 'received'
         ]);
 
-        $this->procesarSiguiente();
-
-        return response()->json(['ok' => true]);
+        return response()->json([
+            'ok'      => true,
+            'user_id' => $enProceso->user_id,
+            'token'   => $token
+        ]);
     }
 }
