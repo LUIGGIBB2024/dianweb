@@ -96,6 +96,15 @@ class DianController extends Controller
         $secretRecibido = $request->header('X-N8N-SECRET');
         $secretEsperado = config('app.n8n_secret');
 
+        // Debug completo
+        return response()->json([
+            'recibido'      => $secretRecibido,
+            'esperado'      => $secretEsperado,
+            'son_iguales'   => $secretRecibido === $secretEsperado,
+            'metodo'        => $request->method(),
+            'url'           => $request->url(),
+        ]);
+
         if ($secretRecibido !== $secretEsperado) {
             return response()->json(['error' => 'No autorizado'], 401);
         }
