@@ -95,7 +95,8 @@ class DianController extends Controller
     {
         // Compara directamente los valores
         $secretRecibido = $request->header('X-N8N-SECRET');
-        $secretEsperado = config('N8N_SECRET');
+        //$secretEsperado = config('N8N_SECRET');
+        $secretEsperado = config('app.n8n_secret');
 
         // $secretRecibido = $request->header('X-N8N-SECRET');
         // $secretEsperado = env('N8N_SECRET');
