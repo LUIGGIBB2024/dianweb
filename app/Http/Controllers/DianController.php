@@ -94,6 +94,13 @@ class DianController extends Controller
     public function recibirToken(Request $request)
     {
         // Valida secret key
+        // Debug temporal — ver qué está llegando
+        return response()->json([
+            'header_recibido' => $request->header('X-N8N-SECRET'),
+            'env_secret'      => env('N8N_SECRET'),
+            'todos_headers'   => $request->headers->all()
+        ]);
+
         if ($request->header('X-N8N-SECRET') !== env('N8N_SECRET')) {
             return response()->json(['error' => 'No autorizado'], 401);
         }
@@ -117,7 +124,7 @@ class DianController extends Controller
 
         $enProceso->update([
             'token'       => $token,
-            'url_completa'=> $urlCompleta,
+            'url_completa' => $urlCompleta,
             'received_at' => now(),
             'status'      => 'received'
         ]);
