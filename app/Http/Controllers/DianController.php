@@ -133,9 +133,10 @@ class DianController extends Controller
         ]);
 
         return response()->json([
-            'ok'      => true,
-            'user_id' => $enProceso->user_id,
-            'token'   => $token
+            'token_recibido'       => $request->input('token'),
+            'url_completa_recibida' => $request->input('url_completa'),
+            'fecha_recibida'       => $request->input('fecha'),
+            'body_completo'        => $request->all()
         ]);
     }
 }
