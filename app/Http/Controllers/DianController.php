@@ -93,6 +93,7 @@ class DianController extends Controller
 
     public function recibirToken(Request $request)
     {
+        return response()->json(['ok' => 'Token recibido'], 200);
         $request->validate([
             'token' => 'required|string',
             'url_completa' => 'required|string'
