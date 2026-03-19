@@ -5,6 +5,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ControlController;
+use App\Http\Controllers\DianController;
 use App\Http\Controllers\ScrapingController;
 use App\Http\Controllers\ScrapingDianController;
 use App\Http\Controllers\UserController;
@@ -60,4 +61,9 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/scraping/dian', [ScrapingController::class, 'scraping_dian'])->name('scraping.dian');
     Route::post('/scraping/dianf', [ScrapingDianController::class, 'scraping_dian'])->name('scraping.dianf');
+
+    Route::post('/dian/solicitar-token', [DianController::class, 'solicitarToken']);
+    Route::get('/dian/verificar-token',  [DianController::class, 'verificarToken']);
+    Route::post('/dian/timeout',         [DianController::class, 'timeout']);
+    Route::post('/dian/recibir-token',         [DianController::class, 'recibirToken']);
 });

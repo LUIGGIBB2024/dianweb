@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\DianTokenQueue;
+use Illuminate\Support\Facades\Auth;
 
 class DianController extends Controller
 {
@@ -88,5 +89,32 @@ class DianController extends Controller
             'status'        => 'processing',
             'processing_at' => now()
         ]);
+    }
+
+    public function recibirToken(Request $request)
+    {
+        $request->validate([
+            'token' => 'required|string',
+            'url_completa' => 'required|string'
+        ]);
+
+        $solicitud = DianTokenQueue::where('user_id', auth()->id())
+            ->where('status', 'processing')
+            ->first();
+
+        if (!$solicitud) {
+            return response()->json(['error' => 'No hay solicitud en procesamiento'], 404);
+        }
+
+        $solicitud->update([
+            'status' => 'received',
+            'token' => $request->token,
+            'url_completa' => $request->url_completa,
+            'received_at' => now()
+        ]);
+
+        $this->procesarSiguiente();
+
+        return response()->json(['ok' => true]);
     }
 }
