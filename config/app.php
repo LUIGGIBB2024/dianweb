@@ -67,7 +67,7 @@ return [
 
     // 'timezone' => env('APP_TIMEZONE', 'UTC'),
 
-    'timezone' => 'America/Bogota', 
+    'timezone' => 'America/Bogota',
 
     /*
     |--------------------------------------------------------------------------
@@ -85,6 +85,8 @@ return [
     'fallback_locale' => env('APP_FALLBACK_LOCALE', 'en'),
 
     'faker_locale' => env('APP_FAKER_LOCALE', 'en_US'),
+
+    'n8n_secret' => env('N8N_SECRET', ''),
 
     /*
     |--------------------------------------------------------------------------
