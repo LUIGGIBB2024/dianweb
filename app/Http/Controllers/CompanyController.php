@@ -25,20 +25,21 @@ class CompanyController extends Controller
         //'name','nit','dv','email','address','phone','token','technicalkey','endpoint1', 'endpoint2', 'city', 'date_from', 'date_to'
 
         $fechahoy = now()->format('y-m-d');
-        $query = Company::select('id', 'nit', 'dv', 'representativeid', 'name', 'email', 'address', 'phone', 'token', 'technicalkey', 'endpoint1', 'endpoint2', 'city', 'date_from', 'date_to')
+        $query = Company::select('id', 'nit', 'dv', 'representativeid', 'name', 'email', 'address', 'phone', 'token', 'technicalkey', 'endpoint1', 'endpoint2', 'city', 'date_from', 'date_to', 'dian_email')
             ->selectRaw('DATEDIFF(?, date_to) AS days_difference', [$fechahoy])
             ->get();
         //$q =  Str::upper($request->q);      
         $q = ($request->q);
 
         if ($request->has('q') && !empty($request->q)) {
-               return response()->json([
-                            'data q 000' => $q,                       
-                        ]);
-            $query = Company::select('id', 'nit', 'dv', 'representativeid', 'name', 'email', 'address', 'phone', 'token', 'technicalkey', 'endpoint1', 'endpoint2', 'city', 'date_from', 'date_to')
+            return response()->json([
+                'data q 000' => $q,
+            ]);
+            $query = Company::select('id', 'nit', 'dv', 'representativeid', 'name', 'email', 'address', 'phone', 'token', 'technicalkey', 'endpoint1', 'endpoint2', 'city', 'date_from', 'date_to', 'dian_email')
                 ->selectRaw('DATEDIFF(?, date_to) AS days_difference', [$fechahoy])
                 ->where('name', 'like', "%{$q}%")
                 ->orWhere('email', 'like', "%{$q}%")
+                ->orWhere('dian_email', 'like', "%{$q}%")
                 ->orWhere('phone', 'like', "%{$q}%")
                 ->orWhere('address', 'like', "%{$q}%")
                 ->orWhere('city', 'like', "%{$q}%")->get();
@@ -71,6 +72,7 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
+            'dian_email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'city' => 'nullable|string|max:100',
             'endpoint1' => 'nullable|string|max:255',
@@ -97,6 +99,7 @@ class CompanyController extends Controller
             'name' => 'required|string|max:255',
             'address' => 'nullable|string|max:255',
             'email' => 'nullable|email|max:255',
+            'dian_email' => 'nullable|email|max:255',
             'phone' => 'nullable|string|max:20',
             'city' => 'nullable|string|max:100',
             'endpoint1' => 'nullable|string|max:255',

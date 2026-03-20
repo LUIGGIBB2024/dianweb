@@ -10,6 +10,7 @@ export interface Company {
   name: string
   address: string
   email: string
+  dian_email: string
   phone: string
   city: string
   endpoint1: string  

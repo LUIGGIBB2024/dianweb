@@ -22,6 +22,7 @@ class Company extends Model
         'dv',
         'representativeid',
         'email',
+        'dian_email',
         'address',
         'phone',
         'token',

@@ -56,6 +56,7 @@ const newCompany = ref({
   name: '',
   address: '',
   email: '',
+  dian_email: '',
   phone: '',
   city: '',
   endpoint1: '',
@@ -104,6 +105,7 @@ watch(showDialog, (isOpen) => {
       name: '',
       address: '',
       email: '',
+      dian_email: '',
       phone: '',
       city: '',
       endpoint1: '',
@@ -202,6 +204,7 @@ const openEditDialog = (company) => {
     name: company.name,
     address: company.address,
     email: company.email,
+    dian_email: company.dian_email,
     phone: company.phone,
     city: company.city,
     endpoint1: company.endpoint1,
@@ -225,6 +228,7 @@ const openCreateDialog = () => {
     name: '',
     address: '',
     email: '',
+    dian_email: '',
     phone: '',
     city: '',
     endpoint1: '',
@@ -469,14 +473,24 @@ const deleteCompany = async () => {
               </VCol>
             </VRow>   
             <VRow dense align="center" class="g-2">
-              <VCol cols="12" md="6" class="py-0">       
-                <AppTextField v-model="newCompany.email" label="Correo electrónico" type="email" class="mb-3 text_size" :rules="[rules.required, rules.email]"
-                      placeholder="Ingrese el sorreo electrónico"  @update:model-value="val => newCompany.email = val.toLowerCase()" >              
-                    <template #prepend-inner>
-                        <VIcon icon="tabler-mail" color="primary" size="22" class="me-2" />
-                    </template>
-                  </AppTextField>
-              </VCol>
+                <VCol cols="12" md="6" class="py-0">       
+                  <AppTextField v-model="newCompany.email" label="Correo electrónico" type="email" class="mb-3 text_size" :rules="[rules.required, rules.email]"
+                        placeholder="Ingrese el sorreo electrónico"  @update:model-value="val => newCompany.email = val.toLowerCase()" >              
+                      <template #prepend-inner>
+                          <VIcon icon="tabler-mail" color="primary" size="22" class="me-2" />
+                      </template>
+                    </AppTextField>
+                </VCol>
+                <VCol cols="12" md="6" class="py-0"> 
+                  <AppTextField v-model="newCompany.dian_email" label="Correo electrónico (DIAN)" type="email" class="mb-3 text_size" :rules="[rules.email]"
+                        placeholder="Ingrese el correo de la DIAN"  @update:model-value="val => newCompany.dian_email = val.toLowerCase()" >              
+                      <template #prepend-inner>
+                          <VIcon icon="tabler-mail" color="primary" size="22" class="me-2" />
+                      </template>
+                    </AppTextField>
+                </VCol>
+            </VRow>
+            <VRow dense align="center" class="g-2">
               <VCol cols="12" md="6" class="py-0">   
                 <AppTextField v-model="newCompany.phone" label="Teléfono de la Empresa" class="mb-3 text_size" required :rules="[rules.phone,rules.required]">
                   <template #prepend-inner>
@@ -484,8 +498,6 @@ const deleteCompany = async () => {
                   </template>
                 </AppTextField>
               </VCol>
-            </VRow>
-            <VRow dense align="center" class="g-2">
               <VCol cols="12" md="6" class="py-0"> 
                 <AppTextField v-model="newCompany.city" label="Nombre de la Ciudad" class="mb-3 text_size" required :rules="[rules.required]"
                   placeholder="Ingrese la ciudad"  @update:model-value="val => newCompany.city = val.toUpperCase()">
@@ -494,16 +506,17 @@ const deleteCompany = async () => {
                   </template>
                 </AppTextField>
               </VCol>
+              
+            </VRow>
+            <VRow dense align="center" class="g-2">
               <VCol cols="12" md="6" class="py-0"> 
-                  <AppTextField v-model="newCompany.endpoint1" label="Endpoint # 1" class="mb-3 text_size" required :rules="[rules.required]"
+                  <AppTextField v-model="newCompany.endpoint1" label="Endpoint # 1" class="mb-3 text_size" required :rules="[rules.required]" 
                     placeholder="Ingrese el endpoint # 1" @update:model-value="val => newCompany.endpoint1 = val.toLowerCase()">
                     <template #prepend-inner>
                       <VIcon icon="tabler-link" color="primary" size="22" class="me-2" />
                     </template>
                   </AppTextField>
-              </VCol>
-            </VRow>
-            <VRow dense align="center" class="g-2">
+               </VCol>
               <VCol cols="12" md="6" class="py-0"> 
                   <AppTextField v-model="newCompany.endpoint2" label="Endpoint # 2" class="mb-3 text_size" required :rules="[rules.required]" 
                     placeholder="Ingrese el endpoint # 2" @update:model-value="val => newCompany.endpoint2 = val.toLowerCase()">
@@ -512,14 +525,17 @@ const deleteCompany = async () => {
                     </template>
                   </AppTextField>
                </VCol>
-               <VCol cols="12" md="6" class="py-0"> 
+               
+            </VRow>   
+            <VRow dense align="center" class="g-2">
+              <VCol cols="12" md="6" class="py-0"> 
                     <AppTextarea   v-model="newCompany.token" label="Token de Autenticación" placeholder="Ingrese el Token de Autenticación" class="mb-3 text-area-lg" density="comfortable" >
                       <template #prepend-inner>
                          <VIcon icon="tabler-qrcode" color="primary" size="22" class="me-2" />
                       </template>
                     </AppTextarea>
               </VCol>
-            </VRow>            
+            </VRow>         
           </VForm>
         </VCardText>
 
