@@ -463,6 +463,7 @@ const deleteCompany = async () => {
                     </template> 
                   </AppTextField> 
               </VCol>
+              
               <VCol cols="12" md="6" class="py-0">
                   <AppTextField v-model="newCompany.address" label="Dirección de la Empresa" class="mb-3 text_size" required :rules="[rules.required]"
                     placeholder="Ingrese la dirección"  @update:model-value="val => newCompany.address = val.toUpperCase()">
