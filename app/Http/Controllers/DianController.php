@@ -26,8 +26,10 @@ class DianController extends Controller
         // Evita que dos usuarios procesen al mismo tiempo
         $hayProcesando = DianTokenQueue::where('status', 'processing')->exists();
 
+        // DianController@solicitarToken
         $solicitud = DianTokenQueue::create([
             'user_id'        => auth()->id(),
+            'company_id'     => $request->input('company_id'),  // ← agrega esto
             'status'         => $hayProcesando ? 'waiting' : 'processing',
             'processing_at'  => $hayProcesando ? null : now(),
             'queued_at'      => now()

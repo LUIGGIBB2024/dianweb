@@ -8,342 +8,387 @@ import { VRow } from 'vuetify/components'
     const iframeSource = ref<string | null>(null)
     const isLoading = ref(false)
     const showIframeDialog = ref(false) 
-    let  dianWindows = null// Nueva variable para controlar el modal
+    let dianWindows: Window | null = null
 
-    // 2. Función para cargar la URL
-    const loadDianPortal1 = () => {
-      console.log("Cargando portal de la DIAN...")
-      isLoading.value = true
-      //iframeSource.value = 'https://catalogo-vpfe.dian.gov.co/User/Login'
-      iframeSource.value = 'https://www.wikipedia.org'      
-    }
+    // ─── Variables DIAN Token ────────────────────────────
+    const cedulaUsuario   = ref("77193886")
+    const isEsperando     = ref(false)   // Ventana cerrada, esperando correo
+    const tokenRecibido   = ref(false)   // Token llegó exitosamente
+    const tokenDian       = ref<string | null>(null)
+    const urlCompletaDian = ref<string | null>(null)
+    const mensajeError    = ref<string | null>(null)
 
-    // ✅ BIEN - window.open es lo primero que se ejecuta
-    const loadDianPortal = () => {
-        const width = 1200
+    let pollingTimer: ReturnType<typeof setInterval> | null = null
+    let ventanaTimer: ReturnType<typeof setInterval> | null = null
+
+    const token = localStorage.getItem('auth_token')
+
+    // ─── Cargar portal DIAN ──────────────────────────────
+    const loadDianPortal = async () => {
+
+        // Resetea estado
+        mensajeError.value  = null
+        tokenRecibido.value = false
+        tokenDian.value     = null
+        isEsperando.value   = false
+        const token      = localStorage.getItem('auth_token')
+        const companyId  = localStorage.getItem('company_id')  // ← agrega esta línea
+
+        // 1. Registra solicitud en Laravel
+        try {
+            await axios.post('/api/dian/solicitar-token',
+            {
+                 company_id: companyId  // ← agrega esto
+            }, 
+            {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+        } catch (e: any) {
+            mensajeError.value = e.response?.data?.error || 'Error al solicitar token'
+            return
+        }
+
+        // 2. Copia cédula al portapapeles
+        try {
+            const textarea = document.createElement('textarea')
+            textarea.value = cedulaUsuario.value
+            document.body.appendChild(textarea)
+            textarea.select()
+            document.execCommand('copy')
+            document.body.removeChild(textarea)
+        } catch (e) {
+            console.error('Error al copiar:', e)
+        }
+
+        // 3. Abre ventana DIAN
+        const width  = 1200
         const height = 800
-        const left = (screen.width - width) / 2
-        const top = (screen.height - height) / 2
+        const left   = (screen.width  - width)  / 2
+        const top    = (screen.height - height) / 2
 
-        // Primero abres la ventana, en contexto síncrono
         dianWindows = window.open(
             'https://catalogo-vpfe.dian.gov.co/User/Login',
             'PortalDIAN',
             `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
         )
-        
-        // Luego haces lo que necesites
+
         isLoading.value = true
-        // Polling para detectar cuando el usuario cierra la ventana
-        const timer = setInterval(() => {
+
+        // 4. Detecta cierre de ventana → inicia polling
+        ventanaTimer = setInterval(() => {
             if (dianWindows?.closed) {
-                clearInterval(timer)
-                //generarConsulta() // Recargas tus datos al volver
+                clearInterval(ventanaTimer!)
+                isLoading.value   = false
+                isEsperando.value = true
+                iniciarPolling()
             }
         }, 1000)
     }
 
-    const loadDianPortal2 = () => 
-    {
+    // ─── Polling hacia Laravel ───────────────────────────
+    const iniciarPolling = () => {
+        let intentos    = 0
+        const maxIntentos = 20 // 20 x 3 seg = 60 seg máximo
+
+        pollingTimer = setInterval(async () => {
+            intentos++
+
+            try {
+                const { data } = await axios.get('/api/dian/verificar-token', {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+
+                switch (data.status) {
+                    case 'received':
+                        detenerPolling()
+                        isEsperando.value   = false
+                        tokenRecibido.value = true
+                        tokenDian.value     = data.token
+                        urlCompletaDian.value = data.url_completa
+                        break
+
+                    case 'timeout':
+                        detenerPolling()
+                        isEsperando.value  = false
+                        mensajeError.value = 'Tiempo agotado. Intenta de nuevo.'
+                        break
+                }
+
+            } catch (e) {
+                console.error('Error en polling:', e)
+            }
+
+            // Agotó intentos sin recibir token
+            if (intentos >= maxIntentos) {
+                detenerPolling()
+                isEsperando.value  = false
+                mensajeError.value = 'No se recibió el token. Intenta de nuevo.'
+                await axios.post('/api/dian/timeout', {}, {
+                    headers: { Authorization: `Bearer ${token}` }
+                })
+            }
+
+        }, 3000)
+    }
+
+    const detenerPolling = () => {
+        if (pollingTimer)  clearInterval(pollingTimer)
+        if (ventanaTimer)  clearInterval(ventanaTimer)
+    }
+
+    const cancelarDian = async () => {
+        detenerPolling()
+        isLoading.value   = false
+        isEsperando.value = false
+
+        if (dianWindows && !dianWindows.closed) {
+            dianWindows.close()
+        }
+
+        try {
+            await axios.post('/api/dian/timeout', {}, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+        } catch (e) {
+            console.error('Error al cancelar:', e)
+        }
+    }
+
+    // ─── El resto de tu código sin cambios ───────────────
+    const loadDianPortal1 = () => {
+        isLoading.value   = true
+        iframeSource.value = 'https://www.wikipedia.org'      
+    }
+
+    const loadDianPortal2 = () => {
         dianWindows = window.open(
             'https://catalogo-vpfe.dian.gov.co/User/Login',
             'PortalDIAN',
             'width=1200,height=800,scrollbars=yes,resizable=yes'
         )
-        
-        // Polling para detectar cuando el usuario cierra la ventana
         const timer = setInterval(() => {
             if (dianWindows?.closed) {
                 clearInterval(timer)
-                generarConsulta() // Recargas tus datos al volver
+                generarConsulta()
             }
         }, 1000)
     }
 
-    const onIframeLoad = () => {
-        isLoading.value = false
-        console.log("Portal cargado con éxito")
-      }
-
-    const closeIframe = () => {
+    const onIframeLoad  = () => { isLoading.value = false }
+    const closeIframe   = () => {
         showIframeDialog.value = false
-        iframeSource.value = null
-        isLoading.value = false
-      }
+        iframeSource.value     = null
+        isLoading.value        = false
+    }
 
-    const formatCurrency = (value: number | string) => 
-    {
+    const formatCurrency = (value: number | string) => {
         const num = Number(value) || 0
         return num.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
     }
-        
-    const hoy = new Date().toISOString().split('T')[0]
-    const loading = ref(false)
-    const isFormValid = ref(false)
 
-    const datafechas = ref({
-      desdefecha: hoy,
-      hastafecha: hoy,
-    })
-    
-    const capturarEmail = ref({
-      email: '', 
-    })
-    // 🔹 Reglas
+    const hoy           = new Date().toISOString().split('T')[0]
+    const loading       = ref(false)
+    const isFormValid   = ref(false)
+    const datafechas    = ref({ desdefecha: hoy, hastafecha: hoy })
+    const capturarEmail = ref({ email: '' })
+
     const rules = {
-      required: (v: string) => !!v || 'Este campo es obligatorio',
-      email: (v: string) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo inválido',
-      password: (v: string) => v.length >= 6 || 'La contraseña debe tener al menos 6 caracteres',
-    }    
-    
-    const datadocument = ref({
-      numberdocument: '',
-      prefix: '',
-      email: '',
+        required : (v: string) => !!v || 'Este campo es obligatorio',
+        email    : (v: string) => !v || /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v) || 'Correo inválido',
+        password : (v: string) => v.length >= 6 || 'La contraseña debe tener al menos 6 caracteres',
+    }
+
+    const datadocument     = ref({ numberdocument: '', prefix: '', email: '' })
+    const correoelectronico = ref('')
+    const selectedInvoice  = ref<any>(null)
+    const showDialog       = ref(false)
+    const isPasswordVisible = ref(false)
+    const searchQuery      = ref('')
+    const selectedRows     = ref([])
+
+    const invoiceData = ref({
+        data: [], total: 0, page: 1, per_page: 10, totaldctos: 0,
     })
 
-    const correoelectronico = ref('')
-
-    const selectedInvoice = ref<any>(null) // 👈 aquí guardaremos el item de la fila
-
-    const showDialog = ref(false)
-    const isPasswordVisible = ref(false)
-
-    const searchQuery = ref('')
-    const selectedRows = ref([])
-    
-    const invoiceData = ref({
-        data: [],
-        total: 0,
-        page: 1,
-        per_page: 10,
-        totaldctos: 0,
-      })
-    //
     const showDialogEmail = ref(false)
-    const editMode = ref(false)
- 
-    // 🔹 Variables del DataTable
-    const itemsPerPage = ref(10)
-    const page = ref(1)
-    const sortBy = ref()
-    const orderBy = ref()
+    const editMode        = ref(false)
+    const itemsPerPage    = ref(10)
+    const page            = ref(1)
+    const sortBy          = ref()
+    const orderBy         = ref()
+
     const headers = [
-      { title: '# Id', key: 'id', width: '5%' },
-      { title: 'Fecha Documento', key: 'date_issue', sortable: true },
-      { title: 'Número de Documento', key: 'number', sortable: true, width: '6px'},
-      { title: 'Prefijo', key: 'prefix', sortable: true,  },
-      { title: 'Tipo Documento', key: 'document_name', sortable: true,},
-      { title: 'Nit/Cédula', key: 'customer', sortable: true },
-      { title: 'Nombre del Cliente/Proveedor', key: 'client_name', sortable: true, width: '35%'},
-      { title: 'Valor Documento', key: 'sale', sortable: true },
-      { title: 'Acciones', key: 'actions', sortable: false, width: '20px'  },
+        { title: '# Id',                    key: 'id',            width: '5%' },
+        { title: 'Fecha Documento',          key: 'date_issue',    sortable: true },
+        { title: 'Número de Documento',      key: 'number',        sortable: true, width: '6px' },
+        { title: 'Prefijo',                  key: 'prefix',        sortable: true },
+        { title: 'Tipo Documento',           key: 'document_name', sortable: true },
+        { title: 'Nit/Cédula',              key: 'customer',      sortable: true },
+        { title: 'Nombre del Cliente/Proveedor', key: 'client_name', sortable: true, width: '35%' },
+        { title: 'Valor Documento',          key: 'sale',          sortable: true },
+        { title: 'Acciones',                 key: 'actions',       sortable: false, width: '20px' },
     ]
-    
-    const token = localStorage.getItem('auth_token')
 
     const updateOptions = async (options: any) => {
-        page.value = options.page
+        page.value         = options.page
         itemsPerPage.value = options.itemsPerPage
-        sortBy.value = options.sortBy[0]?.key
-        orderBy.value = options.sortBy[0]?.order      
-        await generarConsulta()  
+        sortBy.value       = options.sortBy[0]?.key
+        orderBy.value      = options.sortBy[0]?.order
+        await generarConsulta()
     }
 
-   
-
-    const generarConsulta = async () =>
-    {
-          
+    const generarConsulta = async () => {
         loading.value = true
-        //console.log("Soy Toke:", token)
-          
         try {
-             const response = await axios.post(
-              '/api/scraping/dianf', 
-               {
-                        q: searchQuery.value,
-                        itemsPerPage: itemsPerPage.value,
-                        page: page.value,
-                        sortBy: sortBy.value,
-                        orderBy: orderBy.value,
-               } ,
-               {
-                  headers: 
-                  {
-                    Authorization: `Bearer ${token}`, // 👈 Aquí agregas el token
-                    'Content-Type': 'application/json', // opcional pero recomendable
-                  },
-            }) 
-
-          loading.value = false
-          //invoiceData.value = response.data   
-                //console.log("Soy Data:", invoiceData.value)
-
-         }
-                
-                
-                      //companyData.value = response.data   
-             catch (error) {
-                console.error('Error al intentar enviar correo :', error)
-            }      
+            const response = await axios.post('/api/scraping/dianf', {
+                q            : searchQuery.value,
+                itemsPerPage : itemsPerPage.value,
+                page         : page.value,
+                sortBy       : sortBy.value,
+                orderBy      : orderBy.value,
+            }, {
+                headers: {
+                    Authorization  : `Bearer ${token}`,
+                    'Content-Type' : 'application/json',
+                },
+            })
+            loading.value = false
+        } catch (error) {
+            console.error('Error al generar consulta:', error)
+            loading.value = false
+        }
     }
-
-    const abrirDIAN = async () =>
-    {
-          
-        loading.value = true
-        //console.log("Soy Toke:", token)
-          
-        try {
-             const response = await axios.post(
-              '/api/scraping/dianf', 
-               {
-                        q: searchQuery.value,
-                        itemsPerPage: itemsPerPage.value,
-                        page: page.value,
-                        sortBy: sortBy.value,
-                        orderBy: orderBy.value,
-               } ,
-               {
-                  headers: 
-                  {
-                    Authorization: `Bearer ${token}`, // 👈 Aquí agregas el token
-                    'Content-Type': 'application/json', // opcional pero recomendable
-                  },
-            }) 
-
-          loading.value = false
-          //invoiceData.value = response.data   
-                //console.log("Soy Data:", invoiceData.value)
-
-         }
-                
-                
-                      //companyData.value = response.data   
-             catch (error) {
-                console.error('Error al intentar enviar correo :', error)
-            }      
-    }
-
 
     onMounted(() => generarConsulta())
 
-    const facturas = computed(() => invoiceData.value.data ?? [])
-    const currentPage = computed(() => invoiceData.value.page ?? page.value)
-    const perPage = computed(() => invoiceData.value.per_page ?? itemsPerPage.value)
+    const facturas      = computed(() => invoiceData.value.data ?? [])
+    const currentPage   = computed(() => invoiceData.value.page ?? page.value)
+    const perPage       = computed(() => invoiceData.value.per_page ?? itemsPerPage.value)
     const totalInvoices = computed(() => invoiceData.value.total ?? 0)
-    const totaldctos = computed(() => invoiceData.value.totaldctos ?? 0)
+    const totaldctos    = computed(() => invoiceData.value.totaldctos ?? 0)
 
-    // 🔹 Guardar o actualizar usuario
-  const sendEmail = async () => 
-  {
-      loading.value = true
-      const email = capturarEmail.value.email
-      const invoice = selectedInvoice.value // si también es ref
-     
-      try {
-          const response = await axios.post('/api/sendpackage', {
-            number: invoice.number,
-            prefix: invoice.prefix,
-            showacceptrejectbuttons:false,
-            email_cc_list: [
-              { email: email},             
-            ],          
-            base64graphicrepresentation:"",               
-          },
-        {
-          headers: {
-            Authorization: `Bearer ${token}`, // 👈 Aquí agregas el token
-            'Content-Type': 'application/json', // opcional pero recomendable
-          },
-        }) 
-
-        loading.value = false
-      
+    const sendEmail = async () => {
+        loading.value        = true
+        const email          = capturarEmail.value.email
+        const invoice        = selectedInvoice.value
+        try {
+            await axios.post('/api/sendpackage', {
+                number                     : invoice.number,
+                prefix                     : invoice.prefix,
+                showacceptrejectbuttons    : false,
+                email_cc_list              : [{ email }],
+                base64graphicrepresentation: '',
+            }, {
+                headers: {
+                    Authorization  : `Bearer ${token}`,
+                    'Content-Type' : 'application/json',
+                },
+            })
+            loading.value = false
         } catch (error) {
-          console.error('Error al intentar enviar correo :', error)
+            console.error('Error al enviar correo:', error)
+            loading.value = false
         }
-  }
+    }
 
-  const abrirDialogoEmail = (item: any) => 
-  {
-    selectedInvoice.value  = item
-    showDialogEmail.value  = true
-  }
-
+    const abrirDialogoEmail = (item: any) => {
+        selectedInvoice.value = item
+        showDialogEmail.value = true
+    }
 </script>
 
- <template>
+<template>
       <!-- <VCard class="mb-2" style="height: 13vh !important;"">  -->
-      <VCard class="mb-2 py-3 px-4">
+        <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
-            <VCol cols="12" md="3" class="d-flex align-center flex-column">
-              <h3 class="text-primary mb-0">Recepción de Facturas 2026 - 110</h3>     
-              <VBtn color="primary" variant="elevated" prepend-icon="tabler-world-www" @click="loadDianPortal">
-                Portal DIAN
-              </VBtn>         
-            </VCol>
+              <VCol cols="12" md="3" class="d-flex align-center flex-column">
+                  <h3 class="text-primary mb-2">Recepción de Facturas 2026 - 110</h3>
 
-            <VCol cols="12" md="2">
-              <AppDateTimePicker
-                v-model="datafechas.desdefecha"
-                label="Desde Fecha :"
-                placeholder="Seleccionar Fecha"
-                class="text-center-input"
-                variant="outlined"
-                prepend-inner-icon="tabler-calendar"
-                :config="{ locale: Spanish, dateFormat: 'Y-m-d' }"
-              />
-            </VCol>
+                  <VBtn
+                      color="primary"
+                      variant="elevated"
+                      prepend-icon="tabler-world-www"
+                      :disabled="isLoading || isEsperando"
+                      @click="loadDianPortal"
+                  >
+                      Portal DIAN
+                  </VBtn>
 
-            <VCol cols="12" md="2">
-              <AppDateTimePicker
-                v-model="datafechas.hastafecha"
-                label="Hasta Fecha :"
-                placeholder="Seleccionar Fecha"
-                class="text-center-input"
-                prepend-inner-icon="tabler-calendar"
-                :config="{ locale: Spanish, dateFormat: 'Y-m-d' }"
-              />
-            </VCol>
-
-            <VCol cols="12" md="2" class="d-flex align-center justify-start mt-md-5 mt-2">
-              <VBtn
-                rounded="pill"
-                color="primary"
-                variant="flat"
-                block
-                @click="generarConsulta"
-              >
-                Generar Consulta
-              </VBtn> 
-
-              
-              <!-- <div class="iframe-container position-relative">
-                  <div v-if="isLoading" class="d-flex justify-center align-center loader-overlay">
-                    <VProgressCircular indeterminate color="primary" />
+                  <!-- Ventana abierta -->
+                  <div v-if="isLoading" class="mt-2 text-center">
+                      <VProgressCircular indeterminate size="20" color="primary" class="me-2" />
+                      <span class="text-caption">Genera el token en la DIAN y cierra la ventana...</span>
+                      <br>
+                      <VBtn size="small" color="error" variant="text" class="mt-1" @click="cancelarDian">
+                          Cancelar
+                      </VBtn>
                   </div>
 
-                  <template v-if="iframeSource">
-                    <iframe 
-                      :src="iframeSource" 
-                      class="dian-iframe"
-                      sandbox="allow-forms allow-modals allow-popups allow-scripts allow-same-origin"
-                      @load="onIframeLoad"
-                    ></iframe>
-                  </template>
-                  
+                  <!-- Ventana cerrada, esperando correo -->
+                  <div v-if="isEsperando" class="mt-2 text-center">
+                      <VProgressCircular indeterminate size="20" color="warning" class="me-2" />
+                      <span class="text-caption text-warning">Esperando correo de la DIAN...</span>
+                      <br>
+                      <VBtn size="small" color="error" variant="text" class="mt-1" @click="cancelarDian">
+                          Cancelar
+                      </VBtn>
+                  </div>
+
+                  <!-- Token recibido -->
                   <VAlert
-                    v-else
-                    type="info"
-                    variant="tonal"
-                    text="Haz clic en el botón superior para cargar el portal de la DIAN."
+                      v-if="tokenRecibido"
+                      type="success"
+                      variant="tonal"
+                      density="compact"
+                      class="mt-2"
+                      closable
+                      @click:close="tokenRecibido = false"
+                  >
+                      ✅ Token recibido correctamente
+                  </VAlert>
+
+                  <!-- Error -->
+                  <VAlert
+                      v-if="mensajeError"
+                      type="error"
+                      variant="tonal"
+                      density="compact"
+                      class="mt-2"
+                      closable
+                      @click:close="mensajeError = null"
+                  >
+                      {{ mensajeError }}
+                  </VAlert>
+              </VCol>
+
+              <VCol cols="12" md="2">
+                  <AppDateTimePicker
+                      v-model="datafechas.desdefecha"
+                      label="Desde Fecha :"
+                      placeholder="Seleccionar Fecha"
+                      class="text-center-input"
+                      variant="outlined"
+                      prepend-inner-icon="tabler-calendar"
+                      :config="{ locale: Spanish, dateFormat: 'Y-m-d' }"
                   />
-           
-                </div> -->
-           </VCol>     
-                    
+              </VCol>
+
+              <VCol cols="12" md="2">
+                  <AppDateTimePicker
+                      v-model="datafechas.hastafecha"
+                      label="Hasta Fecha :"
+                      placeholder="Seleccionar Fecha"
+                      class="text-center-input"
+                      prepend-inner-icon="tabler-calendar"
+                      :config="{ locale: Spanish, dateFormat: 'Y-m-d' }"
+                  />
+              </VCol>
+
+              <VCol cols="12" md="2" class="d-flex align-center justify-start mt-md-5 mt-2">
+                  <VBtn rounded="pill" color="primary" variant="flat" block @click="generarConsulta">
+                      Generar Consulta
+                  </VBtn>
+              </VCol>
           </VRow>
       </VCard>
 

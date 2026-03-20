@@ -72,6 +72,7 @@ const handleLogin = async () => {
     localStorage.setItem('auth_token', data.token)
     localStorage.setItem('company_name', data.company_name)
     localStorage.setItem('user_name', data.user_name)
+    localStorage.setItem('company_id', data.company_id)
     
     const StoredName   = localStorage.getItem('company_name')
 
