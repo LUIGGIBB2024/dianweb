@@ -10,7 +10,7 @@ use Illuminate\Support\Facades\Auth;
 class DianController extends Controller
 {
     // DianController.php
-    public function solicitarToken()
+    public function solicitarToken(Request $request)
     {
         // Evita duplicados del mismo usuario
         $yaEnCola = DianTokenQueue::where('user_id', auth()->id())
