@@ -311,7 +311,7 @@ import { VRow } from 'vuetify/components'
                       :disabled="isLoading || isEsperando"
                       @click="loadDianPortal"
                   >
-                      Portal DIAN
+                      Generar Token DIAN
                   </VBtn>
 
                   <!-- Ventana abierta -->
