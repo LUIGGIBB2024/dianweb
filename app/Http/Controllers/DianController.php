@@ -137,6 +137,7 @@ class DianController extends Controller
         return response()->json([
             'token_recibido'       => $request->input('token'),
             'url_completa_recibida' => $request->input('url_completa'),
+            'nit_dian_recibido'     => $request->input('nit_dian'),
             'fecha_recibida'       => $request->input('fecha'),
             'body_completo'        => $request->all()
         ]);
