@@ -50,8 +50,8 @@ class AuthController extends Controller
             'token' => $token,
             'company_name' => $companyname,
             'user_name' => $username,
-            'url_dian' => $request->urldian,
-            'nit_dian' => $request->nitldian,
+            'url_dian' => $request->url_dian,
+            'nit_dian' => $request->nit_dian,
         ]);
     }
 
