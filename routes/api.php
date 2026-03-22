@@ -15,6 +15,7 @@ use RoachPHP\Roach;
 use App\Spiders\ScrapingDianSpider;
 
 Route::post('/login', [AuthController::class, 'login']);
+Route::post('/login-n8n', [AuthController::class, 'loginn8n']);
 Route::post('/register', [AuthController::class, 'register']);
 //Route::get('/user', [AuthController::class, 'user'])->middleware('auth:sanctum');
 

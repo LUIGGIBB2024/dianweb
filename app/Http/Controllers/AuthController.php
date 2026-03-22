@@ -27,6 +27,34 @@ class AuthController extends Controller
         return response()->json(['message' => 'Login exitoso', 'user' => $user, 'token' => $token, 'company_name' => $companyname, 'user_name' => $username]);
     }
 
+    public function loginn8n(Request $request)
+    {
+        //return response()->json(['message' => $request->email . " - " . $request->password]);
+        $credentials = $request->validate(['email' => ['required', 'email'], 'password' => ['required'],]);
+        if (!Auth::attempt($credentials, $request->remember)) {
+            return response()->json(['message' => 'Credenciales inválidas'], 401);
+        }
+
+
+        $user = Auth::user();
+        //$token = $request->$user->createToken('auth_token')->plainTextToken;
+        $token = $request->user()->createToken($user->email . '_Token')->plainTextToken;
+        $companyname = Auth::user()->company->name;
+        $username = Auth::user()->name;
+
+        //return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
+
+        return response()->json([
+            'message' => 'Login exitoso',
+            'user' => $user,
+            'token' => $token,
+            'company_name' => $companyname,
+            'user_name' => $username,
+            'url_dian' => $request->urldian,
+            'nit_dian' => $request->nitldian,
+        ]);
+    }
+
     public function register(Request $request)
     {
         // Lógica de registro de usuario
