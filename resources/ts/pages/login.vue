@@ -78,7 +78,8 @@ const handleLogin = async () => {
 
     window.company_user = StoredName
 
-    //console.log("Soy Empresa Login:",data.company_name)
+    console.log("Soy Empresa Login:",data.company_name)
+    console.log("Soy Empresa ID Empresa:",data.company_id)
 
     // Redirigir al dashboard
     router.push({ name: 'dashboard'})

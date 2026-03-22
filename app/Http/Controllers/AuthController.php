@@ -24,7 +24,14 @@ class AuthController extends Controller
 
         //return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
 
-        return response()->json(['message' => 'Login exitoso', 'user' => $user, 'token' => $token, 'company_name' => $companyname, 'user_name' => $username]);
+        return response()->json([
+            'message' => 'Login exitoso',
+            'user' => $user,
+            'token' => $token,
+            'company_name' => $companyname,
+            'company_id' => Auth::user()->company->id,
+            'user_name' => $username
+        ]);
     }
 
     public function loginn8n(Request $request)
