@@ -13,6 +13,13 @@ class DianController extends Controller
     public function solicitarToken(Request $request)
     {
         // Evita duplicados del mismo usuario
+
+        return response()->json([
+            'seguimiento' => 'Entré a solicitarToken',
+            'user_id' => $request->input('user_id'),
+            'company_id' => $request->input('company_id'),
+        ], 200);
+
         $token          = $request->input('token');
         $urlCompleta    = $request->input('url_completa');
         $user_id        = $request->input('user_id');
