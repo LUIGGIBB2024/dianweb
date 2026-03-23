@@ -69,6 +69,8 @@ class DianController extends Controller
             'status'      => $solicitud->status,
             'token'       => $solicitud->token,
             'url_completa' => $solicitud->url_completa,
+            'user_id'        => $user_id,
+            'company_id'     => $company_id,  // ← agrega esto
             'pos'         => DianTokenQueue::where('status', 'waiting')
                 ->where('queued_at', '<', $solicitud->queued_at)
                 ->count() + 1

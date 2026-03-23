@@ -88,7 +88,7 @@ import { VRow } from 'vuetify/components'
                 isEsperando.value = true
                 iniciarPolling()
             }
-        }, 1000)
+        }, 3000)
     }
 
     // ─── Polling hacia Laravel ───────────────────────────
