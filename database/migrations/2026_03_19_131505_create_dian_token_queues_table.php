@@ -21,7 +21,7 @@ return new class extends Migration
                 'timeout',    // Expiró sin recibir token
                 'error'
             ])->default('waiting');
-            $table->string('token', 36)->nullable();
+            $table->string('token', 255)->nullable();
             $table->string('url_completa')->nullable();
             $table->timestamp('queued_at')->useCurrent();
             $table->timestamp('processing_at')->nullable();

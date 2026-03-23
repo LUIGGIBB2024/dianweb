@@ -12,7 +12,6 @@ class DianController extends Controller
     // DianController.php
     public function solicitarToken(Request $request)
     {
-
         // Evita duplicados del mismo usuario
         $token          = $request->input('token');
         $urlCompleta    = $request->input('url_completa');
@@ -147,15 +146,15 @@ class DianController extends Controller
             'status'      => 'received'
         ]);
 
-        DianTokenQueue::create([
-            'token'          => $token, // se llenará cuando n8n envíe el token real
-            'url_completa'   => $urlCompleta,   // se llenará cuando n8n envíe la URL completa
-            'user_id'        => $user_id,
-            'company_id'     => $company_id,  // ← agrega esto
-            'status'         => 'processing',
-            'processing_at'  => now(),
-            'queued_at'      => now()
-        ]);
+        // DianTokenQueue::create([
+        //     'token'          => $token, // se llenará cuando n8n envíe el token real
+        //     'url_completa'   => $urlCompleta,   // se llenará cuando n8n envíe la URL completa
+        //     'user_id'        => $user_id,
+        //     'company_id'     => $company_id,  // ← agrega esto
+        //     'status'         => 'processing',
+        //     'processing_at'  => now(),
+        //     'queued_at'      => now()
+        // ]);
 
         return response()->json([
             'token_recibido'       => $request->input('token'),
