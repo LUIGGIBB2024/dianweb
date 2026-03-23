@@ -17,6 +17,7 @@ class DianTokenQueue extends Model
         'token',
         'url_completa',
         'processing_at',
+        'received_at',
         'queued_at'
     ];
 }

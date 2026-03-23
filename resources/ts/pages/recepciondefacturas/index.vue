@@ -200,27 +200,7 @@ import { VRow } from 'vuetify/components'
         } catch (e) {
             console.error('Error al cancelar:', e)
         }
-    }
-
-    // ─── El resto de tu código sin cambios ───────────────
-    const loadDianPortal1 = () => {
-        isLoading.value   = true
-        iframeSource.value = 'https://www.wikipedia.org'      
-    }
-
-    const loadDianPortal2 = () => {
-        dianWindows = window.open(
-            'https://catalogo-vpfe.dian.gov.co/User/Login',
-            'PortalDIAN',
-            'width=1200,height=800,scrollbars=yes,resizable=yes'
-        )
-        const timer = setInterval(() => {
-            if (dianWindows?.closed) {
-                clearInterval(timer)
-                generarConsulta()
-            }
-        }, 1000)
-    }
+    }    
 
     const onIframeLoad  = () => { isLoading.value = false }
     const closeIframe   = () => {
