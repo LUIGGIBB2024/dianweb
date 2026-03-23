@@ -144,7 +144,7 @@ import { VRow } from 'vuetify/components'
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` }
-                }),
+                })
 
                 switch (data.status) {
                     case 'received':
