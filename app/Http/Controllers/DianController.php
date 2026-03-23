@@ -124,7 +124,7 @@ class DianController extends Controller
         }
 
         $token       = $request->input('token');
-        $urlCompleta = $request->input('url_completa');
+        $urlCompleta = $request->input('url_dian');
         $fecha       = $request->input('fecha');
 
         if (!$token) {
