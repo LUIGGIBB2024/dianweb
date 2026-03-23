@@ -330,22 +330,21 @@ import { VRow } from 'vuetify/components'
         <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
               <VCol cols="12" md="3" class="d-flex align-center flex-column">
-                  <h3 class="text-primary mb-2">Recepción de Facturas 2026 - 110</h3>
+                  <h3 class="text-primary mb-2">Recepción de Facturas</h3>
 
                   <VBtn
                       color="primary"
                       variant="elevated"
                       prepend-icon="tabler-world-www"
                       :disabled="isLoading || isEsperando"
-                      @click="loadDianPortal"
-                  >
-                      Generar Token DIAN
+                      @click="loadDianPortal">
+                      Generar Token
                   </VBtn>
 
                   <!-- Ventana abierta -->
                   <div v-if="isLoading" class="mt-2 text-center">
                       <VProgressCircular indeterminate size="20" color="primary" class="me-2" />
-                      <span class="text-caption">Genera el token en la DIAN y cierra la ventana...</span>
+                      <span class="text-caption">Generando TOKEN</span>
                       <br>
                       <VBtn size="small" color="error" variant="text" class="mt-1" @click="cancelarDian">
                           Cancelar
@@ -355,7 +354,7 @@ import { VRow } from 'vuetify/components'
                   <!-- Ventana cerrada, esperando correo -->
                   <div v-if="isEsperando" class="mt-2 text-center">
                       <VProgressCircular indeterminate size="20" color="warning" class="me-2" />
-                      <span class="text-caption text-warning">Esperando correo de la DIAN...</span>
+                      <span class="text-caption text-warning">Esperando Respuesta</span>
                       <br>
                       <VBtn size="small" color="error" variant="text" class="mt-1" @click="cancelarDian">
                           Cancelar
@@ -372,7 +371,7 @@ import { VRow } from 'vuetify/components'
                       closable
                       @click:close="tokenRecibido = false"
                   >
-                      ✅ Token recibido correctamente
+                      ✅ Token Recibido
                   </VAlert>
 
                   <!-- Error -->
