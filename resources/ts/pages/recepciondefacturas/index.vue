@@ -38,21 +38,21 @@ import { VRow } from 'vuetify/components'
         console.log("Company ID en LoadDianPortal:", companyId) 
         console.log("USe ID en LoadDianPortal:", userId) 
 
-        // 1. Registra solicitud en Laravel
-        try {
-            await axios.post('/api/dian/solicitar-token',
-            {
-                 token: token,
-                 company_id: companyId , // ← agrega esto
-                 user_id: userId  // ← agrega esto
-            }, 
-            {
-                headers: { Authorization: `Bearer ${token}` }
-            })
-        } catch (e: any) {
-            mensajeError.value = e.response?.data?.error || 'Error al solicitar token'
-            return
-        }
+        // // 1. Registra solicitud en Laravel
+        // try {
+        //     await axios.post('/api/dian/solicitar-token',
+        //     {
+        //          token: token,
+        //          company_id: companyId , // ← agrega esto
+        //          user_id: userId  // ← agrega esto
+        //     }, 
+        //     {
+        //         headers: { Authorization: `Bearer ${token}` }
+        //     })
+        // } catch (e: any) {
+        //     mensajeError.value = e.response?.data?.error || 'Error al solicitar token'
+        //     return
+        // }
 
         // 2. Copia cédula al portapapeles
         try {
@@ -83,12 +83,39 @@ import { VRow } from 'vuetify/components'
         // 4. Detecta cierre de ventana → inicia polling
         ventanaTimer = setInterval(() => {
             if (dianWindows?.closed) {
+                //console.error('<< Ventana Cerrada >>')
+                SolicitarTokenDian()
                 clearInterval(ventanaTimer!)
                 isLoading.value   = false
                 isEsperando.value = true
                 iniciarPolling()
             }
         }, 3000)
+    }
+
+    const SolicitarTokenDian = async () => {
+
+        const token      = localStorage.getItem('auth_token')
+        const userId  = localStorage.getItem('user_id')  
+        const companyId  = localStorage.getItem('company_id')  // ← agrega esta línea
+
+        console.log("Token en LoadDianPortal:", token)
+        console.log("Company ID en LoadDianPortal:", companyId) 
+        console.log("USe ID en LoadDianPortal:", userId) 
+
+        try {
+            const { data } = await axios.post('/api/dian/solicitar-token', {
+                token: token,
+                company_id: companyId,
+                user_id: userId
+            }, {
+                headers: { Authorization: `Bearer ${token}` }
+            })
+            return data
+        } catch (e) {
+            console.error('Error al solicitar token:', e)
+            throw e
+        }
     }
 
     // ─── Polling hacia Laravel ───────────────────────────
