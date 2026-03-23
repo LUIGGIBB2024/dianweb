@@ -175,10 +175,10 @@ class DianController extends Controller
 
         $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
-        // return response()->json([
-        //     'status' => 'recibido en DianController@webHook',
-        //     'data'  => $request->all(),
-        // ], 200);
+        return response()->json([
+             'status' => 'recibido en DianController@webHook',
+             'data'  => $request->all(),
+         ], 200);
 
         $response = Http::withoutVerifying()  // ✅ Desactiva verificación SSL (solo desarrollo local)
             ->withHeaders([
