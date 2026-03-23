@@ -61,14 +61,14 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/sendpackage', [ApidianController::class, 'sendpackage'])->name('apidian.sendpackage');
 
     Route::post('/scraping/dian', [ScrapingController::class, 'scraping_dian'])->name('scraping.dian');
-    Route::post('/scraping/dianf', [ScrapingDianController::class, 'scraping_dian'])->name('scraping.dianf');
+    //Route::post('/scraping/dianf', [ScrapingDianController::class, 'scraping_dian'])->name('scraping.dianf');
+    Route::post('/scraping/dianf', [ScrapingDianController::class, 'extraerTabla'])->name('scraping.dianf');
 
     Route::post('/dian/solicitar-token', [DianController::class, 'solicitarToken']);
     Route::post('/dian/verificar-token',  [DianController::class, 'verificarToken']);
     Route::post('/dian/timeout',         [DianController::class, 'timeout']);
 
     Route::post('/n8n/webhook',         [DianController::class, 'webHook']);
-
 });
 
-Route::post('/dian/recibir-token',[DianController::class, 'recibirToken']);
+Route::post('/dian/recibir-token', [DianController::class, 'recibirToken']);

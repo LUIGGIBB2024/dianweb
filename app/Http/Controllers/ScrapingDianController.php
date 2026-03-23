@@ -6,9 +6,11 @@ use App\Models\Company;
 use App\Models\Control;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Symfony\Component\Panther\Client;
+#use Symfony\Component\Panther\Client;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
+use GuzzleHttp\Client;
+use Symfony\Component\DomCrawler\Crawler;
 
 class ScrapingDianController extends Controller
 {
@@ -145,6 +147,47 @@ class ScrapingDianController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'message' => '⚠️ Error durante la interacción: ' . $e->getMessage(),
+            ], 500);
+        }
+    }
+
+    public function extraerTabla()
+    {
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=a80608c7-693e-4c13-b663-63ef4b0f9e8b";
+
+        $client = new Client([
+            'verify' => false, // evitar problemas SSL (opcional)
+            'timeout' => 30,
+        ]);
+
+        try {
+            $response = $client->request('GET', $url);
+
+            $html = $response->getBody()->getContents();
+
+            $crawler = new Crawler($html);
+
+            $data = [];
+
+            // Selecciona la tabla (ajusta el selector según la página)
+            $crawler->filter('table tr')->each(function ($tr, $i) use (&$data) {
+
+                $row = [];
+
+                $tr->filter('td')->each(function ($td) use (&$row) {
+                    $row[] = trim($td->text());
+                });
+
+                if (!empty($row)) {
+                    $data[] = $row;
+                }
+            });
+
+            return $data;
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'error' => $e->getMessage()
             ], 500);
         }
     }
