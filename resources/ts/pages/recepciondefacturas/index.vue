@@ -2,6 +2,7 @@
 import axios from 'axios'
 import { Spanish } from 'flatpickr/dist/l10n/es.js'
 import fileDownload from 'js-file-download'
+import { url } from 'node:inspector'
 import { computed, onMounted, ref } from 'vue'
 import { VRow } from 'vuetify/components'
 
@@ -30,9 +31,10 @@ import { VRow } from 'vuetify/components'
         tokenRecibido.value = false
         tokenDian.value     = null
         isEsperando.value   = false
-        const token      = localStorage.getItem('auth_token')
-        const userId  = localStorage.getItem('user_id')  
-        const companyId  = localStorage.getItem('company_id')  // ← agrega esta línea
+        const token         = localStorage.getItem('auth_token')
+        const userId        = localStorage.getItem('user_id')  
+        const companyId     = localStorage.getItem('company_id')  // ← agrega esta línea
+        const urln8n        = localStorage.getItem('url_n8n')  // ← agrega esta línea
 
         console.log("Token en LoadDianPortal:", token)
         console.log("Company ID en LoadDianPortal:", companyId) 
@@ -96,19 +98,38 @@ import { VRow } from 'vuetify/components'
     const SolicitarTokenDian = async () => 
     {
 
-        const token      = localStorage.getItem('auth_token')
-        const userId  = localStorage.getItem('user_id')  
-        const companyId  = localStorage.getItem('company_id')  // ← agrega esta línea
+        const token         = localStorage.getItem('auth_token')
+        const userId        = localStorage.getItem('user_id')  
+        const companyId     = localStorage.getItem('company_id')  // ← agrega esta línea
+        const urln8n        = localStorage.getItem('url_n8n')  // ← 
+        const nitEmpresa     = localStorage.getItem('nit_empresa')  // ←
+        const representanteLegal = localStorage.getItem('representante_legal')  // ←
 
         console.log("Token en LoadDianPortal:", token)
         console.log("Company ID en LoadDianPortal:", companyId) 
         console.log("USe ID en LoadDianPortal:", userId) 
 
+        console.log("URL n8n en LoadDianPortal:", urln8n)
+        console.log("NIT Empresa en LoadDianPortal:", nitEmpresa)
+
+        await axios.post('/api/n8n/webhook', {
+             token: token,
+             company_id: companyId,
+             user_id: userId,
+             urln8n: urln8n,
+             nit_empresa: nitEmpresa,
+             representante_legal: representanteLegal
+        },);        
+ 
+
         try {
             const { data } = await axios.post('/api/dian/solicitar-token', {
                 token: token,
                 company_id: companyId,
-                user_id: userId
+                user_id: userId,
+                urln8n: urln8n,
+                nit_empresa: nitEmpresa,
+                representante_legal: representanteLegal
             }, {
                 headers: { Authorization: `Bearer ${token}` }
             })

@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\DianTokenQueue;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Http;
 
 class DianController extends Controller
 {
@@ -166,5 +167,35 @@ class DianController extends Controller
             'fecha_recibida'       => $request->input('fecha'),
             'body_completo'        => $request->all()
         ]);
+    }
+
+    public function webHook(Request $request)
+    {
+        $endpoint = $request->input('urln8n');
+
+        $endpoint = preg_replace('/\\s+/', '', $endpoint);
+
+        // return response()->json([
+        //     'status' => 'recibido en DianController@webHook',
+        //     'data'  => $request->all(),
+        // ], 200);
+
+        $response = Http::withoutVerifying()  // ✅ Desactiva verificación SSL (solo desarrollo local)
+            ->withHeaders([
+                'Content-Type' => 'application/json; charset=UTF-8',
+                'Accept' => 'application/json',
+            ])->post($endpoint);
+
+        if ($response->successful()) {
+            $data = $response->json(); // cuerpo JSON real
+
+            return response()->json([
+                'message'  => '📤 Envío exitoso',
+                'user_id'   => $request->input('user_id'),
+                'company_id' => $request->input('company_id'),
+                'nit_empresa' => $request->input('nit_empresa'),
+                'representante_legal' => $request->input('representante_legal'),
+            ], 200);
+        }
     }
 }

@@ -31,6 +31,9 @@ class AuthController extends Controller
             'company_name' => $companyname,
             'user_id' => Auth::user()->id,
             'company_id' => Auth::user()->company->id,
+            'url_n8n' => Auth::user()->company->endpoint2,
+            'nit_empresa' => Auth::user()->company->nit,
+            'representante_legal' => Auth::user()->company->representativeid,
             'user_name' => $username
         ]);
     }
