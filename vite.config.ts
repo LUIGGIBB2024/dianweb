@@ -1,7 +1,7 @@
-import { fileURLToPath } from 'node:url'
-import laravel from 'laravel-vite-plugin'
 import vue from '@vitejs/plugin-vue'
 import vueJsx from '@vitejs/plugin-vue-jsx'
+import laravel from 'laravel-vite-plugin'
+import { fileURLToPath } from 'node:url'
 import AutoImport from 'unplugin-auto-import/vite'
 import Components from 'unplugin-vue-components/vite'
 import { VueRouterAutoImports, getPascalCaseRouteName } from 'unplugin-vue-router'
@@ -13,16 +13,13 @@ import svgLoader from 'vite-svg-loader'
 
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [// Docs: https://github.com/posva/unplugin-vue-router
-  // ℹ️ This plugin should be placed before vue plugin
+  plugins: [
     VueRouter({
       getRouteName: routeNode => {
-      // Convert pascal case to kebab case
         return getPascalCaseRouteName(routeNode)
           .replace(/([a-z\d])([A-Z])/g, '$1-$2')
           .toLowerCase()
       },
-
       routesFolder: 'resources/ts/pages',
     }),
     vue({
@@ -30,7 +27,6 @@ export default defineConfig({
         compilerOptions: {
           isCustomElement: tag => tag === 'swiper-container' || tag === 'swiper-slide',
         },
-
         transformAssetUrls: {
           base: null,
           includeAbsolute: false,
@@ -41,26 +37,25 @@ export default defineConfig({
       input: ['resources/ts/main.ts'],
       refresh: true,
     }),
-    vueJsx(), // Docs: https://github.com/vuetifyjs/vuetify-loader/tree/master/packages/vite-plugin
+    vueJsx(),
     vuetify({
       styles: {
         configFile: 'resources/styles/variables/_vuetify.scss',
       },
-    }), // Docs: https://github.com/johncampionjr/vite-plugin-vue-layouts#vite-plugin-vue-layouts
+    }),
     Layouts({
       layoutsDirs: './resources/ts/layouts/',
-    }), // Docs: https://github.com/antfu/unplugin-vue-components#unplugin-vue-components
+    }),
     Components({
       dirs: ['resources/ts/@core/components', 'resources/ts/views/demos', 'resources/ts/components'],
       dts: true,
       resolvers: [
         componentName => {
-        // Auto import `VueApexCharts`
           if (componentName === 'VueApexCharts')
             return { name: 'default', from: 'vue3-apexcharts', as: 'VueApexCharts' }
         },
       ],
-    }), // Docs: https://github.com/antfu/unplugin-auto-import#unplugin-auto-import
+    }),
     AutoImport({
       imports: ['vue', VueRouterAutoImports, '@vueuse/core', '@vueuse/math', 'vue-i18n', 'pinia'],
       dirs: [
@@ -71,12 +66,22 @@ export default defineConfig({
         './resources/ts/plugins/*/composables/*',
       ],
       vueTemplate: true,
-
-      // ℹ️ Disabled to avoid confusion & accidental usage
       ignore: ['useCookies', 'useStorage'],
     }),
     svgLoader(),
   ],
+
+  // ✅ Configuración agregada para HMR en Windows
+  server: {
+    watch: {
+      usePolling: true,   // Fuerza detección de cambios en Windows/WAMP
+      interval: 1000,     // Revisa cada segundo
+    },
+    hmr: {
+      host: 'localhost',  // Asegura que Laravel encuentre a Vite
+    },
+  },
+
   define: { 'process.env': {} },
   resolve: {
     alias: {

@@ -287,8 +287,10 @@ import { VRow } from 'vuetify/components'
     }
 
     const generarConsulta = async () => {
+        console.log("Generando consulta con parámetros: WebScraping")
         loading.value = true
         try {
+            
             const response = await axios.post('/api/scraping/dianf', {
                 q            : searchQuery.value,
                 itemsPerPage : itemsPerPage.value,
@@ -434,7 +436,7 @@ import { VRow } from 'vuetify/components'
 
               <VCol cols="12" md="2" class="d-flex align-center justify-start mt-md-5 mt-2">
                   <VBtn rounded="pill" color="primary" variant="flat" block @click="generarConsulta">
-                      Generar Consulta
+                      Generar Consulta 2
                   </VBtn>
               </VCol>
           </VRow>
