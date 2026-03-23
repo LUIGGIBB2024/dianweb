@@ -171,14 +171,9 @@ class DianController extends Controller
 
     public function webHook(Request $request)
     {
-        $endpoint = $request->input('urln8n');
+        $endpoint = Auth::user()->company->endpoint2;
 
         $endpoint = preg_replace('/\\s+/', '', $endpoint);
-
-        return response()->json([
-             'status' => 'recibido en DianController@webHook',
-             'data'  => $request->all(),
-         ], 200);
 
         $response = Http::withoutVerifying()  // ✅ Desactiva verificación SSL (solo desarrollo local)
             ->withHeaders([
@@ -190,11 +185,12 @@ class DianController extends Controller
             $data = $response->json(); // cuerpo JSON real
 
             return response()->json([
-                'message'  => '📤 Envío exitoso',
-                'user_id'   => $request->input('user_id'),
-                'company_id' => $request->input('company_id'),
-                'nit_empresa' => $request->input('nit_empresa'),
-                'representante_legal' => $request->input('representante_legal'),
+                'message'       => '📤 Envío exitoso',
+                'user_id'       => Auth::user()->id,
+                'company_id'    => Auth::user()->company->id,
+                'nit_empresa'   => Auth::user()->company->nit,
+                'url_n8n'       => Auth::user()->company->endpoint2,
+                'representante_legal' => Auth::user()->company->representativeid,
             ], 200);
         }
     }
