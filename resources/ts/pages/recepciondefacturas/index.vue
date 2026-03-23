@@ -93,7 +93,8 @@ import { VRow } from 'vuetify/components'
         }, 3000)
     }
 
-    const SolicitarTokenDian = async () => {
+    const SolicitarTokenDian = async () => 
+    {
 
         const token      = localStorage.getItem('auth_token')
         const userId  = localStorage.getItem('user_id')  
@@ -119,9 +120,10 @@ import { VRow } from 'vuetify/components'
     }
 
     // ─── Polling hacia Laravel ───────────────────────────
-    const iniciarPolling = () => {
+    const iniciarPolling = () => 
+    {
         let intentos    = 0
-        const maxIntentos = 8 // 20 x 3 seg = 60 seg máximo
+        const maxIntentos = 20 // 20 x 3 seg = 60 seg máximo
         const token      = localStorage.getItem('auth_token')
         const userId  = localStorage.getItem('user_id')  
         const companyId  = localStorage.getItem('company_id') 
@@ -142,7 +144,7 @@ import { VRow } from 'vuetify/components'
                 },
                 {
                     headers: { Authorization: `Bearer ${token}` }
-                })
+                }),
 
                 switch (data.status) {
                     case 'received':
@@ -174,7 +176,7 @@ import { VRow } from 'vuetify/components'
                 })
             }
 
-        }, 2000)
+        }, 3000)
     }
 
     const detenerPolling = () => {
