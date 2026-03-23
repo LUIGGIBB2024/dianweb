@@ -94,7 +94,7 @@ import { VRow } from 'vuetify/components'
     // ─── Polling hacia Laravel ───────────────────────────
     const iniciarPolling = () => {
         let intentos    = 0
-        const maxIntentos = 20 // 20 x 3 seg = 60 seg máximo
+        const maxIntentos = 8 // 20 x 3 seg = 60 seg máximo
         const token      = localStorage.getItem('auth_token')
         const userId  = localStorage.getItem('user_id')  
         const companyId  = localStorage.getItem('company_id') 
@@ -147,7 +147,7 @@ import { VRow } from 'vuetify/components'
                 })
             }
 
-        }, 3000)
+        }, 2000)
     }
 
     const detenerPolling = () => {
