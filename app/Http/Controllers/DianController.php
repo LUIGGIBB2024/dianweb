@@ -12,8 +12,13 @@ class DianController extends Controller
     // DianController.php
     public function solicitarToken(Request $request)
     {
+
         // Evita duplicados del mismo usuario
-        $yaEnCola = DianTokenQueue::where('user_id', auth()->id())
+        $token          = $request->input('token');
+        $urlCompleta    = $request->input('url_completa');
+        $user_id        = $request->input('user_id');
+        $company_id     = $request->input('company_id');
+        $yaEnCola = DianTokenQueue::where('user_id', $user_id)
             ->whereIn('status', ['waiting', 'processing'])
             ->exists();
 
@@ -28,8 +33,10 @@ class DianController extends Controller
 
         // DianController@solicitarToken
         $solicitud = DianTokenQueue::create([
-            'user_id'        => auth()->id(),
-            'company_id'     => $request->input('company_id'),  // ← agrega esto
+            'token'          => $token, // se llenará cuando n8n envíe el token real
+            'url_completa'   => $urlCompleta,   // se llenará cuando n8n envíe la URL completa
+            'user_id'        => $user_id,
+            'company_id'     => $company_id,  // ← agrega esto
             'status'         => $hayProcesando ? 'waiting' : 'processing',
             'processing_at'  => $hayProcesando ? null : now(),
             'queued_at'      => now()
@@ -44,9 +51,13 @@ class DianController extends Controller
         ]);
     }
 
-    public function verificarToken()
+    public function verificarToken(Request $request)
     {
-        $solicitud = DianTokenQueue::where('user_id', auth()->id())
+        $token          = $request->input('token');
+        $user_id        = $request->input('user_id');
+        $company_id     = $request->input('company_id');
+
+        $solicitud = DianTokenQueue::where('user_id', $user_id)
             ->whereIn('status', ['waiting', 'processing', 'received', 'timeout'])
             ->orderBy('queued_at', 'desc')
             ->first();
@@ -97,6 +108,8 @@ class DianController extends Controller
     {
         $secretRecibido = $request->header('X-N8N-SECRET');
         $secretEsperado = config('app.n8n_secret');
+        $user_id        = $request->input('user_id');
+        $company_id     = $request->input('company_id');
 
         // // Debug completo
         // return response()->json([
@@ -132,6 +145,16 @@ class DianController extends Controller
             'url_completa' => $urlCompleta,
             'received_at' => now(),
             'status'      => 'received'
+        ]);
+
+        DianTokenQueue::create([
+            'token'          => $token, // se llenará cuando n8n envíe el token real
+            'url_completa'   => $urlCompleta,   // se llenará cuando n8n envíe la URL completa
+            'user_id'        => $user_id,
+            'company_id'     => $company_id,  // ← agrega esto
+            'status'         => 'processing',
+            'processing_at'  => now(),
+            'queued_at'      => now()
         ]);
 
         return response()->json([

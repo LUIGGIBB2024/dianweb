@@ -72,6 +72,7 @@ const handleLogin = async () => {
     localStorage.setItem('auth_token', data.token)
     localStorage.setItem('company_name', data.company_name)
     localStorage.setItem('user_name', data.user_name)
+    localStorage.setItem('user_id', data.user_id)
     localStorage.setItem('company_id', data.company_id)
     
     const StoredName   = localStorage.getItem('company_name')
@@ -80,6 +81,7 @@ const handleLogin = async () => {
 
     console.log("Soy Empresa Login:",data.company_name)
     console.log("Soy Empresa ID Empresa:",data.company_id)
+    console.log("Soy Usuario ID:",data.user_id)
 
     // Redirigir al dashboard
     router.push({ name: 'dashboard'})

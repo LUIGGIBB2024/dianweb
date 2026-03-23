@@ -29,6 +29,7 @@ class AuthController extends Controller
             'user' => $user,
             'token' => $token,
             'company_name' => $companyname,
+            'user_id' => Auth::user()->id,
             'company_id' => Auth::user()->company->id,
             'user_name' => $username
         ]);

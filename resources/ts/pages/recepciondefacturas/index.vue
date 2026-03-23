@@ -25,20 +25,26 @@ import { VRow } from 'vuetify/components'
 
     // ─── Cargar portal DIAN ──────────────────────────────
     const loadDianPortal = async () => {
-
         // Resetea estado
         mensajeError.value  = null
         tokenRecibido.value = false
         tokenDian.value     = null
         isEsperando.value   = false
         const token      = localStorage.getItem('auth_token')
+        const userId  = localStorage.getItem('user_id')  
         const companyId  = localStorage.getItem('company_id')  // ← agrega esta línea
+
+        console.log("Token en LoadDianPortal:", token)
+        console.log("Company ID en LoadDianPortal:", companyId) 
+        console.log("USe ID en LoadDianPortal:", userId) 
 
         // 1. Registra solicitud en Laravel
         try {
             await axios.post('/api/dian/solicitar-token',
             {
-                 company_id: companyId  // ← agrega esto
+                 token: token,
+                 company_id: companyId , // ← agrega esto
+                 user_id: userId  // ← agrega esto
             }, 
             {
                 headers: { Authorization: `Bearer ${token}` }
@@ -89,12 +95,25 @@ import { VRow } from 'vuetify/components'
     const iniciarPolling = () => {
         let intentos    = 0
         const maxIntentos = 20 // 20 x 3 seg = 60 seg máximo
+        const token      = localStorage.getItem('auth_token')
+        const userId  = localStorage.getItem('user_id')  
+        const companyId  = localStorage.getItem('company_id') 
+
+         console.log("Token en iniciarPolling:", token)
+         console.log("Company ID en iniciarPolling:", companyId)
+         console.log("User ID en iniciarPolling:", userId)
 
         pollingTimer = setInterval(async () => {
             intentos++
 
             try {
-                const { data } = await axios.get('/api/dian/verificar-token', {
+                const { data } = await axios.post('/api/dian/verificar-token',    
+                {
+                    token: token,
+                    company_id: companyId,
+                    user_id: userId
+                },
+                {
                     headers: { Authorization: `Bearer ${token}` }
                 })
 

@@ -64,8 +64,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/scraping/dianf', [ScrapingDianController::class, 'scraping_dian'])->name('scraping.dianf');
 
     Route::post('/dian/solicitar-token', [DianController::class, 'solicitarToken']);
-    Route::get('/dian/verificar-token',  [DianController::class, 'verificarToken']);
+    Route::post('/dian/verificar-token',  [DianController::class, 'verificarToken']);
     Route::post('/dian/timeout',         [DianController::class, 'timeout']);
 });
 
-Route::post('/dian/recibir-token',   [DianController::class, 'recibirToken']);
+Route::post('/dian/recibir-token',[DianController::class, 'recibirToken']);

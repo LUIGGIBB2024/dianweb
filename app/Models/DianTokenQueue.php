@@ -12,6 +12,7 @@ class DianTokenQueue extends Model
 
     protected $fillable = [
         'user_id',
+        'company_id',
         'status',
         'token',
         'url_completa',
