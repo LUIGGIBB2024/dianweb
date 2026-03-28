@@ -299,7 +299,7 @@ import { VRow } from 'vuetify/components'
                 orderBy      : orderBy.value,
             }, {
                 headers: {
-                    Authorization  : `Bearer ${token}`,
+                    'Authorization' : `Bearer ${token}`,
                     'Content-Type' : 'application/json',
                 },
             })

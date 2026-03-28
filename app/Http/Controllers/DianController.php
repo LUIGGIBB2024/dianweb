@@ -169,27 +169,32 @@ class DianController extends Controller
         ]);
     }
 
+
     public function webHook(Request $request)
     {
         $endpoint = Auth::user()->company->endpoint2;
-
         $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
-        $response = Http::withoutVerifying()  // ✅ Desactiva verificación SSL (solo desarrollo local)
+        $response = Http::withoutVerifying()
             ->withHeaders([
                 'Content-Type' => 'application/json; charset=UTF-8',
                 'Accept' => 'application/json',
-            ])->post($endpoint);
+            ])->post($endpoint, [
+                'email'         => Auth::user()->email,
+                'nit_dian'      => Auth::user()->company->nit,
+                'user_id'       => Auth::user()->id,
+                'codigointerno' => Auth::user()->company->codigointerno ?? '',
+            ]);
 
         if ($response->successful()) {
-            $data = $response->json(); // cuerpo JSON real
+            $data = $response->json();
 
             return response()->json([
-                'message'       => '📤 Envío exitoso',
-                'user_id'       => Auth::user()->id,
-                'company_id'    => Auth::user()->company->id,
-                'nit_empresa'   => Auth::user()->company->nit,
-                'url_n8n'       => Auth::user()->company->endpoint2,
+                'message'             => '📤 Envío exitoso',
+                'user_id'             => Auth::user()->id,
+                'company_id'          => Auth::user()->company->id,
+                'nit_empresa'         => Auth::user()->company->nit,
+                'url_n8n'             => Auth::user()->company->endpoint2,
                 'representante_legal' => Auth::user()->company->representativeid,
             ], 200);
         }

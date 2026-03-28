@@ -38,6 +38,7 @@
     "ofetch": "1.4.1",
     "pinia": "2.3.0",
     "prismjs": "1.29.0",
+    "puppeteer": "^24.40.0",
     "roboto-fontface": "0.10.0",
     "shepherd.js": "13.0.3",
     "swiper": "11.1.15",
@@ -132,5 +133,21 @@
   },
   "msw": {
     "workerDirectory": "public"
-  }
+  },
+  "description": "This template should help get you started developing with Vue 3 in Vite.",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/LUIGGIBB2024/dianweb.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/LUIGGIBB2024/dianweb/issues"
+  },
+  "homepage": "https://github.com/LUIGGIBB2024/dianweb#readme"
 }

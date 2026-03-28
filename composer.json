@@ -16,7 +16,8 @@
         "laravel/tinker": "^2.9",
         "roach-php/laravel": "^3.2",
         "symfony/css-selector": "7.0",
-        "symfony/dom-crawler": "7.0"
+        "symfony/dom-crawler": "7.0",
+        "spatie/browsershot": "^5.2"
     },
     "require-dev": {
         "dbrekelmans/bdi": "^1.4",

@@ -9,53 +9,229 @@ use Illuminate\Support\Facades\Auth;
 #use Symfony\Component\Panther\Client;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
-use GuzzleHttp\Client;
-use Symfony\Component\DomCrawler\Crawler;
+use Illuminate\Support\Facades\Http;
+use Spatie\Browsershot\Browsershot;
+use GuzzleHttp\Cookie\CookieJar;
+use Symfony\Component\Process\Process;
 
 class ScrapingDianController extends Controller
 {
-
-
-    public function extraerTabla()
+    public function extraerTabla1()
     {
-        print("Entre Aquí a extraer tabla...\n");
-        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=b5636d69-ab87-4f63-8cad-2eadef96b75a";
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=cf8b709e-d371-40b5-9568-3c3be2c963d7";
 
-        $client = new Client([
-            'verify' => false, // evitar problemas SSL (opcional)
-            'timeout' => 30,
+
+        // $html = Browsershot::url($url)
+        //     ->noSandbox()
+        //     ->timeout(60)
+        //     ->waitUntilNetworkIdle()
+        //     ->bodyHtml();
+
+        $html = Browsershot::url($url)
+            ->noSandbox()
+            ->waitUntilNetworkIdle()
+            ->evaluate("
+                    async () => {
+
+                        function wait(ms) {
+                            return new Promise(resolve => setTimeout(resolve, ms));
+                        }
+
+                        await wait(3000);
+
+                        const btn = document.querySelector('#DocumentSent a');
+                        if (btn) btn.click();
+
+                        await wait(5000);
+
+                        return document.documentElement.outerHTML;
+                    }
+                ");
+
+        return response()->json([
+            'tiene_login' => str_contains($html, 'Acceder'),
+            'tiene_tabla' => str_contains($html, '<table'),
+            'preview' => substr($html, 0, 1000),
+        ]);
+    }
+
+    public function extraerTabla3()
+    {
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=cf8b709e-d371-40b5-9568-3c3be2c963d7";
+
+        $browser = Browsershot::url($url)
+            ->noSandbox()
+            ->waitUntilNetworkIdle();
+
+        // Ejecutar JS (sin esperar retorno complejo)
+        #DocumentReceived  - DocumentSent
+        $browser->evaluate("document.querySelector('#DocumentReceived a')?.click();");
+
+        // Luego obtener HTML
+        $html = $browser
+            ->setDelay(7000)
+            ->bodyHtml();
+
+        return response()->json([
+            'tiene_login' => str_contains($html, 'Acceder'),
+            'tiene_tabla' => str_contains($html, '<table'),
+            'preview' => substr($html, 0, 1000000000),
+        ]);
+    }
+
+    public function extraerTabla_f()
+    {
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=b72f0ee6-c194-4ee4-82b8-f2daf9fbdfa8";
+
+        $browser = Browsershot::url($url)
+            ->noSandbox()
+            ->setOption('args', ['--disable-web-security'])
+            ->userAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64)')
+            ->waitUntilNetworkIdle()
+            ->setDelay(8000); // ⬅️ carga inicial real
+
+        // 🔥 FORZAR CLICK DE TODAS LAS FORMAS POSIBLES
+        $browser->evaluate("
+            (function () {
+
+                function clickButton() {
+                    const btn = document.querySelector('#DocumentReceived a');
+                    if (!btn) return false;
+
+                    // método 1
+                    btn.click();
+
+                    // método 2
+                    btn.dispatchEvent(new MouseEvent('click', { bubbles: true }));
+
+                    // método 3 (por si es framework)
+                    if (typeof btn.onclick === 'function') {
+                        btn.onclick();
+                    }
+
+                    return true;
+                }
+
+                let attempts = 0;
+
+                const interval = setInterval(() => {
+                    const ok = clickButton();
+
+                    attempts++;
+
+                    if (ok || attempts > 10) {
+                        clearInterval(interval);
+                    }
+                }, 1000);
+
+            })();
+        ");
+
+        // ⏳ esperar que el DOM cambie
+        $html = $browser
+            ->setDelay(15000) // ⬅️ MUY IMPORTANTE
+            ->bodyHtml();
+
+        return response()->json([
+            'tiene_login' => str_contains($html, 'Acceder'),
+            'tiene_tabla' => str_contains($html, '<table'),
+            'tiene_document_received' => str_contains($html, 'DocumentReceived'),
+            'preview' => substr($html, 0, 100000000),
+        ]);
+    }
+
+    public function extraerTabla_nada()
+    {
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=b54429d7-5037-4288-b647-f49f8f4836cc";
+
+        // FASE 1 — Dejar que el AuthToken redirija y la página final cargue completamente
+        $htmlInicial = Browsershot::url($url)
+            ->addChromiumArguments(['--no-sandbox', '--disable-web-security'])
+            ->userAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            ->waitUntilNetworkIdle()  // espera que todas las redirecciones y peticiones terminen
+            ->setDelay(8000)          // margen extra para JS de la DIAN
+            ->bodyHtml();
+
+        // Diagnóstico: ver dónde quedamos después de la redirección
+        if (!str_contains($htmlInicial, 'DocumentReceived')) {
+            return response()->json([
+                'error'   => 'No se encontró #DocumentReceived tras la redirección',
+                'preview' => substr($htmlInicial, 0, 5000),
+            ]);
+        }
+
+        // FASE 2 — Nueva instancia de Browsershot sobre la URL ya resuelta
+        // Usamos script JS que espera el DOM estable antes de hacer clic
+        $htmlFinal = Browsershot::url($url)
+            ->addChromiumArguments(['--no-sandbox', '--disable-web-security'])
+            ->userAgent('Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36')
+            ->waitUntilNetworkIdle()
+            ->setDelay(10000)  // dar tiempo a que la página destino cargue sus componentes
+            ->evaluate("
+                new Promise((resolve, reject) => {
+                    const timeout = setTimeout(() => reject('TIMEOUT'), 25000);
+
+                    // Esperar a que #DocumentReceived esté en el DOM
+                    const esperar = setInterval(() => {
+                        const btn = document.querySelector('#DocumentReceived a');
+                        if (!btn) return;
+
+                        clearInterval(esperar);
+
+                        // Hacer clic
+                        btn.dispatchEvent(new MouseEvent('click', {
+                            bubbles: true,
+                            cancelable: true,
+                            view: window
+                        }));
+
+                        // Esperar que aparezca la tabla
+                        let intentos = 0;
+                        const esperarTabla = setInterval(() => {
+                            intentos++;
+                            const tabla = document.querySelector('table');
+                            if (tabla || intentos > 20) {
+                                clearTimeout(timeout);
+                                clearInterval(esperarTabla);
+                                resolve(document.body.innerHTML);
+                            }
+                        }, 1000);
+
+                    }, 500);
+                })
+            ");
+
+        return response()->json([
+            'tiene_tabla'             => str_contains($htmlFinal, '<table'),
+            'tiene_document_received' => str_contains($htmlFinal, 'DocumentReceived'),
+            'preview'                 => substr($htmlFinal, 0, 100000000),
+        ]);
+    }
+
+    public function extraerTabla(Request $request)
+    {
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=b54429d7-5037-4288-b647-f49f8f4836cc";
+
+        $scriptPath = base_path('puppeteer-click.js');
+
+        $proceso = new \Symfony\Component\Process\Process([
+            'node',
+            $scriptPath,
+            $url
         ]);
 
-        try {
-            $response = $client->request('GET', $url);
+        $proceso->setTimeout(120);
+        $proceso->run();
 
-            $html = $response->getBody()->getContents();
-
-            print("HTML recibido:\n" . substr($html, 0, 500) . "\n");
-
-            $crawler = new Crawler($html);
-
-            $data = [];
-
-            // Selecciona la tabla (ajusta el selector según la página)
-            $crawler->filter('table tr')->each(function ($tr, $i) use (&$data) {
-
-                $row = [];
-
-                $tr->filter('td')->each(function ($td) use (&$row) {
-                    $row[] = trim($td->text());
-                });
-
-                if (!empty($row)) {
-                    $data[] = $row;
-                }
-            });
-
-            return $data;
-        } catch (\Exception $e) {
+        if (!$proceso->isSuccessful()) {
             return response()->json([
-                'error' => $e->getMessage()
+                'error'  => 'Error ejecutando Puppeteer',
+                'output' => $proceso->getErrorOutput(),
             ], 500);
         }
+
+        $resultado = json_decode($proceso->getOutput(), true);
+
+        return response()->json($resultado);
     }
 }
