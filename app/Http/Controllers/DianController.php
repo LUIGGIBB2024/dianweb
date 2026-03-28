@@ -184,6 +184,7 @@ class DianController extends Controller
                 'nit_dian'      => Auth::user()->company->nit,
                 'user_id'       => Auth::user()->id,
                 'codigointerno' => Auth::user()->company->codigointerno ?? '',
+                'hora' => now()->toDateTimeString(),
             ]);
 
         if ($response->successful()) {
