@@ -172,7 +172,8 @@ class DianController extends Controller
 
     public function webHook(Request $request)
     {
-        $user    = Auth::user();
+        // Tomar el usuario autenticado EN ESTA PETICIÓN específica
+        $user    = $request->user(); // equivalente a Auth::user() pero más explícito
         $company = $user->company;
 
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint2);
@@ -190,8 +191,6 @@ class DianController extends Controller
             ]);
 
         if ($response->successful()) {
-            $data = $response->json();
-
             return response()->json([
                 'message'             => '📤 Envío exitoso',
                 'user_id'             => $user->id,
