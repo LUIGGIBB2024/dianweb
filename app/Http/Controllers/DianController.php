@@ -185,6 +185,7 @@ class DianController extends Controller
                 'Content-Type' => 'application/json; charset=UTF-8',
                 'Accept'       => 'application/json',
             ])->post($endpoint, [
+                'token'         => $request->token,
                 'email'         => $user->email,
                 'nit_dian'      => $company->nit,
                 'user_id'       => $user->id,
