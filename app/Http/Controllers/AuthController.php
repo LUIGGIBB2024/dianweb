@@ -41,7 +41,7 @@ class AuthController extends Controller
     public function loginn8n(Request $request)
     {
         //return response()->json(['message' => $request->email . " - " . $request->password]);
-        $credentials = $request->validate(['email' => ['required', 'email'], 'password' => ['required'],]);
+        $credentials = $request->validate(['email' => ['required', 'email'], 'code_n8n' => ['required'],]);
         if (!Auth::attempt($credentials, $request->remember)) {
             return response()->json(['message' => 'Credenciales inválidas'], 401);
         }
@@ -63,6 +63,7 @@ class AuthController extends Controller
             'user_name' => $username,
             'url_dian' => $request->url_dian,
             'nit_dian' => $request->nit_dian,
+            'code_n8n' => $request->code_n8n
         ]);
     }
 
