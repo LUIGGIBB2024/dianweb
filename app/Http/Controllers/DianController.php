@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Http\Controllers\Controller;
+use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Models\DianTokenQueue;
 use App\Models\User;
@@ -175,7 +176,7 @@ class DianController extends Controller
     {
         // Tomar el usuario autenticado EN ESTA PETICIÓN específica
         $user    = User::find($request->user_id); // equivalente a Auth::user() pero más explícito
-        $company = $user->company;
+        $company = Company::find($request->company_id);
 
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint2);
 
