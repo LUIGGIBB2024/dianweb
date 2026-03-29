@@ -172,19 +172,21 @@ class DianController extends Controller
 
     public function webHook(Request $request)
     {
-        $endpoint = Auth::user()->company->endpoint2;
-        $endpoint = preg_replace('/\\s+/', '', $endpoint);
+        $user    = Auth::user();
+        $company = $user->company;
+
+        $endpoint = preg_replace('/\\s+/', '', $company->endpoint2);
 
         $response = Http::withoutVerifying()
             ->withHeaders([
                 'Content-Type' => 'application/json; charset=UTF-8',
-                'Accept' => 'application/json',
+                'Accept'       => 'application/json',
             ])->post($endpoint, [
-                'email'         => Auth::user()->email,
-                'nit_dian'      => Auth::user()->company->nit,
-                'user_id'       => Auth::user()->id,
-                'codigointerno' => Auth::user()->company->codigointerno ?? '',
-                'Fecha' => now()->toTimeString(),
+                'email'         => $user->email,
+                'nit_dian'      => $company->nit,
+                'user_id'       => $user->id,
+                'codigointerno' => $company->codigointerno ?? '',
+                'fecha'         => now('America/Bogota')->format('Y-m-d H:i:s'),
             ]);
 
         if ($response->successful()) {
@@ -192,11 +194,11 @@ class DianController extends Controller
 
             return response()->json([
                 'message'             => '📤 Envío exitoso',
-                'user_id'             => Auth::user()->id,
-                'company_id'          => Auth::user()->company->id,
-                'nit_empresa'         => Auth::user()->company->nit,
-                'url_n8n'             => Auth::user()->company->endpoint2,
-                'representante_legal' => Auth::user()->company->representativeid,
+                'user_id'             => $user->id,
+                'company_id'          => $company->id,
+                'nit_empresa'         => $company->nit,
+                'url_n8n'             => $company->endpoint2,
+                'representante_legal' => $company->representativeid,
             ], 200);
         }
     }
