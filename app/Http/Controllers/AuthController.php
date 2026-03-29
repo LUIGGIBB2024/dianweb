@@ -51,9 +51,9 @@ class AuthController extends Controller
             'password' => $request->code_n8n,
         ];
 
-        if (!Auth::attempt($credentials, $request->remember)) {
-            return response()->json(['message' => 'Credenciales inválidas'], 401);
-        }
+        // if (!Auth::attempt($credentials, $request->remember)) {
+        //     return response()->json(['message' => 'Credenciales inválidas'], 401);
+        // }
 
         $user        = Auth::user();
         $token       = $request->user()->createToken($user->email . '_Token')->plainTextToken;
