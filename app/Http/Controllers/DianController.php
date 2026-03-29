@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\DianTokenQueue;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -173,7 +174,7 @@ class DianController extends Controller
     public function webHook(Request $request)
     {
         // Tomar el usuario autenticado EN ESTA PETICIÓN específica
-        $user    = $request->user(); // equivalente a Auth::user() pero más explícito
+        $user    = User::find($request->user_id); // equivalente a Auth::user() pero más explícito
         $company = $user->company;
 
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint2);
