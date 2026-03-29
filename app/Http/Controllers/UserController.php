@@ -16,18 +16,16 @@ class UserController extends Controller
         $q = $request->q;
         $users = [];
         $query = [];
-        
-        if ($request->has('q') && !empty($request->q)) 
-        {
-            $query = User::SelectRaw('users.id, users.name, users.email, companies.name as empresa, users.type, users.company_id')
+
+        if ($request->has('q') && !empty($request->q)) {
+            $query = User::SelectRaw('users.id, users.name, users.email, companies.name as empresa, users.type, users.company_id, users.code_n8n')
                 ->leftJoin('companies', 'users.company_id', '=', 'companies.id')
                 ->where('users.name', 'like', "%{$q}%")
                 ->orWhere('users.email', 'like', "%{$q}%")
-                ->orWhere('users.type', 'like', "%{$q}%")            
+                ->orWhere('users.type', 'like', "%{$q}%")
                 ->orWhere('companies.name', 'like', "%{$q}%")->get();
-        } else 
-        {
-            $query = User::SelectRaw('users.id, users.name, users.email, companies.name as empresa, users.type, users.company_id')
+        } else {
+            $query = User::SelectRaw('users.id, users.name, users.email, companies.name as empresa, users.type, users.company_id, users.code_n8n')
                 ->leftJoin('companies', 'users.company_id', '=', 'companies.id')->get();
         }
 
@@ -41,13 +39,14 @@ class UserController extends Controller
     }
 
     public function store(Request $request): JsonResponse
-    {        
+    {
         $data = $request->validate([
             'name' => 'required|string|max:255',
             'type' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'password' => 'nullable|string|min:6|max:255',
             'company_id' => 'nullable|exists:companies,id',
+            'code_n8n' => 'nullable|string|max:255',
         ]);
 
         // 🔒 Si viene el campo 'password', lo convertimos con hashing
@@ -68,6 +67,7 @@ class UserController extends Controller
             'type' => 'nullable|string|max:20',
             'email' => 'nullable|email|max:255',
             'company_id' => 'nullable|exists:companies,id',
+            'code_n8n' => 'nullable|string|max:255',
         ]);
 
         $user->update($data);
@@ -76,7 +76,7 @@ class UserController extends Controller
 
     public function updatePassword(Request $request, $id): JsonResponse
     {
-        $user = User::findOrFail($id);    
+        $user = User::findOrFail($id);
 
         $data = $request->validate([
             'password' => 'required|string|min:6|max:255',
@@ -84,7 +84,7 @@ class UserController extends Controller
 
         // 🔒 Si viene el campo 'password', lo convertimos con hashing
         if (!empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);
+            $data['password'] = Hash::make($data['password']);            
         }
 
         $user->update($data);
@@ -97,5 +97,5 @@ class UserController extends Controller
         $user->delete();
 
         return response()->json(['message' => 'Usuario eliminado exitosamente']);
-    }   
+    }
 }

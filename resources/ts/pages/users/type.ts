@@ -6,6 +6,7 @@ export interface User {
   type: string
   company_id: number
   password: string
+  code_n8n: string
 }
  
 

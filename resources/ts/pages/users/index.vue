@@ -61,6 +61,7 @@ const newUser = ref({
   company_id: 0,
   type: '',
   password: '',
+  code_n8n: '',
   empresa: '',
 })
 
@@ -151,7 +152,7 @@ const currentPage = computed(() => userData.value.page ?? page.value)
 // 🔹 Abrir modal para crear
 const openCreateDialog = () => {
   editMode.value = false
-  newUser.value = { id: null, name: '', email: '', empresa: '', type: '', password: '', company_id: 0 }
+  newUser.value = { id: null, name: '', email: '', empresa: '', type: '', password: '', code_n8n: '', company_id: 0 }
   showDialog.value = true
 }
 
@@ -380,7 +381,12 @@ const deleteUser = async () => {
                 <template #prepend-inner>
                   <VIcon icon="tabler-user" color="primary" size="22" class="me-3" />
                 </template>
-            </VTextField>            
+            </VTextField>  
+            <VTextField v-model="newUser.code_n8n" label="Código N8N" class="mb-3">
+                <template #prepend-inner>
+                  <VIcon icon="tabler-code" color="primary" size="22" class="me-3" />
+                </template>
+            </VTextField>          
             <VTextField v-model="newUser.password" v-if="!editMode" :disabled="editMode" label="Password" :type="isPasswordVisible ? 'text' : 'password'" :rules="[rules.password]" 
                 class="mb-3" :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'" @click:append-inner="isPasswordVisible = !isPasswordVisible">
                 <template #prepend-inner>

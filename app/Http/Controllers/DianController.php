@@ -190,6 +190,7 @@ class DianController extends Controller
                 'user_id'       => $user->id,
                 'codigointerno' => $company->codigointerno ?? '',
                 'fecha'         => now('America/Bogota')->format('Y-m-d H:i:s'),
+                'code_n8n'      => $user->code_n8n,
             ]);
 
         if ($response->successful()) {
@@ -200,6 +201,7 @@ class DianController extends Controller
                 'nit_empresa'         => $company->nit,
                 'url_n8n'             => $company->endpoint2,
                 'representante_legal' => $company->representativeid,
+
             ], 200);
         }
     }
