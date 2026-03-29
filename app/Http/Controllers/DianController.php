@@ -201,6 +201,7 @@ class DianController extends Controller
                 'nit_empresa'         => $company->nit,
                 'url_n8n'             => $company->endpoint2,
                 'representante_legal' => $company->representativeid,
+                'code_n8n'            => $user->code_n8n,
 
             ], 200);
         }
