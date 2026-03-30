@@ -210,40 +210,35 @@ class ScrapingDianController extends Controller
 
     public function extraerTabla(Request $request)
     {
-        //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=a15f2726-00e8-4d24-bed6-4d0bf0171c96";
-        $url = $request->url_token;
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=bf84f298-f7e5-48d1-b3b9-24128122ca56";
+        //$url = $request->url_token;
 
-        // $scriptPath = base_path('puppeteer-click.js');
-
-        // $proceso = new \Symfony\Component\Process\Process([
-        //      'node',
-        //      $scriptPath,
-        //      $url
-        //  ]);
-
-        // $proceso->setTimeout(120);
-        // $proceso->run();
-
-        // Tomar el usuario autenticado EN ESTA PETICIÓN específica
-        //$user    = User::find($request->user_id); // equivalente a Auth::user() pero más explícito
         $company = Company::find($request->company_id);
 
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint3);
-
-        $response = Http::withoutVerifying()
-            ->withHeaders([
-                'X-API-KEY'     => '6ed6d9ae8423598a5287ab60df52442f1d60c3ae5fcf877bcdbc1fedd1d24316',
-                'Content-Type'  => 'application/json; charset=UTF-8',
-                'Accept'        => 'application/json',
-            ])->post($endpoint, [
-                'nitempresa'                => $company->nit,
-                'nitrepresentantelegal'     => $company->nit_representante_legal,
-                'fechadesde'                => $request->fechadesde,
-                'fechahasta'                => $request->fechahasta,
-                'type'                      => '2',
-                'headless'                  => false,
-                'url_dian'                  => $url,
-            ]);
+        try {
+            $response = Http::withoutVerifying()
+                ->timeout(180) // ⏳ Aumentar el tiempo de espera a 180 segundos (3 minutos)
+                ->connectTimeout(10) // Tiempo máximo para lograr la conexión inicial
+                ->withHeaders([
+                    'X-API-KEY'     => '6ed6d9ae8423598a5287ab60df52442f1d60c3ae5fcf877bcdbc1fedd1d24316',
+                    'Content-Type'  => 'application/json; charset=UTF-8',
+                    'Accept'        => 'application/json',
+                ])->post($endpoint, [
+                    'nitempresa'                => $company->nit,
+                    'nitrepresentantelegal'     => $company->nit_representante_legal,
+                    'fechadesde'                => $request->fechadesde,
+                    'fechahasta'                => $request->fechahasta,
+                    'type'                      => '2',
+                    'headless'                  => false,
+                    'url_dian'                  => $url,
+                ]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json([
+                'message' => 'El servidor de la DIAN tardó demasiado en responder. Por favor, intenta con un rango de fechas más pequeño.',
+                'error' => $e->getMessage()
+            ], 408); // 408 Request Timeout
+        }
 
         if ($response->successful()) {
             return response()->json([

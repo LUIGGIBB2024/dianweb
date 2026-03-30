@@ -6,6 +6,26 @@ import { url } from 'node:inspector'
 import { computed, onMounted, ref } from 'vue'
 import { VRow } from 'vuetify/components'
 
+    const yaBusco = ref(false) // Nueva variable de control
+
+    const generarConsulta1 = async () => {
+        yaBusco.value = true // Se activa al dar clic
+        loading.value = true
+        // ... resto del código de la función ...
+    }
+
+    const updateOptions1 = async (options: any) => {
+        // Solo actualiza si ya se hizo la primera búsqueda manual
+        if (!yaBusco.value) return 
+
+        page.value = options.page
+        itemsPerPage.value = options.itemsPerPage
+        sortBy.value = options.sortBy[0]?.key
+        orderBy.value = options.sortBy[0]?.order
+        await generarConsulta()
+    }
+
+
     const iframeSource = ref<string | null>(null)
     const isLoading = ref(false)
     const showIframeDialog = ref(false) 
@@ -231,9 +251,21 @@ import { VRow } from 'vuetify/components'
         isLoading.value        = false
     }
 
-    const formatCurrency = (value: number | string) => {
-        const num = Number(value) || 0
-        return num.toLocaleString('es-CO', { minimumFractionDigits: 2, maximumFractionDigits: 2 })
+    const formatCurrency = (value: number | string): string => {
+        // Limpiar el string: quitar espacios y posibles símbolos
+        const cleaned = String(value).trim().replace(/[^\d.,-]/g, '')
+        
+        // Si usa coma como decimal (ej: "284.201,76"), normalizar a punto
+        const normalized = cleaned.includes(',') && cleaned.indexOf(',') > cleaned.indexOf('.')
+            ? cleaned.replace(/\./g, '').replace(',', '.')
+            : cleaned.replace(/,/g, '') // quitar comas de miles si las trae
+        
+        const num = parseFloat(normalized) || 0
+
+        return num.toLocaleString('es-CO', {
+            minimumFractionDigits: 2,
+            maximumFractionDigits: 2
+        })
     }
 
     const hoy           = new Date().toISOString().split('T')[0]
@@ -268,19 +300,19 @@ import { VRow } from 'vuetify/components'
     const orderBy         = ref()
 
     const headers = [
-        { title: 'Fecha Documento',                 key: 'Fecha',    sortable: true },
-        { title: 'Número de Documento',             key: 'NroDocumento',        sortable: true, width: '6px' },
-        { title: 'Prefijo',                         key: 'Prefijo',        sortable: true },
-        { title: 'Tipo Documento',                  key: 'TipoDocumento', sortable: true },
-        { title: 'Nit/Cédula',                      key: 'NitEmisor',      sortable: true },
-        { title: 'Nombre del Cliente/Proveedor',    key: 'Emisor', sortable: true, width: '35%' },
-        { title: 'Valor Documento',                 key: 'ValorTotal',          sortable: true },
-        { title: 'Valor Impuestos',                 key: 'ValorImptos',         sortable: true },
-        { title: 'Valor Documento',                 key: 'ValorTotal',          sortable: true },
-        { title: 'Acciones',                        key: 'actions',       sortable: false, width: '20px' },
+        { title: 'Fecha Documento',                 key: 'Fecha',           sortable: true },
+        { title: 'Número de Factura',               key: 'NroDocumento',    sortable: true, width: '6px' },
+        { title: 'Prefijo',                         key: 'Prefijo',         sortable: true },
+        { title: 'Tipo Documento',                  key: 'TipoDocumento',   sortable: true },
+        { title: 'Nit/Cédula',                      key: 'NitEmisor',       sortable: true },
+        { title: 'Nombre del Cliente/Proveedor',    key: 'Emisor',          sortable: true, width: '35%' },
+        { title: 'Valor Documento',                 key: 'ValorParcial',    sortable: true },        
+        { title: 'Valor Impuestos',                 key: 'ValorImptos',     sortable: true },
+        { title: 'Total Documento',                 key: 'ValorTotal',      sortable: true },
+        { title: 'Acciones',                        key: 'actions',         sortable: false, width: '20px' },
     ]
 
-    const updateOptions = async (options: any) => {
+    const updateOptions12 = async (options: any) => {
         page.value         = options.page
         itemsPerPage.value = options.itemsPerPage
         sortBy.value       = options.sortBy[0]?.key
@@ -288,9 +320,22 @@ import { VRow } from 'vuetify/components'
         await generarConsulta()
     }
 
+    const updateOptions = async (options: any) => {
+        // Solo actualiza si ya se hizo la primera búsqueda manual
+        if (!yaBusco.value) return 
+
+        page.value = options.page
+        itemsPerPage.value = options.itemsPerPage
+        sortBy.value = options.sortBy[0]?.key
+        orderBy.value = options.sortBy[0]?.order
+        await generarConsulta()
+    }
+
     const generarConsulta = async () => {
-        //console.log("Generando consulta con parámetros: WebScraping :",datafechas.value.desdefecha,"-", datafechas.value.hastafecha)       
+        yaBusco.value = true // Se activa al dar clic
         loading.value = true
+        //console.log("Generando consulta con parámetros: WebScraping :",datafechas.value.desdefecha,"-", datafechas.value.hastafecha)       
+        
         try {            
             const response = await axios.post('/api/scraping/dianf', {
                 url_token    : urlCompletaDian.value,
@@ -318,7 +363,7 @@ import { VRow } from 'vuetify/components'
         }
     }
 
-    onMounted(() => generarConsulta())
+    //onMounted(() => generarConsulta())
 
     const facturas      = computed(() => _facturas.value)
     const currentPage   = computed(() => invoiceData.value.page ?? page.value)
@@ -446,42 +491,9 @@ import { VRow } from 'vuetify/components'
               </VCol>
           </VRow>
       </VCard>
-
-      <VDialog v-model="showIframeDialog" fullscreen transition="dialog-bottom-transition">
-          <VCard>
-            <VToolbar color="primary">
-              <VBtn icon @click="closeIframe">
-                <VIcon icon="tabler-x" color="white" />
-              </VBtn>
-              <VToolbarTitle class="text-white">Portal Catálogo DIAN - Facturación Electrónica</VToolbarTitle>
-              <VSpacer />
-              <VBtn 
-                variant="tonal" 
-                color="white" 
-                href="https://catalogo-vpfe.dian.gov.co/User/Login" 
-                target="_blank"
-                prepend-icon="tabler-external-link"
-              >
-                Abrir en pestaña nueva
-              </VBtn>
-            </VToolbar>
-
-            <VCardText class="pa-0 position-relative" style="height: calc(100vh - 64px);">
-              <div v-if="isLoading" class="d-flex flex-column justify-center align-center loader-overlay">
-                <VProgressCircular indeterminate size="64" color="primary" class="mb-4" />
-                <p class="text-h6">Conectando con el servidor de la DIAN...</p>
-              </div>
-
-              <iframe v-if="iframeSource" :src="iframeSource" class="dian-iframe-full"
-                sandbox="allow-forms allow-modals allow-popups allow-scripts allow-same-origin"
-                @load="onIframeLoad"
-              ></iframe>
-            </VCardText>
-          </VCard>
-      </VDialog>
-
-
-      <section v-if="facturas && facturas.length">
+      
+      <!-- <section v-if="facturas && facturas.length"> -->
+      <section v-if="yaBusco && facturas && facturas.length"> 
             <VCard>
               <VDataTableServer
                 v-model:model-value="selectedRows"
@@ -502,9 +514,97 @@ import { VRow } from 'vuetify/components'
                     Fecha<br>Documento
                   </div>
               </template>
+              <template #item.Fecha="{ item }">
+                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.Fecha }}
+                  </div>
+               </template>
+
               <template #header.NroDocumento>
                   <div style="text-align:center; white-space:normal;">
-                    Número<br>de Documento
+                    Número<br>Factura
+                  </div>
+              </template>
+              <template #item.NroDocumento="{ item }">
+                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.NroDocumento }}
+                  </div>
+              </template>
+
+              <template #header.Prefijo>
+                  <div style="text-align:center; white-space:normal;">
+                   Prefijo
+                  </div>
+              </template>
+              <template #item.Prefijo="{ item }">
+                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.Prefijo }}
+                  </div>
+              </template>
+
+              <template #header.TipoDocumento>
+                  <div style="text-align:center; white-space:normal;">
+                   Tipo<br>Documento
+                  </div>
+              </template>
+              <template #item.TipoDocumento="{ item }">
+                  <div class="_fila" style="width: 10.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.TipoDocumento }}
+                  </div>
+              </template>
+
+              <template #header.Nitemisor>
+                  <div style="text-align:center; white-space:normal;">
+                   Nit/Cedula<br>Emisor
+                  </div>
+              </template>
+              <template #item.Nitemisor="{ item }">
+                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.Nitemisor }}
+                  </div>
+              </template>
+
+              <template #header.Emisor>
+                  <div style="text-align:center; white-space:normal;">
+                   Nombre del Emisor
+                  </div>
+              </template>
+              <template #item.Emisor="{ item }">
+                  <div class="_fila" style="width: 20.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.Emisor }}
+                  </div>
+              </template>
+
+              <template #header.ValorParcial>
+                  <div style="text-align:center; white-space:normal;">
+                   Valor Parcial
+                  </div>
+              </template>
+              <template #item.ValorParcial="{ item }">
+                  <div class="_fila" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">           
+                    {{ formatCurrency(item.ValorParcial) }} 
+                  </div>
+              </template>
+
+              <template #header.ValorImptos>
+                  <div style="text-align:center; white-space:normal;">
+                   Valor Impuestos
+                  </div>
+              </template>
+              <template #item.ValorImptos="{ item }">
+                  <div class="_fila" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                   
+                    {{ formatCurrency(item.ValorImptos) }} 
+                  </div>
+              </template>
+
+              <template #header.ValorTotal>
+                  <div style="text-align:center; white-space:normal;">
+                   Valor Total
+                  </div>
+              </template>
+              <template #item.ValorTotal="{ item }">
+                  <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                    
+                    {{ formatCurrency(item.ValorTotal) }} 
                   </div>
               </template>
 
@@ -555,17 +655,20 @@ import { VRow } from 'vuetify/components'
                 </template>                
               </VDataTableServer>
 
-              <VOverlay :model-value="loading" persistent class="align-center justify-center">
-                  <VProgressCircular indeterminate size="64" color="primary" />
-              </VOverlay>
+             
             </VCard>        
       </section>
 
-      <section v-else>
+     
+      <section v-else-if="yaBusco && (!facturas || !facturas.length)">
         <VCard>
           <VCardTitle class="pa-4">No se encontraron registros para el periodo seleccionado</VCardTitle>
         </VCard>
       </section>
+
+      <VOverlay :model-value="loading" persistent class="align-center justify-center">
+            <VProgressCircular indeterminate size="64" color="primary" />
+      </VOverlay>
  </template>  
 
  <style lang="css">
@@ -612,6 +715,15 @@ import { VRow } from 'vuetify/components'
   {
      text-transform: capitalize !important;
   }
+
+  ._fila
+    {
+        font-size: 12px;
+        width: 6.0em; 
+        white-space: normal; 
+        word-wrap: break-word; 
+        line-height: 1.2;
+    }
 
   .modal-title 
   {
