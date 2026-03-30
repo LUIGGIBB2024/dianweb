@@ -18,6 +18,7 @@ import { VRow } from 'vuetify/components'
     const tokenDian       = ref<string | null>(null)
     const urlCompletaDian = ref<string | null>(null)
     const mensajeError    = ref<string | null>(null)
+    const _facturas       = ref([])    
 
     let pollingTimer: ReturnType<typeof setInterval> | null = null
     let ventanaTimer: ReturnType<typeof setInterval> | null = null
@@ -119,7 +120,7 @@ import { VRow } from 'vuetify/components'
              urln8n: urln8n,
              nit_empresa: nitEmpresa,
              representante_legal: representanteLegal
-        },);        
+        },);      
  
 
         try {
@@ -256,7 +257,7 @@ import { VRow } from 'vuetify/components'
     const selectedRows     = ref([])
 
     const invoiceData = ref({
-        data: [], total: 0, page: 1, per_page: 10, totaldctos: 0,
+        status:"",TotalDocumentos:0,data: [], total: 0, page: 1, per_page: 10, totaldctos: 0,
     })
 
     const showDialogEmail = ref(false)
@@ -267,15 +268,16 @@ import { VRow } from 'vuetify/components'
     const orderBy         = ref()
 
     const headers = [
-        { title: '# Id',                    key: 'id',            width: '5%' },
-        { title: 'Fecha Documento',          key: 'date_issue',    sortable: true },
-        { title: 'Número de Documento',      key: 'number',        sortable: true, width: '6px' },
-        { title: 'Prefijo',                  key: 'prefix',        sortable: true },
-        { title: 'Tipo Documento',           key: 'document_name', sortable: true },
-        { title: 'Nit/Cédula',              key: 'customer',      sortable: true },
-        { title: 'Nombre del Cliente/Proveedor', key: 'client_name', sortable: true, width: '35%' },
-        { title: 'Valor Documento',          key: 'sale',          sortable: true },
-        { title: 'Acciones',                 key: 'actions',       sortable: false, width: '20px' },
+        { title: 'Fecha Documento',                 key: 'Fecha',    sortable: true },
+        { title: 'Número de Documento',             key: 'NroDocumento',        sortable: true, width: '6px' },
+        { title: 'Prefijo',                         key: 'Prefijo',        sortable: true },
+        { title: 'Tipo Documento',                  key: 'TipoDocumento', sortable: true },
+        { title: 'Nit/Cédula',                      key: 'NitEmisor',      sortable: true },
+        { title: 'Nombre del Cliente/Proveedor',    key: 'Emisor', sortable: true, width: '35%' },
+        { title: 'Valor Documento',                 key: 'ValorTotal',          sortable: true },
+        { title: 'Valor Impuestos',                 key: 'ValorImptos',         sortable: true },
+        { title: 'Valor Documento',                 key: 'ValorTotal',          sortable: true },
+        { title: 'Acciones',                        key: 'actions',       sortable: false, width: '20px' },
     ]
 
     const updateOptions = async (options: any) => {
@@ -287,11 +289,14 @@ import { VRow } from 'vuetify/components'
     }
 
     const generarConsulta = async () => {
-        console.log("Generando consulta con parámetros: WebScraping")
+        //console.log("Generando consulta con parámetros: WebScraping :",datafechas.value.desdefecha,"-", datafechas.value.hastafecha)       
         loading.value = true
-        try {
-            
+        try {            
             const response = await axios.post('/api/scraping/dianf', {
+                url_token    : urlCompletaDian.value,
+                company_id   : localStorage.getItem('company_id'),
+                fechadesde   : datafechas.value.desdefecha,
+                fechahasta   : datafechas.value.hastafecha,
                 q            : searchQuery.value,
                 itemsPerPage : itemsPerPage.value,
                 page         : page.value,
@@ -304,6 +309,9 @@ import { VRow } from 'vuetify/components'
                 },
             })
             loading.value = false
+            console.log("Respuesta del servidor:", response.data.data)
+            _facturas.value = response.data.data
+
         } catch (error) {
             console.error('Error al generar consulta:', error)
             loading.value = false
@@ -312,11 +320,13 @@ import { VRow } from 'vuetify/components'
 
     onMounted(() => generarConsulta())
 
-    const facturas      = computed(() => invoiceData.value.data ?? [])
+    const facturas      = computed(() => _facturas.value)
     const currentPage   = computed(() => invoiceData.value.page ?? page.value)
     const perPage       = computed(() => invoiceData.value.per_page ?? itemsPerPage.value)
     const totalInvoices = computed(() => invoiceData.value.total ?? 0)
     const totaldctos    = computed(() => invoiceData.value.totaldctos ?? 0)
+
+    console.log("Respuesta del servidor 2:", invoiceData.value.data)
 
     const sendEmail = async () => {
         loading.value        = true
@@ -354,13 +364,8 @@ import { VRow } from 'vuetify/components'
           <VRow class="align-center">
               <VCol cols="12" md="3" class="d-flex align-center flex-column">
                   <h3 class="text-primary mb-2">Recepción de Facturas</h3>
-
                   <VBtn
-                      color="primary"
-                      variant="elevated"
-                      prepend-icon="tabler-world-www"
-                      :disabled="isLoading || isEsperando"
-                      @click="loadDianPortal">
+                      color="primary" variant="elevated" prepend-icon="tabler-world-www" :disabled="isLoading || isEsperando" @click="loadDianPortal">
                       Generar Token
                   </VBtn>
 
@@ -436,17 +441,13 @@ import { VRow } from 'vuetify/components'
 
               <VCol cols="12" md="2" class="d-flex align-center justify-start mt-md-5 mt-2">
                   <VBtn rounded="pill" color="primary" variant="flat" block @click="generarConsulta">
-                      Generar Consulta 2
+                      Generar Consulta 
                   </VBtn>
               </VCol>
           </VRow>
       </VCard>
 
-      <VDialog
-          v-model="showIframeDialog"
-          fullscreen
-          transition="dialog-bottom-transition"
-        >
+      <VDialog v-model="showIframeDialog" fullscreen transition="dialog-bottom-transition">
           <VCard>
             <VToolbar color="primary">
               <VBtn icon @click="closeIframe">
@@ -471,16 +472,13 @@ import { VRow } from 'vuetify/components'
                 <p class="text-h6">Conectando con el servidor de la DIAN...</p>
               </div>
 
-              <iframe 
-                v-if="iframeSource"
-                :src="iframeSource" 
-                class="dian-iframe-full"
+              <iframe v-if="iframeSource" :src="iframeSource" class="dian-iframe-full"
                 sandbox="allow-forms allow-modals allow-popups allow-scripts allow-same-origin"
                 @load="onIframeLoad"
               ></iframe>
             </VCardText>
           </VCard>
-       </VDialog>
+      </VDialog>
 
 
       <section v-if="facturas && facturas.length">
@@ -498,52 +496,20 @@ import { VRow } from 'vuetify/components'
                 class="text-no-wrap text-body-2 company-table capitalize"
                 @update:options="updateOptions"
               >
-                <!-- Slots de Cabecera -->
-                <template #header.date_issue>
+
+              <template #header.Fecha>
                   <div style="text-align:center; white-space:normal;">
                     Fecha<br>Documento
                   </div>
-                </template>
-
-                <template #header.number>
+              </template>
+              <template #header.NroDocumento>
                   <div style="text-align:center; white-space:normal;">
                     Número<br>de Documento
                   </div>
-                </template>  
+              </template>
 
-                <template #item.document_name="{ item }">
-                  <div style="width: 130px; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    <!-- {{ item.document_name }} -->
-                  </div>
-                </template>
-
-                <template #item.client_name="{ item }">
-                  <div style="width:340px; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    <!-- {{ item.client_name}} -->
-                  </div>
-                </template>
-
-
-                <template #header.sale>
-                  <div style="text-align:center; white-space:normal;">
-                    Total<br>Documento
-                  </div>
-                </template> 
-
-                <template #header.actions>
-                  <div style="text-align:center; white-space:normal;">
-                    Acciones
-                  </div>
-                </template>
                 
-                <!-- Slots de Items -->
-                <template #item.sale="{ item }">
-                    <div style="text-align:right;">
-                         <!-- {{ formatCurrency(item.sale) }}  -->
-                    </div>
-                </template>
-
-                <template #item.actions="{ item }">
+              <template #item.actions="{ item }">
                     <IconBtn>
                       <VIcon icon="tabler-file-type-xml" color="primary" @click="" />
                     </IconBtn>
@@ -553,7 +519,7 @@ import { VRow } from 'vuetify/components'
                     <IconBtn>
                       <VIcon icon="tabler-mail" color="warning" @click="abrirDialogoEmail(item)" />
                     </IconBtn>
-                </template>
+              </template>
 
                 <!-- Slot Bottom Personalizado -->
                 <template #bottom>
@@ -592,42 +558,7 @@ import { VRow } from 'vuetify/components'
               <VOverlay :model-value="loading" persistent class="align-center justify-center">
                   <VProgressCircular indeterminate size="64" color="primary" />
               </VOverlay>
-            </VCard>
-
-            <!-- 🔹 Enviar Correos  -->
-            <VDialog v-model="showDialogEmail" persistent max-width="500px">
-                <VCard>
-                    <VCardTitle class="modal-title d-flex align-center">
-                      <VIcon icon="tabler-send" size="26" color="white" class="me-3" />
-                      <span class="text-white text-h5">{{ 'Enviar Documentos (Correo Electrónico)'}}</span>
-                    </VCardTitle>
-
-                    <VCardTitle class="d-flex align-center">
-                       <VRow>
-                          <VCol>
-                            <span class="text-error text-body-2">Documento: <strong>{{ selectedInvoice?.prefix }}{{ selectedInvoice?.number }}</strong></span><br>
-                            <span class="text-info text-body-2"><strong>{{ selectedInvoice?.client_name}}</strong></span>
-                          </VCol>                     
-                                         
-                       </VRow>                        
-                    </VCardTitle>
-                    
-                    <VCardText class="pt-4">
-                      <VForm @submit.prevent="sendEmail" ref="userFormRef" v-model="isFormValid">
-                        <VTextField v-model="capturarEmail.email" label="Correo Electrónico:" :type="isPasswordVisible ? 'text' : 'email'" required :rules="[rules.email]" autofocus class="mb-3" 
-                            @update:model-value="val => capturarEmail.email = val.toLowerCase()" placeholder="Ingresar Correo Electrónico">
-                          <template #prepend-inner>
-                              <VIcon icon="tabler-mail" color="primary" size="22" class="me-3" />
-                          </template>
-                        </VTextField>                   
-                      </VForm>
-                    </VCardText>
-                    <VCardActions class="justify-end pb-4 px-6">         
-                      <VBtn color="success" variant="flat" class = "text-white" @click="showDialogEmail = false">Cancelar</VBtn>
-                      <VBtn color="primary" variant="flat" class = "text-white" @click="sendEmail">Enviar</VBtn>
-                    </VCardActions>
-                </VCard>
-            </VDialog>
+            </VCard>        
       </section>
 
       <section v-else>

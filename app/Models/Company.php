@@ -31,6 +31,7 @@ class Company extends Model
         'technicalkey',
         'endpoint1',
         'endpoint2',
+        'endpoint3',
         'city',
         'date_from',
         'date_to',

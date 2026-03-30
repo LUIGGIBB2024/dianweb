@@ -18,6 +18,7 @@ export interface Company {
   date_from:string
   date_to:string,
   endpoint2:string,
+  endpoint3:string,
   days_difference:number,
 }
 

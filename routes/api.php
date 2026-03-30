@@ -67,7 +67,6 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/dian/solicitar-token', [DianController::class, 'solicitarToken']);
     Route::post('/dian/verificar-token',  [DianController::class, 'verificarToken']);
     Route::post('/dian/timeout',         [DianController::class, 'timeout']);
-
     Route::post('/n8n/webhook',         [DianController::class, 'webHook']);
 });
 

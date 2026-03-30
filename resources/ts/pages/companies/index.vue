@@ -61,6 +61,7 @@ const newCompany = ref({
   city: '',
   endpoint1: '',
   endpoint2: '',
+  endpoint3: '',
   token: '',
   date_from: ref(hoy),
   date_to: ref(hoy),
@@ -110,6 +111,7 @@ watch(showDialog, (isOpen) => {
       city: '',
       endpoint1: '',
       endpoint2: '',
+      endpoint3: '',     
       token: '',
       date_from: ref(hoy),
       date_to: ref(hoy),      
@@ -209,6 +211,7 @@ const openEditDialog = (company) => {
     city: company.city,
     endpoint1: company.endpoint1,
     endpoint2: company.endpoint2,
+    endpoint3: company.endpoint3,
     token: company.token,
     date_from: company.date_from,
     date_to:company.date_to,
@@ -233,6 +236,7 @@ const openCreateDialog = () => {
     city: '',
     endpoint1: '',
     endpoint2: '',
+    endpoint3: '',
     token: '',
     date_from: ref(hoy),
     date_to:ref(hoy),
@@ -511,24 +515,31 @@ const deleteCompany = async () => {
             </VRow>
             <VRow dense align="center" class="g-2">
               <VCol cols="12" md="6" class="py-0"> 
-                  <AppTextField v-model="newCompany.endpoint1" label="Endpoint # 1" class="mb-3 text_size" required :rules="[rules.required]" 
-                    placeholder="Ingrese el endpoint # 1" @update:model-value="val => newCompany.endpoint1 = val.toLowerCase()">
+                  <AppTextField v-model="newCompany.endpoint1" label="Endpoint (API DIAN)" class="mb-3 text_size" required :rules="[rules.required]" 
+                    placeholder="Ingrese el endpoint (API DIAN)" @update:model-value="val => newCompany.endpoint1 = val.toLowerCase()">
                     <template #prepend-inner>
                       <VIcon icon="tabler-link" color="primary" size="22" class="me-2" />
                     </template>
                   </AppTextField>
                </VCol>
               <VCol cols="12" md="6" class="py-0"> 
-                  <AppTextField v-model="newCompany.endpoint2" label="Endpoint # 2" class="mb-3 text_size" required :rules="[rules.required]" 
-                    placeholder="Ingrese el endpoint # 2" @update:model-value="val => newCompany.endpoint2 = val.toLowerCase()">
+                  <AppTextField v-model="newCompany.endpoint2" label="Endpoint (N8N)" class="mb-3 text_size" required :rules="[rules.required]" 
+                    placeholder="Ingrese el endpoint (N8N)" @update:model-value="val => newCompany.endpoint2 = val.toLowerCase()">
                     <template #prepend-inner>
                       <VIcon icon="tabler-link" color="primary" size="22" class="me-2" />
                     </template>
                   </AppTextField>
-               </VCol>
-               
+               </VCol>               
             </VRow>   
             <VRow dense align="center" class="g-2">
+              <VCol cols="12" md="6" class="py-0"> 
+                  <AppTextField v-model="newCompany.endpoint3" label="Endpoint (Scraping)" class="mb-3 text_size" required :rules="[rules.required]" 
+                    placeholder="Ingrese el endpoint # (Scraping)" @update:model-value="val => newCompany.endpoint3 = val.toLowerCase()">
+                    <template #prepend-inner>
+                      <VIcon icon="tabler-link" color="primary" size="22" class="me-2" />
+                    </template>
+                  </AppTextField>
+              </VCol>
               <VCol cols="12" md="6" class="py-0"> 
                     <AppTextarea   v-model="newCompany.token" label="Token de Autenticación" placeholder="Ingrese el Token de Autenticación" class="mb-3 text-area-lg" density="comfortable" >
                       <template #prepend-inner>

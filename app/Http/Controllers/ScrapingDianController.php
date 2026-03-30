@@ -210,28 +210,52 @@ class ScrapingDianController extends Controller
 
     public function extraerTabla(Request $request)
     {
-        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77023910&rk=77023910&token=b54429d7-5037-4288-b647-f49f8f4836cc";
+        //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=a15f2726-00e8-4d24-bed6-4d0bf0171c96";
+        $url = $request->url_token;
 
-        $scriptPath = base_path('puppeteer-click.js');
+        // $scriptPath = base_path('puppeteer-click.js');
 
-        $proceso = new \Symfony\Component\Process\Process([
-            'node',
-            $scriptPath,
-            $url
-        ]);
+        // $proceso = new \Symfony\Component\Process\Process([
+        //      'node',
+        //      $scriptPath,
+        //      $url
+        //  ]);
 
-        $proceso->setTimeout(120);
-        $proceso->run();
+        // $proceso->setTimeout(120);
+        // $proceso->run();
 
-        if (!$proceso->isSuccessful()) {
+        // Tomar el usuario autenticado EN ESTA PETICIÓN específica
+        //$user    = User::find($request->user_id); // equivalente a Auth::user() pero más explícito
+        $company = Company::find($request->company_id);
+
+        $endpoint = preg_replace('/\\s+/', '', $company->endpoint3);
+
+        $response = Http::withoutVerifying()
+            ->withHeaders([
+                'X-API-KEY'     => '6ed6d9ae8423598a5287ab60df52442f1d60c3ae5fcf877bcdbc1fedd1d24316',
+                'Content-Type'  => 'application/json; charset=UTF-8',
+                'Accept'        => 'application/json',
+            ])->post($endpoint, [
+                'nitempresa'                => $company->nit,
+                'nitrepresentantelegal'     => $company->nit_representante_legal,
+                'fechadesde'                => $request->fechadesde,
+                'fechahasta'                => $request->fechahasta,
+                'type'                      => '2',
+                'headless'                  => false,
+                'url_dian'                  => $url,
+            ]);
+
+        if ($response->successful()) {
             return response()->json([
-                'error'  => 'Error ejecutando Puppeteer',
-                'output' => $proceso->getErrorOutput(),
-            ], 500);
+                'message'             => '📤 Recepción Exitosa',
+                'status '             => $response->status(),
+                'TotalDocumentos'     => $response->json('TotalDocumentos') ?? 0,
+                'data'                => $response->json('data'),
+            ], 200);
+
+            $resultado = json_decode($proceso->getOutput(), true);
+
+            return response()->json($resultado);
         }
-
-        $resultado = json_decode($proceso->getOutput(), true);
-
-        return response()->json($resultado);
     }
 }

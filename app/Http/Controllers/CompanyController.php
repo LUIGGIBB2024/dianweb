@@ -25,7 +25,7 @@ class CompanyController extends Controller
         //'name','nit','dv','email','address','phone','token','technicalkey','endpoint1', 'endpoint2', 'city', 'date_from', 'date_to'
 
         $fechahoy = now()->format('y-m-d');
-        $query = Company::select('id', 'nit', 'dv', 'representativeid', 'name', 'email', 'address', 'phone', 'token', 'technicalkey', 'endpoint1', 'endpoint2', 'city', 'date_from', 'date_to', 'dian_email')
+        $query = Company::select('id', 'nit', 'dv', 'representativeid', 'name', 'email', 'address', 'phone', 'token', 'technicalkey', 'endpoint1', 'endpoint2', 'endpoint3', 'city', 'date_from', 'date_to', 'dian_email')
             ->selectRaw('DATEDIFF(?, date_to) AS days_difference', [$fechahoy])
             ->get();
         //$q =  Str::upper($request->q);      
@@ -77,6 +77,7 @@ class CompanyController extends Controller
             'city' => 'nullable|string|max:100',
             'endpoint1' => 'nullable|string|max:255',
             'endpoint2' => 'nullable|string|max:255',
+            'endpoint3' => 'nullable|string|max:255',
             'token' => 'nullable|string|max:255',
             'date_from' => 'nullable',
             'date_to' => 'nullable',
@@ -104,6 +105,7 @@ class CompanyController extends Controller
             'city' => 'nullable|string|max:100',
             'endpoint1' => 'nullable|string|max:255',
             'endpoint2' => 'nullable|string|max:255',
+            'endpoint3' => 'nullable|string|max:255',
             'token' => 'nullable|string|max:255',
             'date_from' => 'nullable',
             'date_to' => 'nullable',
