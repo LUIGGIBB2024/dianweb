@@ -90,13 +90,28 @@ import { VRow } from 'vuetify/components'
         }
 
         // 3. Abre ventana DIAN
+        const url_person        = `https://catalogo-vpfe.dian.gov.co/User/PersonLogin`
+        const url_companies     = `https://catalogo-vpfe.dian.gov.co/User/CompanyLogin`
+        const url_final = ref(url_companies)
         const width  = 1200
         const height = 800
         const left   = (screen.width  - width)  / 2
         const top    = (screen.height - height) / 2
 
+        const _nit_empresa = ref(localStorage.getItem('nit_empresa'))
+
+        const nit = _nit_empresa.value?.trim() || '';
+        const esNitValido = /^[89]\d{8}$/.test(nit);
+
+        if (!esNitValido) {
+           url_final.value = url_person
+        }
+        
+
+
+        //'https://catalogo-vpfe.dian.gov.co/User/PersonLogin'
         dianWindows = window.open(
-            'https://catalogo-vpfe.dian.gov.co/User/Login',
+             url_final.value,
             'PortalDIAN',
             `width=${width},height=${height},left=${left},top=${top},scrollbars=yes,resizable=yes`
         )
