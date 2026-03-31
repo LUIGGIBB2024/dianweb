@@ -105,8 +105,7 @@ import { VRow } from 'vuetify/components'
 
         if (!esNitValido) {
            url_final.value = url_person
-        }
-        
+        }        
 
 
         //'https://catalogo-vpfe.dian.gov.co/User/PersonLogin'
