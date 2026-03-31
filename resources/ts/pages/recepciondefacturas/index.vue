@@ -8,24 +8,6 @@ import { VRow } from 'vuetify/components'
 
     const yaBusco = ref(false) // Nueva variable de control
 
-    const generarConsulta1 = async () => {
-        yaBusco.value = true // Se activa al dar clic
-        loading.value = true
-        // ... resto del código de la función ...
-    }
-
-    const updateOptions1 = async (options: any) => {
-        // Solo actualiza si ya se hizo la primera búsqueda manual
-        if (!yaBusco.value) return 
-
-        page.value = options.page
-        itemsPerPage.value = options.itemsPerPage
-        sortBy.value = options.sortBy[0]?.key
-        orderBy.value = options.sortBy[0]?.order
-        await generarConsulta()
-    }
-
-
     const iframeSource = ref<string | null>(null)
     const isLoading = ref(false)
     const showIframeDialog = ref(false) 
@@ -60,24 +42,7 @@ import { VRow } from 'vuetify/components'
         console.log("Token en LoadDianPortal:", token)
         console.log("Company ID en LoadDianPortal:", companyId) 
         console.log("USe ID en LoadDianPortal:", userId) 
-
-        // // 1. Registra solicitud en Laravel
-        // try {
-        //     await axios.post('/api/dian/solicitar-token',
-        //     {
-        //          token: token,
-        //          company_id: companyId , // ← agrega esto
-        //          user_id: userId  // ← agrega esto
-        //     }, 
-        //     {
-        //         headers: { Authorization: `Bearer ${token}` }
-        //     })
-        // } catch (e: any) {
-        //     mensajeError.value = e.response?.data?.error || 'Error al solicitar token'
-        //     return
-        // }
-
-        // 2. Copia cédula al portapapeles
+   
         try {
             const textarea = document.createElement('textarea')
             textarea.value = cedulaUsuario.value
@@ -266,20 +231,21 @@ import { VRow } from 'vuetify/components'
     }
 
     const formatCurrency = (value: number | string): string => {
-        // Limpiar el string: quitar espacios y posibles símbolos
-        const cleaned = String(value).trim().replace(/[^\d.,-]/g, '')
-        
-        // Si usa coma como decimal (ej: "284.201,76"), normalizar a punto
-        const normalized = cleaned.includes(',') && cleaned.indexOf(',') > cleaned.indexOf('.')
-            ? cleaned.replace(/\./g, '').replace(',', '.')
-            : cleaned.replace(/,/g, '') // quitar comas de miles si las trae
-        
-        const num = parseFloat(normalized) || 0
+  // Limpiar el string: quitar espacios y símbolos
+    const cleaned = String(value).trim().replace(/[^\d.,-]/g, '')
 
-        return num.toLocaleString('es-CO', {
-            minimumFractionDigits: 2,
-            maximumFractionDigits: 2
-        })
+    // Normalizar formato
+    const normalized =
+        cleaned.includes(',') && cleaned.indexOf(',') > cleaned.indexOf('.')
+        ? cleaned.replace(/\./g, '').replace(',', '.') // formato europeo
+        : cleaned.replace(/,/g, '') // formato US
+
+    const num = parseFloat(normalized) || 0
+
+    return num.toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+    })
     }
 
     const hoy           = new Date().toISOString().split('T')[0]
@@ -334,7 +300,7 @@ import { VRow } from 'vuetify/components'
         await generarConsulta()
     }
 
-    const updateOptions = async (options: any) => {
+    const updateOptions1 = async (options: any) => {
         // Solo actualiza si ya se hizo la primera búsqueda manual
         if (!yaBusco.value) return 
 
@@ -345,41 +311,80 @@ import { VRow } from 'vuetify/components'
         await generarConsulta()
     }
 
+    const updateOptions = async (options: any) => 
+    {
+        if (!yaBusco.value) return
+
+        const newPage = options.page
+        const newItemsPerPage = options.itemsPerPage
+        const newSortBy = options.sortBy[0]?.key
+        const newOrderBy = options.sortBy[0]?.order
+
+        // 🔥 evita llamadas innecesarias
+        if (
+            page.value === newPage &&
+            itemsPerPage.value === newItemsPerPage &&
+            sortBy.value === newSortBy &&
+            orderBy.value === newOrderBy
+        ) return
+
+        page.value = newPage
+        itemsPerPage.value = newItemsPerPage
+        sortBy.value = newSortBy
+        orderBy.value = newOrderBy
+
+        await generarConsulta()
+    }
+
     const generarConsulta = async () => {
-        yaBusco.value = true // Se activa al dar clic
+        yaBusco.value = true
         loading.value = true
-        //console.log("Generando consulta con parámetros: WebScraping :",datafechas.value.desdefecha,"-", datafechas.value.hastafecha)       
-        
-        try {            
+
+        try {
             const response = await axios.post('/api/scraping/dianf', {
-                url_token    : urlCompletaDian.value,
-                company_id   : localStorage.getItem('company_id'),
-                fechadesde   : datafechas.value.desdefecha,
-                fechahasta   : datafechas.value.hastafecha,
-                q            : searchQuery.value,
-                itemsPerPage : itemsPerPage.value,
-                page         : page.value,
-                sortBy       : sortBy.value,
-                orderBy      : orderBy.value,
+            url_token    : urlCompletaDian.value,
+            company_id   : localStorage.getItem('company_id'),
+            fechadesde   : datafechas.value.desdefecha,
+            fechahasta   : datafechas.value.hastafecha,
+            q            : searchQuery.value,
+            itemsPerPage : itemsPerPage.value,
+            page         : page.value,
+            sortBy       : sortBy.value,
+            orderBy      : orderBy.value,
             }, {
-                headers: {
-                    'Authorization' : `Bearer ${token}`,
-                    'Content-Type' : 'application/json',
-                },
+            headers: {
+                Authorization : `Bearer ${token}`,
+                'Content-Type': 'application/json',
+            },
             })
-            loading.value = false
-            console.log("Respuesta del servidor:", response.data.data)
-            _facturas.value = response.data.data
+
+            const data = response.data
+
+            // 🔥 AQUÍ ESTÁ LA CLAVE
+            invoiceData.value = {
+            data: data.data,
+            total: data.total,
+            page: data.page,
+            per_page: data.per_page,
+            totaldctos: data.totaldctos,
+            status: data.status,
+            TotalDocumentos: data.TotalDocumentos
+            }
+
+            // opcional (puedes eliminar _facturas)
+            _facturas.value = data.data
 
         } catch (error) {
             console.error('Error al generar consulta:', error)
+        } finally {
             loading.value = false
         }
-    }
+        }
 
     //onMounted(() => generarConsulta())
 
-    const facturas      = computed(() => _facturas.value)
+    //const facturas      = computed(() => _facturas.value)
+    const facturas      = computed(() => invoiceData.value.data || [])
     const currentPage   = computed(() => invoiceData.value.page ?? page.value)
     const perPage       = computed(() => invoiceData.value.per_page ?? itemsPerPage.value)
     const totalInvoices = computed(() => invoiceData.value.total ?? 0)
@@ -517,8 +522,8 @@ import { VRow } from 'vuetify/components'
                 :items="facturas"
                 :items-length="totalInvoices"
                 item-value="id"
-                show-select
-                :search-field="searchQuery"   
+                show-select               
+                :search="searchQuery"
                 class="text-no-wrap text-body-2 company-table capitalize"
                 @update:options="updateOptions"
               >
@@ -595,9 +600,9 @@ import { VRow } from 'vuetify/components'
                   </div>
               </template>
               <template #item.ValorParcial="{ item }">
-                  <div class="_fila" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">           
-                    {{ formatCurrency(item.ValorParcial) }} 
-                  </div>
+                <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">           
+                    {{ formatCurrency((item.ValorTotal || 0) - (item.ValorImptos || 0)) }} 
+                </div>
               </template>
 
               <template #header.ValorImptos>
@@ -606,7 +611,7 @@ import { VRow } from 'vuetify/components'
                   </div>
               </template>
               <template #item.ValorImptos="{ item }">
-                  <div class="_fila" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                   
+                  <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                   
                     {{ formatCurrency(item.ValorImptos) }} 
                   </div>
               </template>
@@ -648,13 +653,13 @@ import { VRow } from 'vuetify/components'
                            </div>
                       </VCol>
                       <VCol cols="12" md="4" class="d-flex justify-center pagination-wrapper"> 
-                           <VPagination
+                           <!-- <VPagination
                                 v-model="page"
                                 :length="Math.ceil(totalInvoices / perPage)"
                                 rounded="circle"
                                 size="large"
                                 :total-visible="5"
-                           />
+                           /> -->
                        </VCol>
                        <VCol cols="12" md="4">
                           <div class="text-caption text-medium-emphasis ps-4 text-end">
