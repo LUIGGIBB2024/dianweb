@@ -387,8 +387,8 @@ import { VRow } from 'vuetify/components'
     const facturas      = computed(() => invoiceData.value.data || [])
     const currentPage   = computed(() => invoiceData.value.page ?? page.value)
     const perPage       = computed(() => invoiceData.value.per_page ?? itemsPerPage.value)
-    const totalInvoices = computed(() => invoiceData.value.total ?? 0)
-    const totaldctos    = computed(() => invoiceData.value.totaldctos ?? 0)
+    const totalInvoices = computed(() => invoiceData.value.TotalDocumentos ?? 0)
+    const totaldctos    = computed(() => invoiceData.value.TotalDocumentos ?? 0)
 
     console.log("Respuesta del servidor 2:", invoiceData.value.data)
 

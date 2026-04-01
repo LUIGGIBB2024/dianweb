@@ -235,15 +235,8 @@ import { VRow } from 'vuetify/components'
 
       <section v-if="facturas && facturas.length">
             <VCard>
-              <VDataTableServer
-                v-model:items-per-page="itemsPerPage"
-                v-model:page="page"
-                :headers="headers"
-                :items="invoiceData.data"
-                :items-length="totalInvoices"
-                @update:options="updateOptions"
-              />
-              <!-- <VDataTableServer
+            
+               <VDataTableServer
                 v-model:model-value="selectedRows"
                 v-model:items-per-page="itemsPerPage"
                 v-model:page="page"               
@@ -256,7 +249,7 @@ import { VRow } from 'vuetify/components'
                 class="text-no-wrap text-body-2 company-table capitalize"
                 @update:options="updateOptions"
               > 
-                -- Slots de Cabecera -->
+                <-- Slots de Cabecera -->
                 <template #header.date_issue>
                   <div style="text-align:center; white-space:normal;">
                     Fecha<br>Documento
