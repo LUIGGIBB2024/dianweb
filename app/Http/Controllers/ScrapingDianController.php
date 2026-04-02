@@ -230,7 +230,7 @@ class ScrapingDianController extends Controller
                     'fechadesde'                => $request->fechadesde,
                     'fechahasta'                => $request->fechahasta,
                     'type'                      => '2',
-                    'headless'                  => false,
+                    'headless'                  => true,
                     'url_dian'                  => $url,
                 ]);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
