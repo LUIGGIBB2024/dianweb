@@ -422,7 +422,7 @@ class ScrapingDianController extends Controller
             //dd($item);
             $numerofactura = $item['NroDocumento'] ?? 0;
             $prefijo       = $item['Prefijo'] ?? '';
-            $nit           = $item['NitReceptor'] ?? '';
+            $nit           = $item['NitEmisor'] ?? '';
             $subtotal      = $item['ValorTotal'] - $item['ValorImptos'];
 
             try {
@@ -433,7 +433,7 @@ class ScrapingDianController extends Controller
                         'date_issue'           => $item['Fecha'],
                         'expiration_date'      => $item['Fecha'],
                         'document_name'        => $item['TipoDocumento'],
-                        'client_name'          => $item['Receptor'],
+                        'client_name'          => $item['Emisor'],
                         'subtotal'             => $subtotal,
                         'discounts'           => 0,
                         'vatvalue'             => $item['ValorImptos'],
