@@ -12,7 +12,7 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('puchaces_invoices', function (Blueprint $table) {
+        Schema::create('purchases_invoices', function (Blueprint $table) {
             $table->id();
             $table->dateTime('date_issue')->nullable()->index();
             $table->dateTime('expiration_date')->nullable();
@@ -21,7 +21,7 @@ return new class extends Migration
             $table->string('document_name', 30)->nullable();
             $table->string('supplier', 20)->nullable()->index();
             $table->string('supplier_name', 255)->nullable();
-            $table->decimal('subtotal', 20, 2)->nullable();             
+            $table->decimal('subtotal', 20, 2)->nullable();
             $table->decimal('vatvalue', 20, 2)->nullable();
             $table->decimal('reteiva', 20, 2)->nullable();
             $table->decimal('reteica', 20, 2)->nullable();

@@ -267,7 +267,7 @@ import { VRow } from 'vuetify/components'
     const selectedRows     = ref([])
 
     const invoiceData = ref({
-        status:"",TotalDocumentos:0,data: [], TotalValor: 0, page: 1, per_page: 10, totaldctos: 0,
+        status:"",TotalDocumentos:0,data: [], TotalValor: 0, TotalIva: 0, page: 1, per_page: 10, totaldctos: 0,
     })
 
     const showDialogEmail = ref(false)
@@ -276,7 +276,6 @@ import { VRow } from 'vuetify/components'
     const page            = ref(1)
     const sortBy          = ref()
     const orderBy         = ref()
-
 
 
     const updateOptions12 = async (options: any) => {
@@ -323,11 +322,31 @@ import { VRow } from 'vuetify/components'
         await generarConsulta('1')
     }
 
+    const props = defineProps({
+    totalVentas:        { type: Number, default: 0 },
+    totalIva:           { type: Number, default: 0 },
+    totalDocumentos:    { type: Number, default: 0 },
+    totalCompras:       { type: Number, default: 0 },
+    totalIvaCompras:    { type: Number, default: 0 },
+    numDocumentos:      { type: Number, default: 0 },
+    })
+
+    const totalVentas    = ref(0)
+    const totalIva       = ref(0)
+    const totalCompras   = ref(0)
+    const totalIvaCompras = ref(0)
+    const numDocumentosCompras = ref(0)
+    const numDocumentosVentas = ref(0)
+
+    const granTotal = computed(() => props.totalVentas + props.totalIva)
+    const granTotalCompras = computed(() => props.totalCompras + props.totalIvaCompras)
+
     const generarConsulta = async (type:any) => {
         yaBusco.value = true
         loading.value = true
 
-        try {
+        try 
+        {
             const response = await axios.post(`/api/scraping/dianf/${type}`, {
             url_token    : urlCompletaDian.value,
             company_id   : localStorage.getItem('company_id'),
@@ -350,17 +369,29 @@ import { VRow } from 'vuetify/components'
             // 🔥 AQUÍ ESTÁ LA CLAVE
             invoiceData.value = {
             data: data.data,
-            TotalValor: data.TotalValor ?? 0,           
+            TotalValor: data.TotalValor ?? 0,     
+            TotalIva: data.TotalIva ?? 0,      
             page: data.page,
             per_page: data.per_page,
             totaldctos: data.ValorTotal ?? 0,
             status: data.status,
-            TotalDocumentos: data.TotalDocumentos
+            TotalDocumentos: data.TotalDocumentos            
             }
 
             // opcional (puedes eliminar _facturas)
             _facturas.value = data.data
             console.log("Respuesta del servidor 20:", invoiceData.value.TotalDocumentos," - ", invoiceData.value.TotalValor)
+            if (type === '1') 
+            {
+               totalVentas.value = data.TotalValor ?? 0
+               totalIva.value = data.TotalIva ?? 0
+               numDocumentosVentas.value = data.TotalDocumentos ?? 0
+            } else if (type === '2') {
+                totalCompras.value = data.TotalValor ?? 0
+                totalIvaCompras.value    = data.TotalIva ?? 0 
+                numDocumentosCompras.value = data.TotalDocumentos ?? 0               
+            }
+
 
         } catch (error) {
             console.error('Error al generar consulta:', error)
@@ -409,15 +440,7 @@ import { VRow } from 'vuetify/components'
         showDialogEmail.value = true
     }
   
-
-
-    const props = defineProps({
-    totalVentas:     { type: Number, default: 0 },
-    totalIva:        { type: Number, default: 0 },
-    totalDocumentos: { type: Number, default: 0 },
-    })
-
-    const granTotal = computed(() => props.totalVentas + props.totalIva)
+    
 
     const formatCOP = (valor) =>
     new Intl.NumberFormat('es-CO', {
@@ -561,11 +584,11 @@ import { VRow } from 'vuetify/components'
                             </div>
                             <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total ventas</span>
                             <span class="text-h6 font-weight-medium mt-1">
-                               {{ formatCOP(totalVentas) }}
+                               {{ formatCurrency((totalVentas || 0) - (totalIva || 0)) }} 
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #185FA5;">
-                               ● {{ totalDocumentos }} documentos
+                               ● {{ numDocumentosVentas }} documentos
                             </span>
                         </div>
                     </VCol>
@@ -577,8 +600,8 @@ import { VRow } from 'vuetify/components'
                                <VIcon icon="tabler-receipt-tax" color="#3B6D11" size="18" />
                             </div>
                             <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total IVA</span>
-                            <span class="text-h6 font-weight-medium mt-1">
-                               {{ formatCOP(totalIva) }}
+                            <span class="text-h6 font-weight-medium mt-1" >                            
+                               {{ formatCurrency(totalIva) }} 
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #3B6D11;">
@@ -594,8 +617,8 @@ import { VRow } from 'vuetify/components'
                                 <VIcon icon="tabler-currency-dollar" color="#534AB7" size="18" />
                             </div>
                             <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran total</span>
-                            <span class="text-h6 font-weight-medium mt-1">
-                                {{ formatCOP(granTotal) }}
+                            <span class="text-h6 font-weight-medium mt-1">                              
+                                {{ formatCurrency(totalVentas) }} 
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #534AB7;">
@@ -632,13 +655,13 @@ import { VRow } from 'vuetify/components'
                             <div class="metric-icon icon-ventas mb-2">
                                <VIcon icon="tabler-trending-up" color="#185FA5" size="18" />
                             </div>
-                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total ventas</span>
-                            <span class="text-h6 font-weight-medium mt-1">
-                               {{ formatCOP(totalVentas) }}
+                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total Compras</span>
+                            <span class="text-h6 font-weight-medium mt-1"> 
+                                {{ formatCurrency(totalCompras - totalIvaCompras) }}                                
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #185FA5;">
-                               ● {{ totalDocumentos }} documentos
+                               ● {{ numDocumentosCompras }} documentos
                             </span>
                         </div>
                     </VCol>
@@ -650,8 +673,8 @@ import { VRow } from 'vuetify/components'
                                <VIcon icon="tabler-receipt-tax" color="#3B6D11" size="18" />
                             </div>
                             <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total IVA</span>
-                            <span class="text-h6 font-weight-medium mt-1">
-                               {{ formatCOP(totalIva) }}
+                            <span class="text-h6 font-weight-medium mt-1">                               
+                               {{ formatCurrency(totalIvaCompras) }}    
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #3B6D11;">
@@ -667,12 +690,12 @@ import { VRow } from 'vuetify/components'
                                 <VIcon icon="tabler-currency-dollar" color="#534AB7" size="18" />
                             </div>
                             <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran total</span>
-                            <span class="text-h6 font-weight-medium mt-1">
-                                {{ formatCOP(granTotal) }}
+                            <span class="text-h6 font-weight-medium mt-1">                               
+                                {{ formatCurrency(totalCompras) }}   
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #534AB7;">
-                              ● Ventas + IVA
+                              ● Compras + IVA
                             </span>
                         </div>
                     </VCol>
@@ -682,7 +705,7 @@ import { VRow } from 'vuetify/components'
 
 
       <VOverlay :model-value="loading" persistent class="align-center justify-center">
-            <VProgressCircular indeterminate size="64" color="primary" />
+          <VProgressCircular indeterminate size="64" color="primary" />
       </VOverlay>
  </template>  
 

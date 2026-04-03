@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
-class PuchacesInvoice extends Model
+class PurchasesInvoice extends Model
 {
     use HasFactory, Notifiable; // 👈 ESTE trait es el que añade createToken()
 
@@ -24,7 +24,10 @@ class PuchacesInvoice extends Model
         'supplier',
         'supplier_name',
         'total_purchase',
+        'discounts',
+        'subtotal',
         'vatvalue',
+        'retefuente',
         'reteiva',
         'reteica',
         'cufe',

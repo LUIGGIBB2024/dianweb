@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Models\Company;
 use App\Models\Control;
+use App\Models\PurchasesInvoice;
+use App\Models\SalesInvoice;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 #use Symfony\Component\Panther\Client;
@@ -12,6 +14,9 @@ use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Illuminate\Support\Facades\Http;
 use Spatie\Browsershot\Browsershot;
 use GuzzleHttp\Cookie\CookieJar;
+use Illuminate\Http\JsonResponse as HttpJsonResponse;
+use Symfony\Component\HttpFoundation\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Process\Process;
 
 class ScrapingDianController extends Controller
@@ -325,7 +330,7 @@ class ScrapingDianController extends Controller
     public function extraerTabla(Request $request)
     {
         $url = $request->url_token;
-        //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=e9f30059-c667-4460-86c6-7d87338f4c63";
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=35fbfb5d-668f-4403-ba63-50c8c76f69bc";
         $company = Company::find($request->company_id);
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint3);
 
@@ -336,7 +341,7 @@ class ScrapingDianController extends Controller
                 ->withHeaders([
                     'X-API-KEY'    => '6ed6d9ae8423598a5287ab60df52442f1d60c3ae5fcf877bcdbc1fedd1d24316',
                     'Content-Type' => 'application/json; charset=UTF-8',
-                    'Accept'        => 'application/json',
+                    'Accept'       => 'application/json',
                 ])->post($endpoint, [
                     'nitempresa'             => $company->nit,
                     'nitrepresentantelegal'  => $company->nit_representante_legal,
@@ -380,14 +385,135 @@ class ScrapingDianController extends Controller
                 ->sortBy('Fecha')
                 ->values(); // Resetear índices del array
 
+            if ($request->type == "1") {
+                try {
+                    $this->updateSales($filteredData, $request->company_id);
+                } catch (\Throwable $e) {
+                    dd($e->getMessage(), $e->getLine(), $e->getFile());
+                }
+            } else {
+                try {
+                    $this->updatePurchasesInvoices($filteredData, $request->company_id);
+                } catch (\Throwable $e) {
+                    dd($e->getMessage(), $e->getLine(), $e->getFile());
+                }
+            }
+
+
+
             return response()->json([
                 'status'          => 'success',
+                'type'            => $request->type,
                 'TotalDocumentos' => $filteredData->count(),
                 'TotalValor'      => $filteredData->sum('ValorTotal'),
+                'TotalIva'        => $filteredData->sum('ValorImptos'),
                 'data'            => $filteredData,
             ], 200);
         }
 
         return response()->json(['error' => 'Error al conectar con el servicio externo'], 500);
+    }
+
+
+    public function updateSales($resp, $company_id)
+    {
+
+        foreach ($resp as $item) {
+            //dd($item);
+            $numerofactura = $item['NroDocumento'] ?? 0;
+            $prefijo       = $item['Prefijo'] ?? '';
+            $nit           = $item['NitReceptor'] ?? '';
+            $subtotal      = $item['ValorTotal'] - $item['ValorImptos'];
+
+            try {
+                //dd($item);
+                $reg_fact       = SalesInvoice::updateOrCreate(
+                    ['number' => $numerofactura, 'prefix' => $prefijo, 'customer' => $nit, 'companies_id' => $company_id],
+                    [
+                        'date_issue'           => $item['Fecha'],
+                        'expiration_date'      => $item['Fecha'],
+                        'document_name'        => $item['TipoDocumento'],
+                        'client_name'          => $item['Receptor'],
+                        'subtotal'             => $subtotal,
+                        'discounts'           => 0,
+                        'vatvalue'             => $item['ValorImptos'],
+                        'retefuente'           => 0,
+                        'reteiva'              => 0,
+                        'reteica'              => 0,
+                        'impoconsumo'          => 0,
+                        'total_sale'           => $item['ValorTotal'],
+                        'cufe'                 => $item['data-id'],
+                        'state'                => 'ACTIVO',
+                    ]
+                );
+            } catch (\Exception $ex) {
+                return response()->json(
+                    // dd([
+                    //     'error'         => $ex->getMessage(),
+                    //     'linea'         => $ex->getLine(),
+                    //     'numerofactura' => $numerofactura,
+                    // ]),
+
+
+                    [
+                        'status'   => '404 OK',
+                        'msg'      => 'Error en la actualización de la factura: ' . $numerofactura,
+                        'error' => $ex,
+                    ],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+        }
+    }
+
+    public function updatePurchasesInvoices($resp, $company_id)
+    {
+
+        foreach ($resp as $item) {
+            //dd($item);
+            $numerofactura = $item['NroDocumento'] ?? 0;
+            $prefijo       = $item['Prefijo'] ?? '';
+            $nit           = $item['NitEmisor'] ?? '';
+            $subtotal      = $item['ValorTotal'] - $item['ValorImptos'];
+
+            try {
+                //dd($item);
+                $reg_fact       = PurchasesInvoice::updateOrCreate(
+                    ['number' => $numerofactura, 'prefix' => $prefijo, 'supplier' => $nit, 'companies_id' => $company_id],
+                    [
+                        'date_issue'           => $item['Fecha'],
+                        'expiration_date'      => $item['Fecha'],
+                        'document_name'        => $item['TipoDocumento'],
+                        'supplier_name'        => $item['Emisor'],
+                        'subtotal'             => $subtotal,
+                        'discounts'            => 0,
+                        'vatvalue'             => $item['ValorImptos'],
+                        'retefuente'           => 0,
+                        'reteiva'              => 0,
+                        'reteica'              => 0,
+                        'impoconsumo'          => 0,
+                        'total_purchase'           => $item['ValorTotal'],
+                        'cufe'                 => $item['data-id'],
+                        'state'                => 'ACTIVO',
+                    ]
+                );
+            } catch (\Exception $ex) {
+                return response()->json(
+                    // dd([
+                    //     'error'         => $ex->getMessage(),
+                    //     'linea'         => $ex->getLine(),
+                    //     'numerofactura' => $numerofactura,
+                    // ]),
+
+
+                    [
+                        'status'   => '404 OK',
+                        'msg'      => 'Error en la actualización de la factura: ' . $numerofactura,
+                        'error' => $ex,
+                    ],
+                    Response::HTTP_BAD_REQUEST
+                );
+            }
+        }
     }
 }
