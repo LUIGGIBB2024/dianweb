@@ -348,6 +348,7 @@ import { VRow } from 'vuetify/components'
         try 
         {
             const response = await axios.post(`/api/scraping/dianf/${type}`, {
+            tipoproceso  : type,    
             url_token    : urlCompletaDian.value,
             company_id   : localStorage.getItem('company_id'),
             fechadesde   : datafechas.value.desdefecha,
