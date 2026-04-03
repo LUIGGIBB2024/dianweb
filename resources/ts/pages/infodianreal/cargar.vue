@@ -1,9 +1,7 @@
 <script setup lang="ts">
 import axios from 'axios'
 import { Spanish } from 'flatpickr/dist/l10n/es.js'
-import fileDownload from 'js-file-download'
-import { url } from 'node:inspector'
-import { computed, onMounted, ref } from 'vue'
+import { computed, ref } from 'vue'
 import { VRow } from 'vuetify/components'
 
     const yaBusco = ref(false) // Nueva variable de control
@@ -98,10 +96,10 @@ import { VRow } from 'vuetify/components'
     const SolicitarTokenDian = async () => 
     {
 
-        const token         = localStorage.getItem('auth_token')
-        const userId        = localStorage.getItem('user_id')  
-        const companyId     = localStorage.getItem('company_id')  // ← agrega esta línea
-        const urln8n        = localStorage.getItem('url_n8n')  // ← 
+        const token          = localStorage.getItem('auth_token')
+        const userId         = localStorage.getItem('user_id')  
+        const companyId      = localStorage.getItem('company_id')  // ← agrega esta línea
+        const urln8n         = localStorage.getItem('url_n8n')  // ← 
         const nitEmpresa     = localStorage.getItem('nit_empresa')  // ←
         const representanteLegal = localStorage.getItem('representante_legal')  // ←
 
@@ -286,7 +284,7 @@ import { VRow } from 'vuetify/components'
         itemsPerPage.value = options.itemsPerPage
         sortBy.value       = options.sortBy[0]?.key
         orderBy.value      = options.sortBy[0]?.order
-        await generarConsulta()
+        await generarConsulta('1')
     }
 
     const updateOptions1 = async (options: any) => {
@@ -297,7 +295,7 @@ import { VRow } from 'vuetify/components'
         itemsPerPage.value = options.itemsPerPage
         sortBy.value = options.sortBy[0]?.key
         orderBy.value = options.sortBy[0]?.order
-        await generarConsulta()
+        await generarConsulta('1')
     }
 
     const updateOptions = async (options: any) => 
@@ -322,15 +320,15 @@ import { VRow } from 'vuetify/components'
         sortBy.value = newSortBy
         orderBy.value = newOrderBy
 
-        await generarConsulta()
+        await generarConsulta('1')
     }
 
-    const generarConsulta = async () => {
+    const generarConsulta = async (type:any) => {
         yaBusco.value = true
         loading.value = true
 
         try {
-            const response = await axios.post('/api/scraping/dianf', {
+            const response = await axios.post(`/api/scraping/dianf/${type}`, {
             url_token    : urlCompletaDian.value,
             company_id   : localStorage.getItem('company_id'),
             fechadesde   : datafechas.value.desdefecha,
@@ -369,7 +367,7 @@ import { VRow } from 'vuetify/components'
         } finally {
             loading.value = false
         }
-        }
+    }
 
     //onMounted(() => generarConsulta())
 
@@ -410,26 +408,30 @@ import { VRow } from 'vuetify/components'
         selectedInvoice.value = item
         showDialogEmail.value = true
     }
+  
 
-    const headers = [
-        { title: 'Fecha Documento',                 key: 'Fecha',           sortable: true },
-        { title: 'Número de Factura',               key: 'NroDocumento',    sortable: true, width: '6px' },
-        { title: 'Prefijo',                         key: 'Prefijo',         sortable: true },
-        { title: 'Tipo Documento',                  key: 'TipoDocumento',   sortable: true },
-        { title: 'Nit/Cédula',                      key: 'NitEmisor',       sortable: true },
-        { title: 'Nombre del Cliente/Proveedor',    key: 'Emisor',          sortable: true, width: '30%' },
-        { title: 'Valor Documento',                 key: 'ValorParcial',    sortable: true },        
-        { title: 'Valor Impuestos',                 key: 'ValorImptos',     sortable: true },
-        { title: 'Total Documento',                 key: 'ValorTotal',      sortable: true },
-        { title: 'Acciones',                        key: 'actions',         sortable: false, width: '15%' },
-    ]
+
+    const props = defineProps({
+    totalVentas:     { type: Number, default: 0 },
+    totalIva:        { type: Number, default: 0 },
+    totalDocumentos: { type: Number, default: 0 },
+    })
+
+    const granTotal = computed(() => props.totalVentas + props.totalIva)
+
+    const formatCOP = (valor) =>
+    new Intl.NumberFormat('es-CO', {
+        style: 'currency',
+        currency: 'COP',
+        minimumFractionDigits: 0,
+    }).format(valor)
 </script>
 
 <template>
       <!-- <VCard class="mb-2" style="height: 13vh !important;"">  -->
         <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
-              <VCol cols="12" md="3" class="d-flex align-center flex-column">
+              <VCol cols="12" md="4" class="d-flex align-center flex-column">
                   <h3 class="text-primary mb-2">Cargar Información</h3>
                   <VBtn
                       color="primary" variant="elevated" prepend-icon="tabler-world-www" :disabled="isLoading || isEsperando" @click="loadDianPortal">
@@ -505,201 +507,187 @@ import { VRow } from 'vuetify/components'
                       :config="{ locale: Spanish, dateFormat: 'Y-m-d' }"
                   />
               </VCol>
-
-              <VCol cols="12" md="2" class="d-flex align-center justify-start mt-md-5 mt-2">
-                  <VBtn rounded="pill" color="primary" variant="flat" block @click="generarConsulta">
-                      Cargar Ventas
-                  </VBtn>
-              </VCol>
-          </VRow>
-      </VCard>
-      
-      <!-- <section v-if="facturas && facturas.length"> -->
-      <section v-if="yaBusco && facturas && facturas.length"> 
-            <VCard>
-              <VDataTable
-                v-model:model-value="selectedRows"
-                v-model:items-per-page="itemsPerPage"
-                v-model:page="page"               
-                :headers="headers"
-                :items="facturas"
-                item-value="id"
-                show-select               
-                :search="searchQuery"
-                class="text-body-2" 
-                fixed-header
-                density="compact"
-              >                
-
-             <template #header.Fecha="{ column }">
-                <div class = "header-columna" style="text-align:center; white-space:normal;">
-                    Fecha<br>Documento
-                </div>
-              </template>
-              <template #item.Fecha="{ item }">
-                <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    {{ item.Fecha }}
-                </div>
-              </template>
-
-              <template #header.NroDocumento="{ column }">
-                  <div style="text-align:center; white-space:normal;">
-                    Número<br>Factura
-                  </div>
-              </template>
-              <template #item.NroDocumento="{ item }">
-                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    {{ item.NroDocumento }}
-                  </div>
-              </template>
-
-              <template #header.Prefijo="{ column }">
-                  <div style="text-align:center; white-space:normal;">
-                   Prefijo
-                  </div>
-              </template>
-              <template #item.Prefijo="{ item }">
-                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    {{ item.Prefijo }}
-                  </div>
-              </template>
-
-              <template #header.TipoDocumento="{ column }">
-                  <div style="text-align:center; white-space:normal;">
-                   Tipo<br>Documento
-                  </div>
-              </template>
-              <template #item.TipoDocumento="{ item }">
-                  <div class="_fila" style="width: 10.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    {{ item.TipoDocumento }}
-                  </div>
-              </template>
-
-              <template #header.Nitemisor="{ column }">
-                   <div style="text-align:center; white-space:normal;">
-                      Nit/Cédula<br>Emisor
-                   </div>             
-              </template>
-              <template #item.NitEmisor="{ item }">
-                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    {{ item.NitEmisor }}
-                  </div>
-              </template>
-
-              <template #header.Emisor="{ column }">
-                  <div style="text-align:center; white-space:normal;">
-                   Nombre del Emisor
-                  </div>
-              </template>
-              <template #item.Emisor="{ item }">
-                  <div class="_fila" style="width: 20.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                    {{ item.Emisor }}
-                  </div>
-              </template>
-
-              <template #header.ValorParcial>
-                  <div style="text-align:center; white-space:normal;">
-                   Valor Parcial
-                  </div>
-              </template>
-              <template #item.ValorParcial="{ item }">
-                <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">           
-                    {{ formatCurrency((item.ValorTotal || 0) - (item.ValorImptos || 0)) }} 
-                </div>
-              </template>
-
-              <template #header.ValorImptos>
-                  <div style="text-align:center; white-space:normal;">
-                   Valor Impuestos
-                  </div>
-              </template>
-              <template #item.ValorImptos="{ item }">
-                  <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                   
-                    {{ formatCurrency(item.ValorImptos) }} 
-                  </div>
-              </template>
-
-              <template #header.ValorTotal>
-                  <div style="text-align:center; white-space:normal;">
-                   Valor Total
-                  </div>
-              </template>
-              <template #item.ValorTotal="{ item }">
-                  <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                    
-                    {{ formatCurrency(item.ValorTotal) }} 
-                  </div>
-              </template>
-
-              <template #header.actions>
-                  <div style="text-align:center; white-space:normal;">
-                   Acciones
-                  </div>
-              </template>
-
-                
-              <template #item.actions="{ item }">
-                 <div style="display: flex; align-items: center; gap: 4px;">
-                    <IconBtn>
-                      <VIcon icon="tabler-file-type-xml" color="primary" @click="" />
-                    </IconBtn>
-                    <IconBtn>
-                      <VIcon icon="tabler-file-type-pdf" color="error" @click="" />
-                    </IconBtn>   
-                    <IconBtn>
-                      <VIcon icon="tabler-mail" color="warning" @click="abrirDialogoEmail(item)" />
-                    </IconBtn>
-                 </div>
-              </template>
-
-                <!-- Slot Bottom Personalizado -->
-                <template #bottom>
-                  <VDivider />
-                  <VRow class="mt-2 mx-0 pb-2 align-center">     
-                      <VCol cols="12" md="4">
-                          <div class="text-caption text-medium-emphasis ps-4">
-                              Mostrando
-                              <strong>{{ (currentPage - 1) * perPage + 1 }}</strong>–
-                              <strong>{{ Math.min(currentPage * perPage, totalInvoices) }}</strong>
-                              de <strong>{{ totalInvoices }}</strong> registros
-                           </div>
-                      </VCol>
-                      <VCol cols="12" md="4" class="d-flex justify-center pagination-wrapper"> 
-                           <VPagination
-                                v-model="page"
-                                :length="Math.ceil(totalInvoices / perPage)"
-                                rounded="circle"
-                                size="large"
-                                :total-visible="5"
-                           />
-                       </VCol>
-                       <VCol cols="12" md="4">
-                          <div class="text-caption text-medium-emphasis ps-4 text-end">
-                              Total Documentos $:
-                              <strong class="text-primary">{{ formatCurrency(totaldctos)}}</strong>
-                              <!-- <strong>{{ (currentPage - 1) * perPage + 1 }}</strong>–
-                              <strong>{{ Math.min(currentPage * perPage, totalInvoices) }}</strong>
-                              de <strong>{{ totalInvoices }}</strong> registros -->
-                           </div>
-                       </VCol>
-                  </VRow>           
-                </template>                
-              </VDataTable>
-
-             
-            </VCard>        
-      </section>
-
      
-      <section v-else-if="yaBusco && (!facturas || !facturas.length)">
-        <VCard>
-          <VCardTitle class="pa-4">No se encontraron registros para el periodo seleccionado</VCardTitle>
+              <VCol cols="12" md="4" class="d-flex align-center justify-end gap-3">
+                    <VBtn 
+                        rounded="pill" 
+                        color="primary" 
+                        variant="flat"
+                        style="flex: 1"
+                        @click="generarConsulta('1')"
+                    >
+                        Cargar Ventas
+                    </VBtn>
+
+                    <VBtn 
+                        rounded="pill" 
+                        color="success" 
+                        variant="flat"
+                        style="flex: 1"
+                        @click="generarConsulta('2')"
+                    >
+                        Cargar Compras
+                    </VBtn>
+             </VCol>              
+             
+          </VRow>
         </VCard>
-      </section>
+      
+        <!-- </* Mostrar Cards de Cargas de Venats y Compras      -->
+
+        <VCard  class="mb-2 py-3 px-4">
+
+            <!-- Header del contenedor -->
+            <VCardItem>
+                <template #prepend>
+                    <VAvatar color="secondary" variant="tonal" size="36">
+                    <VIcon icon="tabler-device-desktop-analytics" size="20" />
+                    </VAvatar>
+                </template>
+                <VCardTitle class="text-base font-weight-medium text-success">
+                    Información de Ventas
+                </VCardTitle>
+            </VCardItem>
+
+            <VDivider />
+
+            <VCardText class="pt-4">
+                <VRow>
+                    <!-- Total Ventas -->
+                    <VCol cols="12" sm="4">
+                        <div class="metric-card">
+                            <div class="metric-icon icon-ventas mb-2">
+                               <VIcon icon="tabler-trending-up" color="#185FA5" size="18" />
+                            </div>
+                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total ventas</span>
+                            <span class="text-h6 font-weight-medium mt-1">
+                               {{ formatCOP(totalVentas) }}
+                            </span>
+                            <VDivider class="my-2" />
+                            <span class="text-caption" style="color: #185FA5;">
+                               ● {{ totalDocumentos }} documentos
+                            </span>
+                        </div>
+                    </VCol>
+
+                    <!-- Total IVA -->
+                    <VCol cols="12" sm="4">
+                        <div class="metric-card">
+                            <div class="metric-icon icon-iva mb-2">
+                               <VIcon icon="tabler-receipt-tax" color="#3B6D11" size="18" />
+                            </div>
+                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total IVA</span>
+                            <span class="text-h6 font-weight-medium mt-1">
+                               {{ formatCOP(totalIva) }}
+                            </span>
+                            <VDivider class="my-2" />
+                            <span class="text-caption" style="color: #3B6D11;">
+                                ● 19% promedio
+                            </span>
+                        </div>
+                    </VCol>
+
+                    <!-- Gran Total -->
+                    <VCol cols="12" sm="4">
+                        <div class="metric-card">
+                            <div class="metric-icon icon-total mb-2">
+                                <VIcon icon="tabler-currency-dollar" color="#534AB7" size="18" />
+                            </div>
+                            <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran total</span>
+                            <span class="text-h6 font-weight-medium mt-1">
+                                {{ formatCOP(granTotal) }}
+                            </span>
+                            <VDivider class="my-2" />
+                            <span class="text-caption" style="color: #534AB7;">
+                              ● Ventas + IVA
+                            </span>
+                        </div>
+                    </VCol>
+                </VRow>
+            </VCardText>
+        </VCard>  
+     
+        
+       <VCard class="mb-2 py-3 px-4">
+
+            <!-- Header del contenedor -->
+            <VCardItem>
+            <template #prepend>
+                <VAvatar color="secondary" variant="tonal" size="36">
+                <VIcon icon="tabler-device-desktop-analytics" size="20" />
+                </VAvatar>
+            </template>
+            <VCardTitle class="text-base font-weight-medium text-success">
+                Información de Compras
+            </VCardTitle>
+            </VCardItem>
+
+            <VDivider />
+
+            <VCardText class="pt-4">
+                <VRow>
+                    <!-- Total Ventas -->
+                    <VCol cols="12" sm="4">
+                        <div class="metric-card">
+                            <div class="metric-icon icon-ventas mb-2">
+                               <VIcon icon="tabler-trending-up" color="#185FA5" size="18" />
+                            </div>
+                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total ventas</span>
+                            <span class="text-h6 font-weight-medium mt-1">
+                               {{ formatCOP(totalVentas) }}
+                            </span>
+                            <VDivider class="my-2" />
+                            <span class="text-caption" style="color: #185FA5;">
+                               ● {{ totalDocumentos }} documentos
+                            </span>
+                        </div>
+                    </VCol>
+
+                    <!-- Total IVA -->
+                    <VCol cols="12" sm="4">
+                        <div class="metric-card">
+                            <div class="metric-icon icon-iva mb-2">
+                               <VIcon icon="tabler-receipt-tax" color="#3B6D11" size="18" />
+                            </div>
+                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total IVA</span>
+                            <span class="text-h6 font-weight-medium mt-1">
+                               {{ formatCOP(totalIva) }}
+                            </span>
+                            <VDivider class="my-2" />
+                            <span class="text-caption" style="color: #3B6D11;">
+                                ● 19% promedio
+                            </span>
+                        </div>
+                    </VCol>
+
+                    <!-- Gran Total -->
+                    <VCol cols="12" sm="4">
+                        <div class="metric-card">
+                            <div class="metric-icon icon-total mb-2">
+                                <VIcon icon="tabler-currency-dollar" color="#534AB7" size="18" />
+                            </div>
+                            <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran total</span>
+                            <span class="text-h6 font-weight-medium mt-1">
+                                {{ formatCOP(granTotal) }}
+                            </span>
+                            <VDivider class="my-2" />
+                            <span class="text-caption" style="color: #534AB7;">
+                              ● Ventas + IVA
+                            </span>
+                        </div>
+                    </VCol>
+                </VRow>
+            </VCardText>
+       </VCard>  
+
 
       <VOverlay :model-value="loading" persistent class="align-center justify-center">
             <VProgressCircular indeterminate size="64" color="primary" />
       </VOverlay>
  </template>  
+
+  
+
 
  <style lang="css">
 
@@ -837,6 +825,31 @@ import { VRow } from 'vuetify/components'
         color: white !important;
       }
 
-    
+    /* Configurar CARDS */
+    .metric-card {
+        background:  rgb(var(--v-theme-primary),0.2);        
+        border-radius: 12px;
+        padding: 1.25rem 1rem;
+        display: flex;
+        flex-direction: column;
+     }
+
+    .metric-icon {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    }
+
+    .icon-ventas { background-color: #E6F1FB; }
+    .icon-iva    { background-color: #EAF3DE; }
+    .icon-total  { background-color: #EEEDFE; }    
+    .ventas-container {
+        background-color: rgba(227, 242, 253, 0.5);
+        border-radius: 12px;
+        padding: 1rem;
+    }
 
 </style>
