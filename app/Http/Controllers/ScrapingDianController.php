@@ -325,7 +325,7 @@ class ScrapingDianController extends Controller
     public function extraerTabla(Request $request)
     {
         $url = $request->url_token;
-        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=e9f30059-c667-4460-86c6-7d87338f4c63";
+        //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=e9f30059-c667-4460-86c6-7d87338f4c63";
         $company = Company::find($request->company_id);
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint3);
 
