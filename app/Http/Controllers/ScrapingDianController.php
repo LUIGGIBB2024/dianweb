@@ -254,9 +254,10 @@ class ScrapingDianController extends Controller
         }
     }
 
-    public function extraerTabla(Request $request)
+    public function extraerTabla_3(Request $request)
     {
         $url = $request->url_token;
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=5aa71452-1afa-4209-8418-e0281973c33a";
         $company = Company::find($request->company_id);
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint3);
 
@@ -314,6 +315,75 @@ class ScrapingDianController extends Controller
             return response()->json([
                 'status'          => 'success',
                 'TotalDocumentos' => $filteredData->count(),
+                'data'            => $filteredData,
+            ], 200);
+        }
+
+        return response()->json(['error' => 'Error al conectar con el servicio externo'], 500);
+    }
+
+    public function extraerTabla(Request $request)
+    {
+        $url = $request->url_token;
+        $url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=e9f30059-c667-4460-86c6-7d87338f4c63";
+        $company = Company::find($request->company_id);
+        $endpoint = preg_replace('/\\s+/', '', $company->endpoint3);
+
+        try {
+            $response = Http::withoutVerifying()
+                ->timeout(180)
+                ->connectTimeout(10)
+                ->withHeaders([
+                    'X-API-KEY'    => '6ed6d9ae8423598a5287ab60df52442f1d60c3ae5fcf877bcdbc1fedd1d24316',
+                    'Content-Type' => 'application/json; charset=UTF-8',
+                    'Accept'        => 'application/json',
+                ])->post($endpoint, [
+                    'nitempresa'             => $company->nit,
+                    'nitrepresentantelegal'  => $company->nit_representante_legal,
+                    'fechadesde'             => $request->fechadesde,
+                    'fechahasta'             => $request->fechahasta,
+                    'type'                   => '2',
+                    'headless'               => true,
+                    'url_dian'               => $url,
+                ]);
+        } catch (\Illuminate\Http\Client\ConnectionException $e) {
+            return response()->json([
+                'message' => 'El servidor de la DIAN tardó demasiado en responder.',
+                'error' => $e->getMessage()
+            ], 408);
+        }
+
+        if ($response->successful()) {
+            $rawRecords = collect($response->json('data') ?? []);
+
+            $filteredData = $rawRecords
+                // 1. Filtrar solo los tipos de documento permitidos
+                ->filter(function ($item) {
+                    return in_array($item['TipoDocumento'], ['Factura electrónica', 'Nota de crédito electrónica']);
+                })
+                // 2. Mapear y transformar valores
+                ->map(function ($item) {
+                    $esNotaCredito = ($item['TipoDocumento'] === 'Nota de crédito electrónica');
+
+                    // Campos a convertir a numérico
+                    $camposNumericos = ['ValorTotal', 'ValorImptos', 'ValorRetefuente', 'ValorReteiva', 'ValorReteica'];
+
+                    foreach ($camposNumericos as $campo) {
+                        $valor = floatval($item[$campo] ?? 0);
+                        // Si es Nota de Crédito, multiplicamos por -1
+                        $item[$campo] = $esNotaCredito ? ($valor * -1) : $valor;
+                    }
+
+                    return $item;
+                })
+                // 3. Ordenar por Fecha (de la más antigua a la más reciente)
+                ->sortBy('Fecha')
+                ->values(); // Resetear índices del array
+
+            return response()->json([
+                'status'          => 'success',
+                'TotalDocumentos' => $filteredData->count(),
+                'TotalValor'      => $filteredData->sum('ValorTotal'),
                 'data'            => $filteredData,
             ], 200);
         }

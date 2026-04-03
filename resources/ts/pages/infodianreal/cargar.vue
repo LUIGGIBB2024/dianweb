@@ -430,10 +430,10 @@ import { VRow } from 'vuetify/components'
         <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
               <VCol cols="12" md="3" class="d-flex align-center flex-column">
-                  <h3 class="text-primary mb-2">Recepción de Facturas</h3>
+                  <h3 class="text-primary mb-2">Cargar Información</h3>
                   <VBtn
                       color="primary" variant="elevated" prepend-icon="tabler-world-www" :disabled="isLoading || isEsperando" @click="loadDianPortal">
-                      Generar Token
+                      Capturar Token
                   </VBtn>
 
                   <!-- Ventana abierta -->
@@ -508,7 +508,7 @@ import { VRow } from 'vuetify/components'
 
               <VCol cols="12" md="2" class="d-flex align-center justify-start mt-md-5 mt-2">
                   <VBtn rounded="pill" color="primary" variant="flat" block @click="generarConsulta">
-                      Generar Consulta 
+                      Cargar Ventas
                   </VBtn>
               </VCol>
           </VRow>
