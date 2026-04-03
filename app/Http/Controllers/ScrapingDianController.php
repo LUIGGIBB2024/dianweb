@@ -22,7 +22,7 @@ use Symfony\Component\Process\Process;
 class ScrapingDianController extends Controller
 {
 
-    public function extraerTabla(Request $request)
+    public function extraerTabla(Request $request, $type)
     {
         $url = $request->url_token;
         //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=35fbfb5d-668f-4403-ba63-50c8c76f69bc";
@@ -42,7 +42,7 @@ class ScrapingDianController extends Controller
                     'nitrepresentantelegal'  => $company->nit_representante_legal,
                     'fechadesde'             => $request->fechadesde,
                     'fechahasta'             => $request->fechahasta,
-                    'type'                   => $request->type,
+                    'type'                   => $type,
                     'headless'               => true,
                     'url_dian'               => $url,
                 ]);
