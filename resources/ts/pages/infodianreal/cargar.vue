@@ -478,7 +478,7 @@ import { VRow } from 'vuetify/components'
                   <!-- Ventana abierta -->
                   <div v-if="isLoading" class="mt-2 text-center">
                       <VProgressCircular indeterminate size="20" color="primary" class="me-2" />
-                      <span class="text-caption">Generando TOKEN</span>
+                      <span class="text-caption">Obteniendo TOKEN</span>
                       <br>
                       <VBtn size="small" color="error" variant="text" class="mt-1" @click="cancelarDian">
                           Cancelar
