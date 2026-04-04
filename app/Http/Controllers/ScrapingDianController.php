@@ -263,6 +263,7 @@ class ScrapingDianController extends Controller
         return response()->json(['error' => 'Error al conectar con el servicio externo'], 500);
     }
 
+    
     public function updateSales($resp, $company_id)
     {
 
