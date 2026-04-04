@@ -109,7 +109,7 @@ class ScrapingDianController extends Controller
     }
 
 
-    public function extraerTabla_ventas(Request $request, $type)
+    public function extraerTabla_ventas(Request $request)
     {
         $url = $request->url_token;
         //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=35fbfb5d-668f-4403-ba63-50c8c76f69bc";
@@ -186,7 +186,7 @@ class ScrapingDianController extends Controller
         return response()->json(['error' => 'Error al conectar con el servicio externo'], 500);
     }
 
-    public function extraerTabla_compras(Request $request, $type)
+    public function extraerTabla_compras(Request $request)
     {
         $url = $request->url_token;
         //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=35fbfb5d-668f-4403-ba63-50c8c76f69bc";
@@ -264,7 +264,7 @@ class ScrapingDianController extends Controller
         return response()->json(['error' => 'Error al conectar con el servicio externo'], 500);
     }
 
-    
+
     public function updateSales($resp, $company_id)
     {
 
