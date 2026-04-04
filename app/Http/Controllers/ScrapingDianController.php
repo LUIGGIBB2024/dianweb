@@ -111,6 +111,13 @@ class ScrapingDianController extends Controller
 
     public function extraerTabla_ventas(Request $request)
     {
+
+        return response()->json([
+            'status'          => 'success',
+            'dato'            => "Estoy en el método de ventas",
+            'data'            => $request->all(),
+        ], 200);
+
         $url = $request->url_token;
         //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=35fbfb5d-668f-4403-ba63-50c8c76f69bc";
         $company = Company::find($request->company_id);

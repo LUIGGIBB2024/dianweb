@@ -347,7 +347,9 @@ import { VRow } from 'vuetify/components'
 
         const urlcargar = type === '1' ? '/api/scraping/cargar-ventas' : '/api/scraping/cargar-compras'
 
-          try 
+        console.log("Soy la URL de Carga:", urlcargar)
+
+        try 
         {
             const response = await axios.post(`${urlcargar}`, {
             tipoproceso  : type,    
