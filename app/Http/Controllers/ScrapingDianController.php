@@ -42,7 +42,7 @@ class ScrapingDianController extends Controller
                     'nitrepresentantelegal'  => $company->nit_representante_legal,
                     'fechadesde'             => $request->fechadesde,
                     'fechahasta'             => $request->fechahasta,
-                    'type'                   => $request->tipoproceso,
+                    'type'                   => (intval($request->tipoproceso) == 1) ? "1" : "2",
                     'headless'               => true,
                     'url_dian'               => $url,
                 ]);
@@ -80,7 +80,7 @@ class ScrapingDianController extends Controller
                 ->sortBy('Fecha')
                 ->values(); // Resetear índices del array
 
-            if ($request->tipoproceso == "1") {
+            if (intval($request->tipoproceso) == 1) {
                 try {
                     $this->updateSales($filteredData, $request->company_id);
                 } catch (\Throwable $e) {
