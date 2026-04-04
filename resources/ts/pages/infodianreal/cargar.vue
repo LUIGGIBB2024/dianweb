@@ -346,8 +346,17 @@ import { VRow } from 'vuetify/components'
         loading.value = true
 
         const urlcargar = type === '1' ? '/api/scraping/cargar-ventas' : '/api/scraping/cargar-compras'
-
-        console.log("Soy la URL de Carga:", urlcargar)
+        
+        if (type === '1') {
+            totalVentas.value = 0
+            totalIva.value = 0
+            numDocumentosVentas.value = 0
+        } else if (type === '2') {
+            totalCompras.value = 0
+            totalIvaCompras.value = 0 
+            numDocumentosCompras.value = 0               
+        }   
+        
 
         try 
         {
