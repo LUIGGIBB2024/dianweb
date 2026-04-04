@@ -42,7 +42,7 @@ class ScrapingDianController extends Controller
                     'nitrepresentantelegal'  => $company->nit_representante_legal,
                     'fechadesde'             => $request->fechadesde,
                     'fechahasta'             => $request->fechahasta,
-                    'type'                   => (intval($request->tipoproceso) == 1) ? "1" : "2",
+                    'type'                   => (intval($type) == 1) ? "1" : "2",
                     'headless'               => true,
                     'url_dian'               => $url,
                 ]);
