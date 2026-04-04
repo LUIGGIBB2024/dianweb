@@ -217,6 +217,7 @@ class ScrapingDianController extends Controller
             ], 408);
         }
 
+
         if ($response->successful()) {
             $rawRecords = collect($response->json('data') ?? []);
 
@@ -297,12 +298,6 @@ class ScrapingDianController extends Controller
                 );
             } catch (\Exception $ex) {
                 return response()->json(
-                    // dd([
-                    //     'error'         => $ex->getMessage(),
-                    //     'linea'         => $ex->getLine(),
-                    //     'numerofactura' => $numerofactura,
-                    // ]),
-
 
                     [
                         'status'   => '404 OK',
