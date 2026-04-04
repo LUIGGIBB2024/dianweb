@@ -62,7 +62,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
 
     Route::post('/scraping/dian', [ScrapingController::class, 'scraping_dian'])->name('scraping.dian');
     //Route::post('/scraping/dianf', [ScrapingDianController::class, 'scraping_dian'])->name('scraping.dianf');
-    Route::post('/scraping/dianf/{type}', [ScrapingDianController::class, 'extraerTabla'])->name('scraping.dianf');
+    //Route::post('/scraping/dianf/{type}', [ScrapingDianController::class, 'extraerTabla'])->name('scraping.dianf');
     Route::post('/scraping/cargar-ventas', [ScrapingDianController::class, 'extraerTabla_ventas'])->name('scraping_ventas.dianf');
     Route::post('/scraping/cargar-compras', [ScrapingDianController::class, 'extraerTabla_compras'])->name('scraping_compras.dianf');
 
