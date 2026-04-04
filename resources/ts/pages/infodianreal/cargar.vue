@@ -345,9 +345,11 @@ import { VRow } from 'vuetify/components'
         yaBusco.value = true
         loading.value = true
 
-        try 
+        const urlcargar = type === '1' ? '/api/scraping/cargar-ventas' : '/api/scraping/cargar-compras'
+
+          try 
         {
-            const response = await axios.post(`/api/scraping/dianf/${type}`, {
+            const response = await axios.post(`${urlcargar}`, {
             tipoproceso  : type,    
             url_token    : urlCompletaDian.value,
             company_id   : localStorage.getItem('company_id'),
