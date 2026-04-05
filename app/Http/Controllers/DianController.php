@@ -6,7 +6,11 @@ use App\Http\Controllers\Controller;
 use App\Models\Company;
 use Illuminate\Http\Request;
 use App\Models\DianTokenQueue;
+use App\Models\PurchasesInvoice;
+use App\Models\SalesInvoice;
 use App\Models\User;
+use Illuminate\Http\JsonResponse;
+use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Http;
 
@@ -206,5 +210,157 @@ class DianController extends Controller
 
             ], 200);
         }
+    }
+
+    public function documentosEnviados(Request $request): JsonResponse
+    {
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+
+        $ventas = SalesInvoice::select(
+            'id',
+            'date_issue',
+            'expiration_date',
+            'number',
+            'prefix',
+            'document_name',
+            'customer',
+            'client_name',
+            'subtotal',
+            'discounts',
+            'total_sale',
+            'vatvalue',
+            'retefuente',
+            'reteiva',
+            'reteica',
+            'impoconsumo',
+            'cufe',
+            'state'
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->orderBy('date_issue')
+            ->get();
+
+        return response()->json(
+            [
+                'status'           => '200',
+                'message'          => 'Mostrando documentos enviados a la DIAN entre ' . $desdefecha . ' y ' . $hastafecha,
+                'TotalDocumentos' => $ventas->count(),
+                'TotalValor'      => $ventas->sum('total_sale'),
+                'TotalIva'        => $ventas->sum('vatvalue'),
+                'data'            => $ventas,
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
+    public function documentosRecibidos(Request $request): JsonResponse
+    {
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+
+        $compras = PurchasesInvoice::select(
+            'id',
+            'date_issue',
+            'expiration_date',
+            'number',
+            'prefix',
+            'document_name',
+            'supplier',
+            'supplier_name',
+            'subtotal',
+            'discounts',
+            'total_purchase',
+            'vatvalue',
+            'retefuente',
+            'reteiva',
+            'reteica',
+            'cufe',
+            'state'
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->orderBy('date_issue')
+            ->get();
+
+        return response()->json(
+            [
+                'status'           => '200',
+                'message'          => 'Mostrando documentos recibidos de la DIAN entre ' . $desdefecha . ' y ' . $hastafecha,
+                'TotalDocumentos' => $compras->count(),
+                'TotalValor'      => $compras->sum('total_purchase'),
+                'TotalIva'        => $compras->sum('vatvalue'),
+                'data'            => $compras,
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
+    public function procesarIva(Request $request): JsonResponse
+    {
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+
+        $ventas = SalesInvoice::select(
+            'id',
+            'date_issue',
+            'expiration_date',
+            'number',
+            'prefix',
+            'document_name',
+            'customer',
+            'client_name',
+            'subtotal',
+            'discounts',
+            'total_sale',
+            'vatvalue',
+            'retefuente',
+            'reteiva',
+            'reteica',
+            'impoconsumo',
+            'cufe',
+            'state'
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->orderBy('date_issue')
+            ->get();
+
+        $compras = PurchasesInvoice::select(
+            'id',
+            'date_issue',
+            'expiration_date',
+            'number',
+            'prefix',
+            'document_name',
+            'supplier',
+            'supplier_name',
+            'subtotal',
+            'discounts',
+            'total_purchase',
+            'vatvalue',
+            'retefuente',
+            'reteiva',
+            'reteica',
+            'cufe',
+            'state'
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->orderBy('date_issue')
+            ->get();
+
+        return response()->json(
+            [
+                'status'                 => '200',
+                'message'                => 'Mostrando Información de Ivas - Fechas entre ' . $desdefecha . ' y ' . $hastafecha,
+                'NumRegistroVentas'      => $ventas->count(),
+                'NumRegistroCompras'     => $compras->count(),
+                'TotalIvaVentas'         => $ventas->sum('vatvalue'),
+                'TotalIvaCompras'        => $compras->sum('vatvalue'),
+            ],
+            Response::HTTP_ACCEPTED
+        );
     }
 }

@@ -5,6 +5,7 @@ import { computed, ref } from 'vue'
 import { VRow } from 'vuetify/components'
 
     const yaBusco = ref(false) // Nueva variable de control
+    const snackbar = ref(false)
 
     const iframeSource = ref<string | null>(null)
     const isLoading = ref(false)
@@ -406,6 +407,10 @@ import { VRow } from 'vuetify/components'
                 numDocumentosCompras.value = data.TotalDocumentos ?? 0               
             }
 
+            if (invoiceData.value.TotalDocumentos === 0 && yaBusco.value) {               
+               snackbar.value = true
+            }
+
 
         } catch (error) {
             console.error('Error al generar consulta:', error)
@@ -550,9 +555,17 @@ import { VRow } from 'vuetify/components'
                         rounded="pill" 
                         color="primary" 
                         variant="flat"
-                        style="flex: 1"
+                        style="flex: 1"                        
                         @click="generarConsulta('1')"
                     >
+
+                    <template v-slot:prepend>
+                        <VIcon 
+                            icon="tabler-file-dollar" 
+                            size="20" 
+                            color="yellow-darken-2" 
+                        />
+                    </template>
                         Cargar Ventas
                     </VBtn>
 
@@ -560,9 +573,16 @@ import { VRow } from 'vuetify/components'
                         rounded="pill" 
                         color="success" 
                         variant="flat"
-                        style="flex: 1"
+                        style="flex: 1"                        
                         @click="generarConsulta('2')"
                     >
+                    <template v-slot:prepend>
+                        <VIcon 
+                            icon="tabler-cash-register" 
+                            size="20" 
+                            color="yellow-darken-2" 
+                        />
+                    </template>
                         Cargar Compras
                     </VBtn>
              </VCol>              
@@ -596,7 +616,7 @@ import { VRow } from 'vuetify/components'
                             <div class="metric-icon icon-ventas mb-2">
                                <VIcon icon="tabler-trending-up" color="#185FA5" size="18" />
                             </div>
-                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total ventas</span>
+                            <span style="color: #F01080 !important;" class="text-caption text-medium-emphasis">Total Ventas</span>
                             <span class="text-h6 font-weight-medium mt-1">
                                {{ formatCurrency((totalVentas || 0) - (totalIva || 0)) }} 
                             </span>
@@ -619,7 +639,7 @@ import { VRow } from 'vuetify/components'
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #3B6D11;">
-                                ● 19% promedio
+                                ● (19-5%) acumulado
                             </span>
                         </div>
                     </VCol>
@@ -630,7 +650,7 @@ import { VRow } from 'vuetify/components'
                             <div class="metric-icon icon-total mb-2">
                                 <VIcon icon="tabler-currency-dollar" color="#534AB7" size="18" />
                             </div>
-                            <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran total</span>
+                            <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran Total</span>
                             <span class="text-h6 font-weight-medium mt-1">                              
                                 {{ formatCurrency(totalVentas) }} 
                             </span>
@@ -692,7 +712,7 @@ import { VRow } from 'vuetify/components'
                             </span>
                             <VDivider class="my-2" />
                             <span class="text-caption" style="color: #3B6D11;">
-                                ● 19% promedio
+                                ● (19-5%) acumulado
                             </span>
                         </div>
                     </VCol>
@@ -703,7 +723,7 @@ import { VRow } from 'vuetify/components'
                             <div class="metric-icon icon-total mb-2">
                                 <VIcon icon="tabler-currency-dollar" color="#534AB7" size="18" />
                             </div>
-                            <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran total</span>
+                            <span style="color: #F01080 !important;"class="text-caption text-medium-emphasis">Gran Total</span>
                             <span class="text-h6 font-weight-medium mt-1">                               
                                 {{ formatCurrency(totalCompras) }}   
                             </span>
@@ -721,6 +741,16 @@ import { VRow } from 'vuetify/components'
       <VOverlay :model-value="loading" persistent class="align-center justify-center">
           <VProgressCircular indeterminate size="64" color="primary" />
       </VOverlay>
+
+      <VSnackbar v-model="snackbar" color="error" timeout="4000" location="center" style="font-size: 5em !important;">
+        <VIcon icon="tabler-alert-circle" class="me-2" />
+          <span style="font-size: 1.0rem; font-weight: 500;">
+              No se retornaron datos desde la DIAN. Intente nuevamente.
+          </span>
+        <template #actions>
+          <VBtn variant="text" @click="snackbar = false">Cerrar</VBtn>
+        </template>
+      </VSnackbar>
  </template>  
 
   

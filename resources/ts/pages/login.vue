@@ -82,12 +82,12 @@ const handleLogin = async () => {
 
     window.company_user = StoredName
 
-    console.log("Soy Empresa Login:",data.company_name)
-    console.log("Soy Empresa ID Empresa:",data.company_id)
-    console.log("Soy Usuario ID:",data.user_id)
-    console.log("Soy URL n8n:",data.url_n8n)
-    console.log("Soy NIT Empresa:",data.nit_empresa)
-    console.log("Soy Representante Legal:",data.representante_legal)
+    // console.log("Soy Empresa Login:",data.company_name)
+    // console.log("Soy Empresa ID Empresa:",data.company_id)
+    // console.log("Soy Usuario ID:",data.user_id)
+    // console.log("Soy URL n8n:",data.url_n8n)
+    // console.log("Soy NIT Empresa:",data.nit_empresa)
+    // console.log("Soy Representante Legal:",data.representante_legal)
 
     // Redirigir al dashboard
     router.push({ name: 'dashboard'})
@@ -235,5 +235,5 @@ const handleLogin = async () => {
 </template>
 
 <style lang="scss">
-@use "@core-scss/template/pages/page-auth";
+    @use "@core-scss/template/pages/page-auth";
 </style>
