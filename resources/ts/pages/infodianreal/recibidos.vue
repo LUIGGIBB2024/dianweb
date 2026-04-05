@@ -425,7 +425,7 @@ import autoTable from 'jspdf-autotable'
                   </div>
               </template>
               <template #item.supplier_name="{ item }">
-                  <div class="_fila" style="width: 28em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div class="_fila" style="width: 27em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
                     {{ item.supplier_name }}
                   </div>
               </template>
