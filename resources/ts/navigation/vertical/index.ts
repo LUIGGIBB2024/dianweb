@@ -33,7 +33,8 @@ const menu: NavItem[] = [
       { title: 'Cargar Información',to:{name:'infodianreal-cargar'}, icon: { icon: 'tabler-upload', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
       { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
       { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18, color: 'error' }, roles: ['admin'] },  
-      { title: 'Procesar Iva', to: { name: 'infodianreal-procesariva' }, icon: { icon: 'tabler-brand-databricks', size: 18, color: 'error' }, roles: ['admin'] },      
+      { title: 'Procesar Iva', to: { name: 'infodianreal-procesariva' }, icon: { icon: 'tabler-brand-databricks', size: 18, color: 'error' }, roles: ['admin'] },   
+      { title: 'Estadística Anual', to: { name: 'infodianreal-estadisticaanual' }, icon: { icon: 'tabler-chart-area-line', size: 18, color: 'error' }, roles: ['admin'] },    
     ],
   },
 

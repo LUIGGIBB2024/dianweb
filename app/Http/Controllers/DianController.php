@@ -12,6 +12,7 @@ use App\Models\User;
 use Illuminate\Http\JsonResponse;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Http;
 
 class DianController extends Controller
@@ -359,6 +360,76 @@ class DianController extends Controller
                 'NumRegistroCompras'     => $compras->count(),
                 'TotalIvaVentas'         => $ventas->sum('vatvalue'),
                 'TotalIvaCompras'        => $compras->sum('vatvalue'),
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
+    public function estadisticaAnual(Request $request): JsonResponse
+    {
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+
+        $nombresMeses = [
+            1  => 'Enero',
+            2  => 'Febrero',
+            3  => 'Marzo',
+            4  => 'Abril',
+            5  => 'Mayo',
+            6  => 'Junio',
+            7  => 'Julio',
+            8  => 'Agosto',
+            9  => 'Septiembre',
+            10 => 'Octubre',
+            11 => 'Noviembre',
+            12 => 'Diciembre'
+        ];
+
+        if ($request->input('toggle') === 'ventas') {
+            $datos = SalesInvoice::select(
+                DB::raw('MONTH(date_issue) as month'),
+                DB::raw('COUNT(*) as total_documentos'),
+                DB::raw('SUM(subtotal) as total_subtotal'),
+                DB::raw('SUM(vatvalue) as total_iva'),
+                DB::raw('SUM(total_sale) as gran_total'),
+            )
+                ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+                ->groupBy(DB::raw('MONTH(date_issue)'))
+                ->orderBy(DB::raw('MONTH(date_issue)'))
+                ->get()
+                ->map(function ($item) use ($nombresMeses) {
+                    $item->nombre_mes = $nombresMeses[$item->month];
+                    return $item;
+                });
+        }
+
+        if ($request->input('toggle') === 'compras') {
+            $datos = PurchasesInvoice::select(
+                DB::raw('MONTH(date_issue) as month'),
+                DB::raw('COUNT(*) as total_documentos'),
+                DB::raw('SUM(subtotal) as total_subtotal'),
+                DB::raw('SUM(vatvalue) as total_iva'),
+                DB::raw('SUM(total_purchase) as gran_total'),
+            )
+                ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+                ->groupBy(DB::raw('MONTH(date_issue)'))
+                ->orderBy(DB::raw('MONTH(date_issue)'))
+                ->get()
+                ->map(function ($item) use ($nombresMeses) {
+                    $item->nombre_mes = $nombresMeses[$item->month];
+                    return $item;
+                });
+        }
+
+        return response()->json(
+            [
+                'status'          => '200',
+                'message'         => 'Mostrando Información de Ventas - Fechas entre ' . $desdefecha . ' y ' . $hastafecha,
+                'NumeroMeses'     => $datos->count(),
+                'AcumuladoTotal'  => $datos->sum('gran_total'),
+                'AcumuladoIva'    => $datos->sum('total_iva'),
+                'TotalDocumentos' => $datos->sum('total_documentos'),
+                'data'            => $datos,
             ],
             Response::HTTP_ACCEPTED
         );

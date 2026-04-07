@@ -41,6 +41,7 @@ declare module 'vue-router/auto-routes' {
     'forgot-password': RouteRecordInfo<'forgot-password', '/forgot-password', Record<never, never>, Record<never, never>>,
     'infodianreal-cargar': RouteRecordInfo<'infodianreal-cargar', '/infodianreal/cargar', Record<never, never>, Record<never, never>>,
     'infodianreal-enviados': RouteRecordInfo<'infodianreal-enviados', '/infodianreal/enviados', Record<never, never>, Record<never, never>>,
+    'infodianreal-estadisticaanual': RouteRecordInfo<'infodianreal-estadisticaanual', '/infodianreal/estadisticaanual', Record<never, never>, Record<never, never>>,
     'infodianreal-procesariva': RouteRecordInfo<'infodianreal-procesariva', '/infodianreal/procesariva', Record<never, never>, Record<never, never>>,
     'infodianreal-recibidos': RouteRecordInfo<'infodianreal-recibidos', '/infodianreal/recibidos', Record<never, never>, Record<never, never>>,
     'inicio': RouteRecordInfo<'inicio', '/inicio', Record<never, never>, Record<never, never>>,

@@ -72,6 +72,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/dian/documentos-enviados', [DianController::class, 'documentosEnviados']);
     Route::post('/dian/documentos-recibidos', [DianController::class, 'documentosRecibidos']);
     Route::post('/dian/procesar-iva', [DianController::class, 'procesarIva']);
+    Route::post('/dian/estadistica-anual', [DianController::class, 'estadisticaAnual']);
     Route::post('/n8n/webhook',       [DianController::class, 'webHook']);
 });
 
