@@ -1,5 +1,6 @@
 <script setup lang="ts">
-import { router } from '@/plugins/1.router';
+//import { router } from '@/plugins/1.router';
+import { useRouter } from 'vue-router'
 import axios from 'axios'
 import { onMounted, ref } from 'vue'
 
@@ -25,6 +26,7 @@ const updateOptions = (options: any) => {
 
 const showDialog = ref(false)
 const editMode = ref(false) // 👈 false = crear, true = editar
+const router = useRouter()
 
 const newControl = ref({
   name: '',

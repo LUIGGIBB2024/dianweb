@@ -5,6 +5,8 @@ import type { RouteRecordRaw } from 'vue-router/auto'
 
 import { createRouter, createWebHistory } from 'vue-router/auto'
 
+import { useRouter } from 'vue-router'
+
 function recursiveLayouts(route: RouteRecordRaw): RouteRecordRaw {
   if (route.children) {
     for (let i = 0; i < route.children.length; i++)
