@@ -100,30 +100,25 @@ const updateOptions = (options: any) => {
   orderBy.value = options.sortBy[0]?.order
 }
 
-// // 🔹 Cargar usuarios desde el backend
-// const { data: userData, execute: fetchUsers } = await useApi<any>(
-//   createUrl('http://127.0.0.1:8001/api/users', {
-//     query: {
-//       q: searchQuery,
-//       itemsPerPage,
-//       page,
-//       sortBy,
-//       orderBy,
-//     },
-//   }),
-// )
-
 const loadUsers = async () => 
 {
      try {
-        const response = await axios.get('/api/users', {
+        const response = await axios.get('/api/users/saas', {      
+          headers: {
+                Authorization: `Bearer ${token}`,
+                
+                // ✅
+            },        
+             
           params: {
                 q: searchQuery.value,
                 itemsPerPage: itemsPerPage.value,
                 page: page.value,
                 sortBy: sortBy.value,
-                orderBy: orderBy.value,
+                orderBy: orderBy.value,    
+                company_id: localStorage.getItem('company_id')                 
               },
+              
          }) 
 
          userData.value = response.data   
@@ -171,7 +166,6 @@ const openEditPassword = (user: any) => {
   showDialogPsw.value = true
   
 }
-
 // 🔹 Guardar o actualizar empresa
 const saveUser = async () => {
   try {  
@@ -210,7 +204,6 @@ const saveUser = async () => {
     console.error('❌ Error al guardar empresa:', error)
   }
 }
-
 // 🔹 Guardar o actualizar Password / Contraseña
 const savePassword = async () => {
  
@@ -254,23 +247,6 @@ const confirmDelete = (user: any) => {
   showConfirmDialog.value = true
 }
 
-// 🔹 Eliminar usuario
-const deleteUser = async () => {
-  if (!userToDelete.value) return
-  try {
-    await $api(`/api/users/${userToDelete.value}`, { method: 'DELETE' })
-    snackbarMessage.value = 'Usuario eliminado correctamente'
-    snackbarColor.value = 'success'
-    loadUsers()
-  } catch (error) {
-    snackbarMessage.value = '❌ Error al eliminar usuario'
-    snackbarColor.value = 'error'
-  } finally {
-    showConfirmDialog.value = false
-    showSnackbar.value = true
-  }
-}
-
 </script>
 
 <template>
@@ -302,14 +278,7 @@ const deleteUser = async () => {
             @update:model-value="() => { page = 1; fetchUsers() }"
           />
         </div>
-
-        <!-- Botón crear -->
-        <VBtn color="primary" class="text-white" @click="openCreateDialog">
-          <template #prepend>
-            <VIcon icon="tabler-plus" size="20" />
-          </template>
-          Nuevo Usuario
-        </VBtn>
+   
       </VCardText>
 
       <VDivider />
@@ -327,13 +296,7 @@ const deleteUser = async () => {
         @update:options="updateOptions"
       >
         <template #item.id="{ item }">#{{ item.id }}</template>
-        <template #item.actions="{ item }">
-            <IconBtn @click="openEditDialog(item)">
-              <VIcon icon="tabler-edit" color="primary" />
-            </IconBtn>
-            <IconBtn @click="confirmDelete(item)">
-              <VIcon icon="tabler-trash" color="error" />
-            </IconBtn>
+        <template #item.actions="{ item }">          
             <IconBtn @click="openEditPassword(item)">
               <VIcon icon="tabler-lock-check" color="success" />
             </IconBtn>
@@ -362,57 +325,7 @@ const deleteUser = async () => {
               </VRow>           
         </template> 
       </VDataTableServer>     
-    </VCard>
-
-    <!-- 🔹 Modal Crear/Editar -->
-    <VDialog v-model="showDialog" persistent max-width="500px">
-      <VCard>
-        <VCardTitle class="modal-title d-flex align-center">
-          <VIcon icon="tabler-user" size="26" color="white" class="me-3" />
-          <span>{{ editMode ? 'Editar usuario' : 'Agregar usuario' }}</span>
-        </VCardTitle>
-        <VCardText class="pt-4">
-          <VForm @submit.prevent="saveUser" ref="userFormRef" v-model="isFormValid">
-            <VTextField v-model="newUser.name"  label="Nombre" required :rules="[rules.required]" autofocus class="mb-3" @update:model-value="val => newUser.name = val.toUpperCase()">
-                <template #prepend-inner>
-                  <VIcon icon="tabler-user" color="primary" size="22" class="me-3" />
-                </template>
-            </VTextField>
-            <VTextField v-model="newUser.email" label="Correo" type="email" required :rules="[rules.required, rules.email]" class="mb-3" @update:model-value="val => newUser.email = val.toLowerCase()">
-                <template #prepend-inner>
-                  <VIcon icon="tabler-user" color="primary" size="22" class="me-3" />
-                </template>
-            </VTextField>  
-            <VTextField v-model="newUser.code_n8n" label="Código N8N" class="mb-3">
-                <template #prepend-inner>
-                  <VIcon icon="tabler-code" color="primary" size="22" class="me-3" />
-                </template>
-            </VTextField>          
-            <VTextField v-model="newUser.password" v-if="!editMode" :disabled="editMode" label="Password" :type="isPasswordVisible ? 'text' : 'password'" :rules="[rules.password]" 
-                class="mb-3" :append-inner-icon="isPasswordVisible ? 'tabler-eye-off' : 'tabler-eye'" @click:append-inner="isPasswordVisible = !isPasswordVisible">
-                <template #prepend-inner>
-                  <VIcon icon="tabler-lock" color="primary" size="22" class="me-3" />
-                </template>
-            </VTextField>
-            <VSelect v-model="newUser.company_id" :items="companies" item-title="name" item-value="id" label="Empresa" :rules="[rules.required]" class="mb-3">
-                <template #prepend-inner>
-                  <VIcon icon="tabler-building" color="primary" size="22" class="me-3" />
-                </template>
-            </VSelect>   
-            <!-- <VTextField v-model="newUser.company_id" label="Empresa" class="mb-3" />        -->
-            <VSelect v-model="newUser.type" :items="userTypes" item-title="text" item-value="value" label="Tipo de usuario" :rules="[rules.required]" class="mb-3">
-                <template #prepend-inner>
-                    <VIcon icon="tabler-id" color="primary" size="22" class="me-3" />
-                </template> 
-            </VSelect>
-          </VForm>
-        </VCardText>
-        <VCardActions class="justify-end pb-4 px-6">          
-            <VBtn color="success" variant="flat" class = "text-white" @click="showDialog = false">Cancelar</VBtn>
-            <VBtn color="primary" variant="flat" class = "text-white" @click="saveUser">Guardar</VBtn>
-        </VCardActions>
-      </VCard>
-    </VDialog>
+    </VCard>    
 
     <!-- 🔹 Modificar Contraseña  -->
     <VDialog v-model="showDialogPsw" persistent max-width="500px">
@@ -444,25 +357,7 @@ const deleteUser = async () => {
       </VCard>
     </VDialog>
 
-    <!-- 🔹 Confirmación de eliminación -->
-    <VDialog v-model="showConfirmDialog" max-width="400px">
-      <VCard>
-        <VCardTitle class="text-h6 text-center pt-4">
-          <VIcon icon="tabler-alert-circle" color="warning" size="26" class="me-2" />
-          Confirmar eliminación
-        </VCardTitle>
-        <VCardText class="text-center">
-          ¿Desea eliminar el usuario <strong>{{ nameUserToDelete }}</strong>?<br />
-          <small>Esta acción no se puede deshacer.</small>
-        </VCardText>
-        <VCardActions class="justify-center pb-4">
-          <VBtn color="secondary" variant="tonal" @click="showConfirmDialog = false">Cancelar</VBtn>
-          <VBtn color="error" variant="flat" @click="deleteUser">Eliminar</VBtn>
-        </VCardActions>
-      </VCard>
-    </VDialog>
-
-    <!-- 🔹 Snackbar -->
+     <!-- 🔹 Snackbar -->
     <VSnackbar v-model="showSnackbar" :color="snackbarColor" location="center" timeout="2500">
       <div class="d-flex align-center">
         <VIcon

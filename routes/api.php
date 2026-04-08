@@ -40,6 +40,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     // Rutas para Usuarios
 
     Route::get('/users', [UserController::class, 'getUsers']);
+    Route::get('/users/saas', [UserController::class, 'getUsersSaas']);
     Route::post('/users', [UserController::class, 'store']);
     Route::put('/users/{id}', [UserController::class, 'update']);
     Route::put('/password/{id}', [UserController::class, 'updatePassword']);
@@ -73,6 +74,8 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/dian/documentos-recibidos', [DianController::class, 'documentosRecibidos']);
     Route::post('/dian/procesar-iva', [DianController::class, 'procesarIva']);
     Route::post('/dian/estadistica-anual', [DianController::class, 'estadisticaAnual']);
+    Route::post('/dian/validar-facturas', [DianController::class, 'validarFacturas']);
+    Route::post('/dian/consolidar-info', [DianController::class, 'consolidarInfo']);
     Route::post('/n8n/webhook',       [DianController::class, 'webHook']);
 });
 

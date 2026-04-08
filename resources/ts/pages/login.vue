@@ -66,7 +66,7 @@ const handleLogin = async () => {
       password: form.value.password,
     })
 
-    //console.log('Login exitoso:', data);
+    console.log('Login exitoso:', data);
 
         // Guardar token
     localStorage.setItem('auth_token', data.token)
@@ -77,23 +77,28 @@ const handleLogin = async () => {
     localStorage.setItem('url_n8n', data.url_n8n)
     localStorage.setItem('nit_empresa', data.nit_empresa)
     localStorage.setItem('representante_legal', data.representante_legal)
+    localStorage.setItem('tipo_de_usuario', data.user['type'])
 
     const StoredName   = localStorage.getItem('company_name')
 
     window.company_user = StoredName
 
-    // console.log("Soy Empresa Login:",data.company_name)
-    // console.log("Soy Empresa ID Empresa:",data.company_id)
-    // console.log("Soy Usuario ID:",data.user_id)
-    // console.log("Soy URL n8n:",data.url_n8n)
-    // console.log("Soy NIT Empresa:",data.nit_empresa)
-    // console.log("Soy Representante Legal:",data.representante_legal)
+    const tipoUsuario = data.user['type']
 
-    // Redirigir al dashboard
-    router.push({ name: 'dashboard'})
+    console.log('🧭 Tipo usuario:', tipoUsuario)
+
+    if (tipoUsuario === 'SuperAdmin') 
+    {
+       router.push({ name: 'dashboard' })  // ← el dashboard original de Vuexy
+    } else if (tipoUsuario === 'Cliente SaaS') {
+      router.push({ name: 'dashboard-saas' })  // ← tu dashboard personalizado
+    } else {
+      router.push({ name: 'dashboard-crm' })  // ← fallback por defecto
+    }
+        
   } catch (error: any) {
-    errorMessage.value =
-      error.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.'
+    errorMessage.value = error.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.'
+    console.log("Soy Error:",errorMessage.value)
   } finally {    
     isLoading.value = false
   }

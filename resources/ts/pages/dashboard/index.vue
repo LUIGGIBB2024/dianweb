@@ -10,11 +10,13 @@ import CrmRevenueGrowth from './CrmRevenueGrowth.vue'
 import CrmSalesAreaCharts from './CrmSalesAreaCharts.vue'
 import CrmSalesByCountries from './CrmSalesByCountries.vue'
 
+
+
 const simpleStatisticsDemoCards = [
   {
     icon: 'tabler-building-skyscraper',
     color: 'error',
-    title: 'Total Empresas',
+    title: 'Total Empresas (002)',
     subTitle: 'Last week',
     stat: '1.28k',
     change: '-12.2%',

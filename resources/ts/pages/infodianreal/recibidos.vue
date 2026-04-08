@@ -133,7 +133,11 @@ import autoTable from 'jspdf-autotable'
                   page: page.value,
                   per_page: itemsPerPage.value,
              }, 
+             {
+                headers: { Authorization: `Bearer ${token}` }
+             }
           )
+
             invoiceData.value = data;
             console.log("Respuesta API:", data)
             console.log("Respuesta InvoiceData:", invoiceData.value)
@@ -475,12 +479,12 @@ import autoTable from 'jspdf-autotable'
                     <IconBtn>
                       <VIcon icon="tabler-file-type-xml" color="primary" @click="" />
                     </IconBtn>
-                    <IconBtn>
+                    <!-- <IconBtn>
                       <VIcon icon="tabler-file-type-pdf" color="error" @click="" />
                     </IconBtn>   
                     <IconBtn>
                       <VIcon icon="tabler-mail" color="warning" @click="abrirDialogoEmail(item)" />
-                    </IconBtn>
+                    </IconBtn> -->
                  </div>
               </template>
 

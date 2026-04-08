@@ -256,6 +256,51 @@ class DianController extends Controller
         );
     }
 
+    public function validarFacturas(Request $request): JsonResponse
+    {
+
+        $json_data = $request->input('dato_json');
+        // Convertimos a colección y mapeamos cada elemento
+        $datos_actualizados = collect($json_data)->map(function ($registro) {
+            $registro['estado'] = 'Activo'; // Aquí agregas el campo a cada registro
+            return $registro;
+        });
+
+        // IMPORTANTE: Asegúrate de que sea un array simple. 
+        // Si es una colección de Laravel, usa $datos_actualizados->all() antes.
+        $array_datos = $datos_actualizados->all();
+
+        foreach ($array_datos as &$registro) { // <--- Nota el símbolo &
+            $factura = $registro['numero'];
+            $prefijo = $registro['prefijo'];
+            $nit     = $registro['nit'];
+
+            $_registro = SalesInvoice::where('number', $factura)
+                ->where('prefix', $prefijo)
+                ->where('customer', $nit)
+                ->first();
+
+            if ($_registro) {
+                $registro['estado'] = 'Encontrada';
+            } else {
+                $registro['estado'] = 'Inexistente';
+            }
+        }
+        unset($registro); // Es buena práctica limpiar la referencia después del bucle
+
+
+
+        return response()->json(
+            [
+                'status'           => '200',
+                'message'          => 'Validación de Facturas con la DIAN ',
+                'TotalDocumentos' => count($array_datos),
+                'data'            => $array_datos,
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
     public function documentosRecibidos(Request $request): JsonResponse
     {
         $desdefecha = $request->input('fechadesde');
@@ -394,6 +439,7 @@ class DianController extends Controller
                 DB::raw('SUM(total_sale) as gran_total'),
             )
                 ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+                ->where('companies_id', $request->input('company_id'))
                 ->groupBy(DB::raw('MONTH(date_issue)'))
                 ->orderBy(DB::raw('MONTH(date_issue)'))
                 ->get()
@@ -412,6 +458,7 @@ class DianController extends Controller
                 DB::raw('SUM(total_purchase) as gran_total'),
             )
                 ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+                ->where('companies_id', $request->input('company_id'))
                 ->groupBy(DB::raw('MONTH(date_issue)'))
                 ->orderBy(DB::raw('MONTH(date_issue)'))
                 ->get()
@@ -430,6 +477,71 @@ class DianController extends Controller
                 'AcumuladoIva'    => $datos->sum('total_iva'),
                 'TotalDocumentos' => $datos->sum('total_documentos'),
                 'data'            => $datos,
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
+    public function consolidarInfo(Request $request): JsonResponse
+    {
+
+
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+   
+        $company = Company::where('id', $request->input('company_id'))->get();
+
+        $ventasmen = SalesInvoice::select(
+            DB::raw('MONTH(date_issue) as month'),
+            DB::raw('SUM(total_sale) as gran_total'),
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->groupBy(DB::raw('MONTH(date_issue)'))
+            ->get();
+
+        $ventas = SalesInvoice::select(
+            DB::raw('YEAR(date_issue) as year'),
+            DB::raw('COUNT(*) as total_documentos'),
+            DB::raw('SUM(subtotal) as total_subtotal'),
+            DB::raw('SUM(vatvalue) as total_iva'),
+            DB::raw('SUM(total_sale) as gran_total'),
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->groupBy(DB::raw('YEAR(date_issue)'))
+            ->get();
+
+        $comprasmen = SalesInvoice::select(
+            DB::raw('MONTH(date_issue) as month'),
+            DB::raw('SUM(total_sale) as gran_total'),
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->groupBy(DB::raw('MONTH(date_issue)'))
+            ->get();
+
+        $compras = PurchasesInvoice::select(
+            DB::raw('YEAR(date_issue) as year'),
+            DB::raw('COUNT(*) as total_documentos'),
+            DB::raw('SUM(subtotal) as total_subtotal'),
+            DB::raw('SUM(vatvalue) as total_iva'),
+            DB::raw('SUM(total_purchase) as gran_total'),
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->groupBy(DB::raw('YEAR(date_issue)'))
+            ->get();
+
+        return response()->json(
+            [
+                'status'          => '200',
+                'message'         => 'Información Consolidada - Fechas entre ' . $desdefecha . ' y ' . $hastafecha,
+                'ventas'          => $ventas,
+                'compras'         => $compras,
+                'company'         => $company,
+                'ventasmen'       => $ventasmen,
+                'comprasmen'      => $comprasmen,
             ],
             Response::HTTP_ACCEPTED
         );

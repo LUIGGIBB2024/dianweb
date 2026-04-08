@@ -1,8 +1,17 @@
 <script setup lang="ts">
 import avatar1 from '@images/avatars/avatar-1.png';
 
-
+import { useRouter } from 'vue-router';
+const router = useRouter()
 const StoredUserName = localStorage.getItem('user_name')
+
+const handleLogout = () => {
+  localStorage.removeItem('auth_token')
+  localStorage.removeItem('company_id')
+  localStorage.removeItem('tipo_de_usuario')
+  localStorage.removeItem('user_name')
+  router.push({ name: 'login' })
+}
 
 </script>
 
@@ -128,17 +137,21 @@ const StoredUserName = localStorage.getItem('user_name')
           <VDivider class="my-2" />
 
           <!-- 👉 Logout -->
-          <VListItem to="/login">
+          <!-- <VListItem to="/login">
             <template #prepend>
               <VIcon
                 class="me-2"
                 icon="tabler-logout"
                 size="22"
               />
-            </template>
+            </template> -->
 
-            <VListItemTitle>Logout</VListItemTitle>
-          </VListItem>
+            <VListItem @click="handleLogout" style="cursor: pointer;">
+               Logout
+            </VListItem>
+
+            <!-- <VListItemTitle>Logout</VListItemTitle> -->
+          <!-- </VListItem> -->
         </VList>
       </VMenu>
       <!-- !SECTION -->

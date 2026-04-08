@@ -38,6 +38,39 @@ class UserController extends Controller
         ]);;
     }
 
+    public function getUsersSaaS(Request $request): JsonResponse
+    {
+        $companies = Company::all();
+        $company_id = $request->input('company_id');
+        $q = $request->q;
+        $users = [];
+        $query = [];
+
+
+        if ($request->has('q') && !empty($request->q)) {
+            $query = User::SelectRaw('users.id, users.name, users.email, companies.name as empresa, users.type, users.company_id, users.code_n8n')
+                ->leftJoin('companies', 'users.company_id', '=', 'companies.id')
+                ->where('users.id', '=', $company_id)
+                ->where('users.name', 'like', "%{$q}%")
+                ->orWhere('users.email', 'like', "%{$q}%")
+                ->orWhere('users.type', 'like', "%{$q}%")
+                ->orWhere('companies.name', 'like', "%{$q}%")->get();
+        } else {
+            $query = User::SelectRaw('users.id, users.name, users.email, companies.name as empresa, users.type, users.company_id, users.code_n8n')
+                ->leftJoin('companies', 'users.company_id', '=', 'companies.id')
+                ->where('users.company_id', '=', $company_id)
+                ->get();
+        }
+
+        $users = $query;
+
+        return response()->json([
+            'data' => $users,
+            'companies' => $companies,
+            'total' => $users->count(),
+        ]);
+    }
+
     public function store(Request $request): JsonResponse
     {
         $data = $request->validate([
@@ -84,7 +117,7 @@ class UserController extends Controller
 
         // 🔒 Si viene el campo 'password', lo convertimos con hashing
         if (!empty($data['password'])) {
-            $data['password'] = Hash::make($data['password']);            
+            $data['password'] = Hash::make($data['password']);
         }
 
         $user->update($data);

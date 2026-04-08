@@ -182,6 +182,9 @@ import * as XLSX from 'xlsx'
                   page: page.value,
                   per_page: itemsPerPage.value,
              }, 
+             {
+                headers: { Authorization: `Bearer ${token}` }
+             }
           )
             recordData.value = data;
             console.log("Respuesta API:", data)
@@ -220,7 +223,7 @@ import * as XLSX from 'xlsx'
       const hoja  = XLSX.utils.json_to_sheet(datos)
       const libro = XLSX.utils.book_new()
       XLSX.utils.book_append_sheet(libro, hoja, 'Facturas')
-      XLSX.writeFile(libro, `Facturas_Ventas_${datafechas.value.desdefecha}_${datafechas.value.hastafecha}.xlsx`)
+      XLSX.writeFile(libro, `datos_${toggle.value}_${datafechas.value.desdefecha}_${datafechas.value.hastafecha}.xlsx`)
     }
 
     // ── Exportar a PDF ────────────────────────────────────────────
@@ -228,15 +231,14 @@ import * as XLSX from 'xlsx'
       const doc = new jsPDF({ orientation: 'landscape' })
 
       doc.setFontSize(14)
-      doc.text('Documentos Enviados (Facturas/Notas)', 14, 15)
+      doc.text(`Estadística Anual (${toggle.value})`, 14, 15)
       doc.setFontSize(9)
       doc.text(`Período: ${datafechas.value.desdefecha}  al  ${datafechas.value.hastafecha}`, 14, 22)
 
       autoTable(doc, {
         startY: 28,
         head: [[
-          'ID', 'Fecha', 'Prefijo', 'Número', 'Tipo Doc.',
-          'Nit/Cédula', 'Cliente', 'Subtotal', 'IVA', 'Total'
+          'Meses','NroDocumentos', 'SubTotal', 'Total Iva', 'Gran Total'
         ]],
         body: records.value.map(item => [
           item.nombre_mes,
@@ -249,26 +251,34 @@ import * as XLSX from 'xlsx'
         styles:     { fontSize: 7, cellPadding: 2 },
         headStyles: { fillColor: [25, 118, 210], textColor: 255, fontStyle: 'bold' },
         alternateRowStyles: { fillColor: [240, 248, 255] },
-        // foot: [[
-        //   '', '', '', '', '', '', 'TOTALES',
-        //   formatCurrency(records.value.to - totalIva.value),   // opcional si lo tienes calculado
-        //   formatCurrency(totalIva.value),
-        //   formatCurrency(totalInvoices.value),
-        // ]],
-        // footStyles: { fillColor: [200, 230, 255], fontStyle: 'bold' },
+        foot: [[
+          '', '', '', '', '', '', 'TOTALES',
+          formatCurrency(records.value.to - totalIva.value),   // opcional si lo tienes calculado
+          formatCurrency(totalIva.value),
+          formatCurrency(totalInvoices.value),
+        ]],
+        footStyles: { fillColor: [200, 230, 255], fontStyle: 'bold' },
       })
 
-      doc.save(`Facturas_Ventas_${datafechas.value.desdefecha}_${datafechas.value.hastafecha}.pdf`)
+      doc.save(`datos_${toggle.value}_${datafechas.value.desdefecha}_${datafechas.value.hastafecha}.pdf`)
     }
 
 
 
-    const headers = [
-        { title: 'Meses',                           key: 'nombre_mes',        sortable: true, width: '10px' },
-        { title: 'Número de Documentos',            key: 'total_documentos',  sortable: true, width: '10px' },
-        { title: 'Valor Parcial (Subtotal)',        key: 'total_subtotal',    sortable: true, width: '10px' },
-        { title: 'Valor Iva',                       key: 'total_iva',         sortable: true, width: '10px' },
-        { title: 'Gran Total',                      key: 'gran_total',        sortable: true, width: '12%'},
+  //  const headers = [
+  //     { title: 'Meses', key: 'nombre_mes', align: 'start' },
+  //     { title: 'Número de Documentos', key: 'total_documentos', align: 'end' },
+  //     { title: 'Valor Parcial (Subtotal)', key: 'total_subtotal', align: 'end' },
+  //     { title: 'Valor Iva', key: 'total_iva', align: 'end' },
+  //     { title: 'Gran Total', key: 'gran_total', align: 'end' },
+  //   ]
+
+  const headers = [
+      { title: 'Meses', key: 'nombre_mes', align: 'start', width: '15%' },
+      { title: 'Número de\nDocumentos', key: 'total_documentos', align: 'end', width: '17%' },
+      { title: 'Valor Parcial\n(Subtotal)', key: 'total_subtotal', align: 'end', width: '22%' },
+      { title: 'Valor Iva', key: 'total_iva', align: 'end', width: '20%' },
+      { title: 'Gran Total', key: 'gran_total', align: 'end', width: '26%' },
     ]
 
    const anioSeleccionado = ref(2026)
@@ -385,57 +395,33 @@ import * as XLSX from 'xlsx'
                 density="compact"
               >      
               
-                <template #header.nombre_mes="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
-                      Meses
-                  </div>
-                </template>
+  
                 <template #item.nombre_mes="{ item }">
-                    <div class="_fila text-left" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    <div class="text-start" style="line-height: 1.2;">
                         {{ item.nombre_mes }}
                     </div>
                 </template>
 
-                <template #header.total_documentos="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
-                      Número de<br>Documentos
-                  </div>
-                </template>
                 <template #item.total_documentos="{ item }">
-                    <div class="_fila text-right" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    <div class="_fila text-end" >
                         {{ formatCurrency(item.total_documentos) }} 
                     </div>
                 </template>
 
-                <template #header.total_subtotal="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
-                      Valor Parcial<br>(Subtotal)
-                  </div>
-                </template>
                 <template #item.total_subtotal="{ item }">
-                    <div class="_fila text-right" style="width: 7.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
-                        {{ formatCurrency(item.total_subtotal, 2) }} 
+                    <div class="text-end">
+                      {{ formatCurrency(item.total_subtotal, 2) }}
                     </div>
                 </template>
 
-                <template #header.total_iva="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
-                      Valor Iva
-                  </div>
-                </template>
                 <template #item.total_iva="{ item }">
-                    <div class="_fila text-right" style="width: 7.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    <div class="text-end">
                         {{ formatCurrency(item.total_iva, 2) }} 
                     </div>
                 </template>
 
-                <template #header.gran_total="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
-                      Gran Total
-                  </div>
-                </template>
                 <template #item.gran_total="{ item }">
-                    <div class="_fila text-right" style="width: 8.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    <div class="text-end">
                         {{ formatCurrency(item.gran_total, 2) }} 
                     </div>
                 </template>
@@ -556,14 +542,11 @@ import * as XLSX from 'xlsx'
      text-transform: capitalize !important;
   }
 
-  ._fila
-    {
-        font-size: 12px !important;
-        width: 6.0em; 
-        white-space: normal; 
-        word-wrap: break-word; 
-        line-height: 2.8;
-    }
+  ._fila {
+    font-size: 12px;
+    white-space: nowrap;
+    line-height: 1.4;
+  }
 
   .modal-title 
   {
@@ -605,16 +588,7 @@ import * as XLSX from 'xlsx'
       background-color: #fff;
     }
 
-   .loader-overlay {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(var(--v-theme-surface), 0.9);
-      z-index: 10;
-    }
-
+   
   .gap-2 {
       gap: 8px;
     }
@@ -654,6 +628,23 @@ import * as XLSX from 'xlsx'
     padding: 0 0 0 0 !important; /* Ajusta el padding para reducir la altura */
     font-size: 0.8rem !important; /* Ajusta el tamaño de fuente si es necesario */    
   }
-  
+
+  .v-data-table td {
+  vertical-align: middle;
+}
+
+  .v-data-table th {
+    white-space: pre-line; /* permite \n en headers */
+  }
+
+  .v-data-table td,
+  .v-data-table th {
+    vertical-align: middle;
+  }
+
+  .v-data-table {
+    font-variant-numeric: tabular-nums;
+  }
+      
 </style>
 
