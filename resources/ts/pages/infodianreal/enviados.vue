@@ -61,14 +61,14 @@ import autoTable from 'jspdf-autotable'
         TotalIva:0,
         data: [],
         page: 1,
-        per_page: 10,       
+        per_page: 13,       
       })
     //
     const showDialogEmail = ref(false)
     const editMode = ref(false)
  
     // 🔹 Variables del DataTable
-    const itemsPerPage = ref(10)
+    const itemsPerPage = ref(13)
     const page = ref(1)
     const sortBy = ref()
     const orderBy = ref()
@@ -611,7 +611,7 @@ import autoTable from 'jspdf-autotable'
 
   ._fila
     {
-        font-size: 10px !important;
+        font-size: 11px !important;
         width: 6.0em; 
         white-space: normal; 
         word-wrap: break-word; 
