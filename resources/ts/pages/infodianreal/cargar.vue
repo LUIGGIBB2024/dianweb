@@ -118,7 +118,11 @@ import { VRow } from 'vuetify/components'
              urln8n: urln8n,
              nit_empresa: nitEmpresa,
              representante_legal: representanteLegal
-        },);      
+        },
+         {
+                 headers: { Authorization: `Bearer ${token}` }
+         }    
+    );      
  
 
         try {
