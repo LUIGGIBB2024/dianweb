@@ -610,6 +610,7 @@ import autoTable from 'jspdf-autotable'
   ._fila
     {
         font-size: 11px !important;
+        color:black;
         width: 6.0em; 
         white-space: normal; 
         word-wrap: break-word; 

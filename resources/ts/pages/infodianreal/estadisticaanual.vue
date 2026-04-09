@@ -397,7 +397,7 @@ import * as XLSX from 'xlsx'
               
   
                 <template #item.nombre_mes="{ item }">
-                    <div class="text-start" style="line-height: 1.2;">
+                    <div class="_fila text-start" style="line-height: 1.2;">
                         {{ item.nombre_mes }}
                     </div>
                 </template>
@@ -409,19 +409,19 @@ import * as XLSX from 'xlsx'
                 </template>
 
                 <template #item.total_subtotal="{ item }">
-                    <div class="text-end">
+                    <div class="_fila text-end">
                       {{ formatCurrency(item.total_subtotal, 2) }}
                     </div>
                 </template>
 
                 <template #item.total_iva="{ item }">
-                    <div class="text-end">
+                    <div class="_fila text-end">
                         {{ formatCurrency(item.total_iva, 2) }} 
                     </div>
                 </template>
 
                 <template #item.gran_total="{ item }">
-                    <div class="text-end">
+                    <div class="_fila text-end">
                         {{ formatCurrency(item.gran_total, 2) }} 
                     </div>
                 </template>
@@ -544,6 +544,7 @@ import * as XLSX from 'xlsx'
 
   ._fila {
     font-size: 12px;
+    color:black;
     white-space: nowrap;
     line-height: 1.4;
   }

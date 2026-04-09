@@ -613,6 +613,7 @@ import autoTable from 'jspdf-autotable'
     {
         font-size: 11px !important;
         width: 6.0em; 
+        color:black;
         white-space: normal; 
         word-wrap: break-word; 
         line-height: 1.2;
