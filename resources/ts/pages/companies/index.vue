@@ -5,6 +5,21 @@ import { computed, nextTick, onMounted, ref, watch } from 'vue'
 import { VCol, VDivider } from 'vuetify/components'
 import { VBtn } from 'vuetify/components/VBtn'
 import { VCard, VCardActions, VCardText, VCardTitle } from 'vuetify/components/VCard'
+import type { Company } from './types.ts'; // 👈 agrega esta línea
+
+
+const archivos = ref<File[]>([])
+const certificateNombre = ref('')
+const certificateFile = ref<File | null>(null)
+const certificateFileModel = ref<File | File[] | null>(null)
+
+const inputRef = ref<HTMLInputElement | null>(null)
+
+function onFileChange(e: Event) {
+  const target = e.target as HTMLInputElement
+  if (target.files)
+    archivos.value = Array.from(target.files)
+}
 
 // 🔹 Filtros y variables de estado
 const searchQuery = ref('')
@@ -49,7 +64,8 @@ const headers = [
 const showDialog = ref(false)
 const editMode = ref(false) // 👈 false = crear, true = editar
 
-const newCompany = ref({
+const newCompany = ref<Company>({
+  id:0,
   nit: '',
   dv: '',
   representativeid: '',
@@ -63,9 +79,18 @@ const newCompany = ref({
   endpoint2: '',
   endpoint3: '',
   token: '',
-  date_from: ref(hoy),
-  date_to: ref(hoy),
+  certificatename:'',
+  certificatekey:'',
+  date_from: (hoy),
+  date_to: (hoy),
+  days_difference:0 
 })
+
+watch(archivos, (files) => 
+ {
+    if (files.length > 0)
+      newCompany.value.certificatename = files[0]
+ })
 
 // 🔹 Snackbar (toast)
 const showSnackbar = ref(false)
@@ -100,6 +125,7 @@ watch(showDialog, (isOpen) => {
   if (isOpen && !editMode.value) {
     // Se abre el diálogo → limpiar los campos
     newCompany.value = {
+      id:0,
       nit: '',
       dv:'',
       representativeid: '',
@@ -111,10 +137,13 @@ watch(showDialog, (isOpen) => {
       city: '',
       endpoint1: '',
       endpoint2: '',
-      endpoint3: '',     
+      endpoint3: '',   
+      certificatename:'',
+      certificatekey:'',  
       token: '',
-      date_from: ref(hoy),
-      date_to: ref(hoy),      
+      date_from: hoy,
+      date_to: hoy,    
+      days_difference:0  
     }
   }
 })
@@ -155,49 +184,49 @@ const totalCompanies = computed(() => companyData.value?.total ?? 0)
 const perPage = computed(() => companyData.value.per_page ?? itemsPerPage.value)
 const currentPage = computed(() => companyData.value.page ?? page.value)
 
+const saveCompany = async () => 
+{
+    const formData = new FormData()
 
-// 🔹 Guardar o actualizar empresa
-const saveCompany = async () => {
-  try {  
-      if (editMode.value)  
-      {
-        // 🟡 Editar empresa existente
-        try {    
-              await axios.put(`/api/companies/${newCompany.value.id}`,newCompany.value)
-                 
-              snackbarMessage.value = 'Empresa actualizada correctamente' 
-              showSnackbar.value = true
-              showDialog.value = false
-              //snackbarColor.value = 'error'
-              showSnackbar.value = true             
-              loadCompanies()
-            } catch (error) {
-                  console.error('❌ Error al guardar empresa:', error)
-            }
-      } else 
-          {
-              try {
-                    await axios.post('/api/companies',newCompany.value)
-                    
-                    snackbarMessage.value = 'Empresa creada correctamente'
-                    showSnackbar.value = true
-                    showDialog.value = false
-                    loadCompanies()
-                    
-                  } catch (error) {
-                    console.error('Error al intentar Crear la Emmpresa :', error)
-                  } 
-          }
-          showDialog.value = false
-          loadCompanies()
-  } catch (error) {
-    console.error('❌ Error al guardar empresa:', error)
+    Object.entries(newCompany.value).forEach(([key, value]) => {
+      if (value !== null && value !== undefined && value !== '') {
+        formData.append(key, value as string)
+      }
+    })
+
+    const file = Array.isArray(certificateFileModel.value)
+      ? certificateFileModel.value[0]
+      : certificateFileModel.value
+
+    if (file) {
+      formData.append('certificate_file', file)
+    }
+
+
+    try {
+      const url = newCompany.value.id
+        ? `/api/companies/${newCompany.value.id}`  // POST a /api/companies/1
+        : '/api/companies'
+
+      const { data } = await axios.post(url, formData, {
+        headers: { 'Content-Type': 'multipart/form-data' },
+      })
+      
+      snackbarMessage.value = 'Información actualizada correctamente'
+      snackbarColor.value = 'success'
+
+    } catch (error: any) {
+      console.error('Error:', error.response?.data)
+    } finally {
+    showSnackbar.value = true
   }
 }
 
 // 🔹 Abrir modal en modo edición
 const openEditDialog = (company) => {
-  editMode.value = true
+ editMode.value = true
+ certificateNombre.value  = company.certificatename
+ certificateFileModel.value = company.certificatename
  newCompany.value = {
     id: company.id,
     nit: company.nit,
@@ -213,8 +242,11 @@ const openEditDialog = (company) => {
     endpoint2: company.endpoint2,
     endpoint3: company.endpoint3,
     token: company.token,
+    certificatename:company.certificatename,
+    certificatekey:company.certificatekey,    
     date_from: company.date_from,
     date_to:company.date_to,
+    days_difference:0
   } 
   // llenar formulario
   showDialog.value = true
@@ -237,9 +269,12 @@ const openCreateDialog = () => {
     endpoint1: '',
     endpoint2: '',
     endpoint3: '',
+    certificatename:'',
+    certificatekey:'',
     token: '',
-    date_from: ref(hoy),
-    date_to:ref(hoy),
+    date_from: (hoy),
+    date_to:(hoy),
+    days_difference:0
   }
   //console.log('🆕 Abriendo modal para nueva empresa')
   showDialog.value = true
@@ -275,6 +310,23 @@ const deleteCompany = async () => {
     nextTick(() => (showSnackbar.value = true))
   }
 }
+
+const handleFileUpload = (event: Event) => {
+  const input = event.target as HTMLInputElement
+  const file = input.files?.[0]
+  if (file) {
+    certificateFile.value = file
+  }
+}
+
+const validateFileSize = (v: File | File[] | null) => {
+    if (!v) return true                          // Sin archivo, válido
+    const file = Array.isArray(v) ? v[0] : v    // Maneja array o archivo directo
+    if (!file) return true
+    return file.size < 2048000 || 'El archivo no debe superar 2MB'
+  }
+
+
 </script>
 
 
@@ -295,8 +347,6 @@ const deleteCompany = async () => {
         prepend-inner-icon="tabler-search"
       />
 
-      <!-- ➕ Botón "Nueva Empresa" alineado a la derecha -->
-      <!-- <VBtn color="primary" class="text-white" @click="openCreateDialog"></VBtn> -->
       <VBtn color="primary" class="text-white" @click="showDialog = true">
         <template #prepend>
           <VIcon icon="tabler-plus" size="20" />
@@ -417,7 +467,7 @@ const deleteCompany = async () => {
        </VCardTitle>
        
        <VCardText mb="4" class="pt-4 pb-2">
-          <VForm @submit.prevent="saveCompany">
+          <VForm @submit.prevent="saveCompany" enctype="multipart/form-data">
             <VRow dense align="center" class="g-2">
                 <VCol cols="12" md="3" class="py-0">
                      <AppTextField v-model="newCompany.nit" label="Nit de la Empresa" autofocus required class="mb-3 text_size mt-0" :rules="[rules.required]"  placeholder="Ingrese Nit de la Empresa" 
@@ -531,23 +581,56 @@ const deleteCompany = async () => {
                   </AppTextField>
                </VCol>               
             </VRow>   
-            <VRow dense align="center" class="g-2">
-              <VCol cols="12" md="6" class="py-0"> 
-                  <AppTextField v-model="newCompany.endpoint3" label="Endpoint (Scraping)" class="mb-3 text_size" required :rules="[rules.required]" 
-                    placeholder="Ingrese el endpoint # (Scraping)" @update:model-value="val => newCompany.endpoint3 = val.toLowerCase()">
-                    <template #prepend-inner>
-                      <VIcon icon="tabler-link" color="primary" size="22" class="me-2" />
-                    </template>
-                  </AppTextField>
-              </VCol>
-              <VCol cols="12" md="6" class="py-0"> 
-                    <AppTextarea   v-model="newCompany.token" label="Token de Autenticación" placeholder="Ingrese el Token de Autenticación" class="mb-3 text-area-lg" density="comfortable" >
+            <VRow dense align="start" class="g-2">
+                <VCol cols="12" md="6" class="py-0"> 
+                    <AppTextField v-model="newCompany.endpoint3" label="Endpoint (Scraping)" class="mb-3 text_size" required :rules="[rules.required]" 
+                      placeholder="Ingrese el endpoint # (Scraping)" @update:model-value="val => newCompany.endpoint3 = val.toLowerCase()">
                       <template #prepend-inner>
-                         <VIcon icon="tabler-qrcode" color="primary" size="22" class="me-2" />
+                        <VIcon icon="tabler-link" color="primary" size="22" class="me-2" />
                       </template>
-                    </AppTextarea>
-              </VCol>
-            </VRow>         
+                    </AppTextField>
+                </VCol>
+                <VCol cols="12" md="6" class="py-0"> 
+                      <AppTextarea   v-model="newCompany.token" label="Token de Autenticación" placeholder="Ingrese el Token de Autenticación" class="mb-3 text-area-lg" density="comfortable" >
+                        <template #prepend-inner>
+                          <VIcon icon="tabler-qrcode" color="primary" size="22" class="me-2" />
+                        </template>
+                      </AppTextarea>
+                </VCol>           
+            </VRow>        
+             
+            <VRow dense align="start" class="g-2">
+               <VCol cols="12" md="6" class="py-0">
+                  <label class="v-label mb-1 d-block mt-0" style="font-size: 0.83rem;color:black">Certificado Digital</label>
+                  <VFileInput
+                    v-model="certificateFileModel"
+                    accept=".p12,.pfx,.pem,.crt,.cer"
+                    show-size
+                    clearable
+                    prepend-icon=""
+                    :rules="[validateFileSize]"
+                    :placeholder="certificateFileModel ?? 'Seleccionar certificado'">
+
+                    <template #selection>
+                      <!-- Muestra el archivo nuevo si se seleccionó, o el de BD si no -->
+                      <span class="text-body-2">
+                        {{ certificateFileModel ? certificateFileModel : newCompany.certificatename }}
+                      </span>
+                    </template>
+                    <template #prepend-inner>
+                      <VIcon icon="tabler-certificate" size="18" />
+                    </template>
+                  </VFileInput>
+               </VCol>           
+              
+               <VCol cols="12" md="6" class="py-0"> 
+                  <AppTextField   v-model="newCompany.certificatekey" label="Password Certificado" placeholder="Ingrese Password Certificado Digital" class="mb-3 text-area-lg" density="comfortable" >
+                    <template #prepend-inner>
+                        <VIcon icon="tabler-qrcode" color="primary" size="22" class="me-2" />
+                    </template>
+                  </AppTextField>                  
+               </VCol> 
+            </VRow>  
           </VForm>
         </VCardText>
 
@@ -744,6 +827,15 @@ textarea {
 //   display: flex;
 //   align-items: center;
 // }
+
+  :deep(.v-file-upload) {
+    min-height: 120px !important;
+    padding: 8px 16px !important;
+  }
+
+  :deep(.v-file-upload-divider) {
+    margin: 4px 0 !important;
+  }
 
 
 </style>

@@ -3,7 +3,7 @@
 import flatpickr from 'flatpickr'
 // Interfaz que define la estructura del modelo Company
 export interface Company {
-  id: number
+  id?: number   
   nit: string
   dv: string
   representativeid: string
@@ -15,10 +15,12 @@ export interface Company {
   city: string
   endpoint1: string  
   token: string  
-  date_from:string
-  date_to:string,
+  date_from:string | Date
+  date_to:string | Date
   endpoint2:string,
   endpoint3:string,
+  certificatename:string | File,
+  certificatekey:string,
   days_difference:number,
 }
 

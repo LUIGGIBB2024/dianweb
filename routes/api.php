@@ -34,7 +34,7 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::get('/getcompanies', [CompanyController::class, 'getCompanies']);
     Route::post('/companies', [CompanyController::class, 'store']);
     // Otras rutas de la API...
-    Route::put('/companies/{id}', [CompanyController::class, 'update']);
+    Route::post('/companies/{id}', [CompanyController::class, 'update']);
     Route::delete('/companies/{id}', [CompanyController::class, 'destroy']);
 
     // Rutas para Usuarios
