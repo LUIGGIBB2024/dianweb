@@ -184,8 +184,7 @@ const totalCompanies = computed(() => companyData.value?.total ?? 0)
 const perPage = computed(() => companyData.value.per_page ?? itemsPerPage.value)
 const currentPage = computed(() => companyData.value.page ?? page.value)
 
-const saveCompany = async () => 
-{
+const saveCompany = async () => {
     const formData = new FormData()
 
     Object.entries(newCompany.value).forEach(([key, value]) => {
@@ -202,35 +201,53 @@ const saveCompany = async () =>
       formData.append('certificate_file', file)
     }
 
-
     try {
       const url = newCompany.value.id
-        ? `/api/companies/${newCompany.value.id}`  // POST a /api/companies/1
+        ? `/api/companies/${newCompany.value.id}`
         : '/api/companies'
 
       const { data } = await axios.post(url, formData, {
         headers: { 'Content-Type': 'multipart/form-data' },
       })
-      
-      snackbarMessage.value = 'Información actualizada correctamente'
+
+      // ✅ Actualizar el registro en la lista local con datos frescos del servidor
+      if (newCompany.value.id) {
+        const index = companies.value.findIndex(c => c.id === newCompany.value.id)
+        if (index !== -1) {
+          companies.value[index] = data.company // ← reemplaza con datos frescos de BD
+        }
+      } else {
+        // ✅ Si es nuevo, agregarlo a la lista
+        companies.value.push(data.company)
+      }
+
+      snackbarMessage.value = newCompany.value.id
+        ? 'Empresa actualizada correctamente'
+        : 'Empresa creada correctamente'
       snackbarColor.value = 'success'
+
+      // ✅ Limpiar y cerrar
+      certificateFileModel.value = null
+      showDialog.value = false
 
     } catch (error: any) {
       console.error('Error:', error.response?.data)
+      snackbarMessage.value = 'Error al guardar la empresa'
+      snackbarColor.value = 'error'
     } finally {
-    showSnackbar.value = true
+      showSnackbar.value = true
+    }
   }
-}
 
 // 🔹 Abrir modal en modo edición
 const openEditDialog = (company) => {
- editMode.value = true
- certificateNombre.value  = company.certificatename
- certificateFileModel.value = company.certificatename
- newCompany.value = {
+  editMode.value = true
+  certificateFileModel.value = null
+
+  newCompany.value = {
     id: company.id,
     nit: company.nit,
-    dv:company.dv,
+    dv: company.dv,
     representativeid: company.representativeid,
     name: company.name,
     address: company.address,
@@ -242,13 +259,16 @@ const openEditDialog = (company) => {
     endpoint2: company.endpoint2,
     endpoint3: company.endpoint3,
     token: company.token,
-    certificatename:company.certificatename,
-    certificatekey:company.certificatekey,    
+    certificatename: company.certificatename,
+    certificatekey: company.certificatekey,
     date_from: company.date_from,
-    date_to:company.date_to,
-    days_difference:0
-  } 
-  // llenar formulario
+    date_to: company.date_to,
+    days_difference: 0
+  }
+
+  // ✅ Verificar que el valor llega
+  console.log('certificatename:', newCompany.value.certificatename)
+
   showDialog.value = true
 }
 
@@ -325,6 +345,16 @@ const validateFileSize = (v: File | File[] | null) => {
     if (!file) return true
     return file.size < 2048000 || 'El archivo no debe superar 2MB'
   }
+
+  const certificateDisplayName = computed(() => {
+  if (!certificateFileModel.value) return newCompany.value.certificatename
+
+  const file = Array.isArray(certificateFileModel.value)
+    ? certificateFileModel.value[0]
+    : certificateFileModel.value as File
+
+  return file?.name ?? newCompany.value.certificatename
+})
 
 
 </script>
@@ -601,26 +631,33 @@ const validateFileSize = (v: File | File[] | null) => {
              
             <VRow dense align="start" class="g-2">
                <VCol cols="12" md="6" class="py-0">
-                  <label class="v-label mb-1 d-block mt-0" style="font-size: 0.83rem;color:black">Certificado Digital</label>
-                  <VFileInput
-                    v-model="certificateFileModel"
-                    accept=".p12,.pfx,.pem,.crt,.cer"
-                    show-size
-                    clearable
-                    prepend-icon=""
-                    :rules="[validateFileSize]"
-                    :placeholder="certificateFileModel ?? 'Seleccionar certificado'">
+                  <label class="v-label mb-1 d-block mt-0" style="font-size: 0.83rem;color:black">Certificado Digital</label>                  
+                  <template v-if="!certificateFileModel && newCompany.certificatename">
+                      <VTextField
+                        :model-value="newCompany.certificatename"
+                        readonly
+                        prepend-inner-icon="tabler-certificate"
+                        append-inner-icon="tabler-x"
+                        @click="certificateFileModel = null; newCompany.certificatename = ''"
+                        @click:append-inner="newCompany.certificatename = ''"
+                      />
+                    </template>
 
-                    <template #selection>
-                      <!-- Muestra el archivo nuevo si se seleccionó, o el de BD si no -->
-                      <span class="text-body-2">                       
-                        {{ certificateFileModel ? certificateFileModel.name : newCompany.certificatename }}
-                      </span>
+                    <template v-else>
+                      <VFileInput
+                        v-model="certificateFileModel"
+                        accept=".p12,.pfx,.pem,.crt,.cer"
+                        show-size
+                        clearable
+                        prepend-icon=""
+                        :rules="[validateFileSize]"
+                        placeholder="Seleccionar certificado"
+                      >
+                        <template #prepend-inner>
+                          <VIcon icon="tabler-certificate" size="18" />
+                        </template>
+                      </VFileInput>
                     </template>
-                    <template #prepend-inner>
-                      <VIcon icon="tabler-certificate" size="18" />
-                    </template>
-                  </VFileInput>
                </VCol>           
               
                <VCol cols="12" md="6" class="py-0"> 
