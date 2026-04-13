@@ -613,8 +613,8 @@ const validateFileSize = (v: File | File[] | null) => {
 
                     <template #selection>
                       <!-- Muestra el archivo nuevo si se seleccionó, o el de BD si no -->
-                      <span class="text-body-2">
-                        {{ certificateFileModel ? certificateFileModel : newCompany.certificatename }}
+                      <span class="text-body-2">                       
+                        {{ certificateFileModel ? certificateFileModel.name : newCompany.certificatename }}
                       </span>
                     </template>
                     <template #prepend-inner>
