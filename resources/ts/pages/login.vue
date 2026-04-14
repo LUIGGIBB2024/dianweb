@@ -91,9 +91,9 @@ const handleLogin = async () => {
     {
        router.push({ name: 'dashboard' })  // ← el dashboard original de Vuexy
     } else if (tipoUsuario === 'Cliente SaaS') {
-      router.push({ name: 'dashboard-saas' })  // ← tu dashboard personalizado
-    } else {
-      router.push({ name: 'dashboard-crm' })  // ← fallback por defecto
+           router.push({ name: 'dashboard-saas' })  // ← tu dashboard personalizado
+    } else if (tipoUsuario === 'Cliente Phx') {
+           router.push({ name: 'dashboard-saas' }) // ← tu dashboard personalizado 
     }
         
   } catch (error: any) {
