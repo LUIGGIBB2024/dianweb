@@ -249,7 +249,7 @@ import { VRow } from 'vuetify/components'
                 class="text-no-wrap text-body-2 company-table capitalize"
                 @update:options="updateOptions"
               > 
-                <-- Slots de Cabecera -->
+              
                 <template #header.date_issue>
                   <div style="text-align:center; white-space:normal;">
                     Fecha<br>Documento
