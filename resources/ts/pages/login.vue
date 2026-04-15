@@ -89,11 +89,11 @@ const handleLogin = async () => {
 
     if (tipoUsuario === 'SuperAdmin') 
     {
-       router.push({ name: 'dashboard' })  // ← el dashboard original de Vuexy
+       await router.push({ name: 'dashboard' })  // ← el dashboard original de Vuexy
     } else if (tipoUsuario === 'Cliente SaaS') {
-           router.push({ name: 'dashboard-saas' })  // ← tu dashboard personalizado
+           await router.push({ name: 'dashboard-saas' })  // ← tu dashboard personalizado
     } else if (tipoUsuario === 'Cliente Phx') {
-           router.push({ name: 'dashboard-saas' }) // ← tu dashboard personalizado 
+           await router.push({ name: 'dashboard-saas' }) // ← tu dashboard personalizado 
     }
         
   } catch (error: any) {
