@@ -10,6 +10,7 @@ const handleLogout = () => {
   localStorage.removeItem('company_id')
   localStorage.removeItem('tipo_de_usuario')
   localStorage.removeItem('user_name')
+  localStorage.clear() 
   router.push({ name: 'login' })
 }
 

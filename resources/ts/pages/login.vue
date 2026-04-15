@@ -89,17 +89,26 @@ const handleLogin = async () => {
 
     // ✅ 4. Usar await en router.push para asegurarse que la navegación
     //       ocurra DESPUÉS de que todo lo anterior esté listo
+
     if (tipoUsuario === 'SuperAdmin') {
-      await router.push({ name: 'dashboard' })
+      window.location.href = '/dashboard'        // ← recarga completa, limpia todo
     } else if (tipoUsuario === 'Cliente SaaS') {
-      await router.push({ name: 'dashboard-saas' })
+      window.location.href = '/dashboard-saas'
     } else if (tipoUsuario === 'Cliente Phx') {
-      await router.push({ name: 'dashboard-saas' })
-    } else {
-      // ✅ 5. Manejar tipo de usuario desconocido
-      console.warn('Tipo de usuario no reconocido:', tipoUsuario)
-      errorMessage.value = 'Tipo de usuario no válido.'
+      window.location.href = '/dashboard-saas'
     }
+
+    // if (tipoUsuario === 'SuperAdmin') {
+    //   await router.push({ name: 'dashboard' })
+    // } else if (tipoUsuario === 'Cliente SaaS') {
+    //   await router.push({ name: 'dashboard-saas' })
+    // } else if (tipoUsuario === 'Cliente Phx') {
+    //   await router.push({ name: 'dashboard-saas' })
+    // } else {
+    //   // ✅ 5. Manejar tipo de usuario desconocido
+    //   console.warn('Tipo de usuario no reconocido:', tipoUsuario)
+    //   errorMessage.value = 'Tipo de usuario no válido.'
+    // }
 
   } catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.'
