@@ -73,14 +73,22 @@ export default defineConfig({
 
   // ✅ Configuración agregada para HMR en Windows
   server: {
-    watch: {
-      usePolling: true,   // Fuerza detección de cambios en Windows/WAMP
-      interval: 1000,     // Revisa cada segundo
+      watch: {
+        usePolling: true,
+        interval: 1000,
+      },
+      hmr: {
+        host: 'localhost',
+      },
+      // 👇 Agrega esto
+      proxy: {
+        '/api': {
+          target: 'http://127.0.0.1:8001',
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/api/, ''),
+        },
+      },
     },
-    hmr: {
-      host: 'localhost',  // Asegura que Laravel encuentre a Vite
-    },
-  },
 
   define: { 'process.env': {} },
   resolve: {

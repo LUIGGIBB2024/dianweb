@@ -362,14 +362,11 @@ class ApidianController extends Controller
         ]);
     }
 
-
-
     public function downxml(Request $request)
     {
-        // return response()->json(['NumeroFactura' => $request->numberdocument,'prefijo'=>$request->prefix]);
 
         $numberdocument  = $request->numberdocument;
-        $prefix         = $request->prefix;
+        $prefix          = $request->prefix;
 
         $id_company   = Auth::user()->company_id;
         $info_control = Company::find($id_company);
@@ -382,7 +379,7 @@ class ApidianController extends Controller
             $endpoint   = trim($info_control->endpoint1);
             $token      = trim($info_control->token);
             $nit = trim($info_control->nit);
-            $endpoint = "{$endpoint}/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
+            $endpoint = "{$endpoint}/ubl2.1/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
 
             $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
@@ -494,7 +491,7 @@ class ApidianController extends Controller
             $endpoint   = trim($info_control->endpoint1);
             $token      = trim($info_control->token);
             $nit = trim($info_control->nit);
-            $endpoint = "{$endpoint}/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
+            $endpoint = "{$endpoint}/ubl2.1/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
 
             $endpoint = preg_replace('/\\s+/', '', $endpoint);
 

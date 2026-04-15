@@ -86,14 +86,15 @@ import { VRow } from 'vuetify/components'
 
     const descargarXml = async (item: any) => {
       try {
-        const response = await axios.post('/api/downdocument/xml', {
-          numberdocument: item.number,
-          prefix: item.prefix,
-        }, {
-          responseType: 'blob', // 👈 recibe el archivo como binario
+        const response = await axios.post('/api/downdocument/xml', 
+         {          
+            numberdocument: item.number,
+            prefix: item.prefix,
+          },
+          {
+          responseType: 'blob',
         })
 
-        // Descargar con nombre dinámico
         fileDownload(response.data, `factura_${item.prefix}_${item.number}.xml`)
       } catch (error) {
         console.error('Error al descargar XML:', error)
