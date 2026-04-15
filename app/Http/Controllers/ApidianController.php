@@ -379,7 +379,7 @@ class ApidianController extends Controller
             $endpoint   = trim($info_control->endpoint1);
             $token      = trim($info_control->token);
             $nit = trim($info_control->nit);
-            $endpoint = "{$endpoint}/ubl2.1/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
+            $endpoint = "{$endpoint}/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
 
             $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
