@@ -53,22 +53,24 @@ const handleLogin = async () => {
   isLoading.value = true
 
   try {
-    // Validación simple en frontend
     if (!form.value.email || !form.value.password) {
       errorMessage.value = 'Debes ingresar tu correo y contraseña.'
       isLoading.value = false
       return
     }
 
-    // Petición al backend Laravel
     const { data } = await axios.post('/api/login', {
       email: form.value.email,
       password: form.value.password,
     })
 
-    console.log('Login exitoso:', data);
+    console.log('Login exitoso:', data)
 
-        // Guardar token
+    // ✅ 1. Limpiar TODO el localStorage antes de escribir la nueva sesión
+    //       Esto evita que queden residuos de la sesión anterior
+    localStorage.clear()
+
+    // ✅ 2. Escribir los nuevos valores
     localStorage.setItem('auth_token', data.token)
     localStorage.setItem('company_name', data.company_name)
     localStorage.setItem('user_name', data.user_name)
@@ -79,30 +81,34 @@ const handleLogin = async () => {
     localStorage.setItem('representante_legal', data.representante_legal)
     localStorage.setItem('tipo_de_usuario', data.user['type'])
 
-    const StoredName   = localStorage.getItem('company_name')
+    window.company_user = data.company_name
 
-    window.company_user = StoredName
-
-    const tipoUsuario = data.user['type']
+    const tipoUsuario = data.user['type'] // ✅ 3. Leer directo de `data`, NO de localStorage
 
     console.log('🧭 Tipo usuario:', tipoUsuario)
 
-    if (tipoUsuario === 'SuperAdmin') 
-    {
-       await router.push({ name: 'dashboard' })  // ← el dashboard original de Vuexy
+    // ✅ 4. Usar await en router.push para asegurarse que la navegación
+    //       ocurra DESPUÉS de que todo lo anterior esté listo
+    if (tipoUsuario === 'SuperAdmin') {
+      await router.push({ name: 'dashboard' })
     } else if (tipoUsuario === 'Cliente SaaS') {
-           await router.push({ name: 'dashboard-saas' })  // ← tu dashboard personalizado
+      await router.push({ name: 'dashboard-saas' })
     } else if (tipoUsuario === 'Cliente Phx') {
-           await router.push({ name: 'dashboard-saas' }) // ← tu dashboard personalizado 
+      await router.push({ name: 'dashboard-saas' })
+    } else {
+      // ✅ 5. Manejar tipo de usuario desconocido
+      console.warn('Tipo de usuario no reconocido:', tipoUsuario)
+      errorMessage.value = 'Tipo de usuario no válido.'
     }
-        
+
   } catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.'
-    console.log("Soy Error:",errorMessage.value)
-  } finally {    
+    console.log("Soy Error:", errorMessage.value)
+  } finally {
     isLoading.value = false
   }
 }
+
 </script>
 
 <template>
