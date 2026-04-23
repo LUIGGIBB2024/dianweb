@@ -12,9 +12,12 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
   app: {
     title: 'phoenix24', 
     logo: h('div', { innerHTML: logo, style: 'line-height:0; color: rgb(var(--v-global-theme-primary))' }),
-    contentWidth: ContentWidth.Boxed,
+    contentWidth: ContentWidth.Fluid,
+    // contentWidth: ContentWidth.Boxed,
     contentLayoutNav: AppContentLayoutNav.Vertical,
-    overlayNavFromBreakpoint: breakpointsVuetifyV3.lg - 1, // 1 for matching with vuetify breakpoint. Docs: https://next.vuetifyjs.com/en/features/display-and-platform/
+    //overlayNavFromBreakpoint: breakpointsVuetifyV3.lg - 1, // 1 for matching with vuetify breakpoint. Docs: https://next.vuetifyjs.com/en/features/display-and-platform/
+    overlayNavFromBreakpoint: breakpointsVuetifyV3.md, // antes: breakpointsVuetifyV3.lg - 1
+
     i18n: {
       enable: false,
       defaultLocale: 'en',
@@ -46,7 +49,7 @@ export const { themeConfig, layoutConfig } = defineThemeConfig({
   },
   footer: { type: FooterType.Static },
   verticalNav: {
-    isVerticalNavCollapsed: false,
+    isVerticalNavCollapsed: true, // ✅ Colapsado por defecto en pantallas pequeñas
     defaultNavItemIconProps: { icon: 'tabler-circle' },
     isVerticalNavSemiDark: false,
   },

@@ -252,7 +252,7 @@ import autoTable from 'jspdf-autotable'
         { title: 'Fecha Documento',                 key: 'date_issue',      sortable: true },
         { title: 'Número de Factura',               key: 'number',          sortable: true, width: '4px' },
         { title: 'Prefijo',                         key: 'prefix',          sortable: true },
-        { title: 'Tipo Documento',                  key: 'document_name',   sortable: true },
+        { title: 'Tipo Documento',                  key: 'document_name',   sortable: true,width: '15%' },
         { title: 'Nit/Cédula',                      key: 'supplier',        sortable: true, width: '10%' },
         { title: 'Nombre del Proveedor',            key: 'supplier_name',   sortable: true, width: '40%' },
         { title: 'Valor Documento',                 key: 'subtotal',        sortable: true },        
@@ -260,6 +260,24 @@ import autoTable from 'jspdf-autotable'
         { title: 'Valor Total',                     key: 'total_purchase',  sortable: true },
         { title: 'Acciones',                        key: 'actions',         sortable: false, width: '15%' },
     ]
+
+    const cellProps = () => ({
+      style: {
+        fontSize: '0.78rem',
+        color: '#0a0a0a',
+        fontFamily: 'Roboto, sans-serif',
+        fontWeight: '400',
+      }
+    })
+
+    const headerProps = () => ({
+      style: {
+        fontSize: '0.78rem',
+        color: '#ffffff',
+        fontFamily: 'Roboto, sans-serif',
+        fontWeight: '600',
+      }
+    })
 
 </script>
 
@@ -352,130 +370,133 @@ import autoTable from 'jspdf-autotable'
                 :items="facturasFiltradas"
                 item-value="id"               
                 :search="searchQuery"
-                class="text-body-2" 
+                :cell-props="cellProps"
+                :header-props="headerProps"
+                class="text-body-2 tabla-facturas" 
+               
                 fixed-header
                 density="compact"
               >        
               
               <template #header.id="{ column }">
-                <div class = "header-columna" style="text-align:center; white-space:normal;">
+                <div class="th-center">
                     #Id
                 </div>
               </template>
               <template #item.id="{ item }">
-                <div class="_fila text-right" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                <div class="th-center">
                     {{ item.id }}
                 </div>
               </template>
 
               <template #header.date_issue="{ column }">
-                <div class = "header-columna" style="text-align:center; white-space:normal;">
+                <div class="th-center">
                     Fecha<br>Documento
                 </div>
               </template>
               <template #item.date_issue="{ item }">
-                <div class="_fila text-center" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                <div class="td-center">
                     {{ item.date_issue }}
                 </div>
               </template>
 
               <template #header.number="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                     Número<br>Factura
                   </div>
               </template>
               <template #item.number="{ item }">
-                  <div class="_fila text-right" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div class="td-right">
                     {{ item.number }}
                   </div>
               </template>
 
               <template #header.prefix="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Prefijo
                   </div>
               </template>
               <template #item.prefix="{ item }">
-                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div class="td-left">
                     {{ item.prefix }}
                   </div>
               </template>
 
               <template #header.document_name="{ column }">
-                  <div class = "header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Tipo<br>Documento
                   </div>
               </template>
               <template #item.document_name="{ item }">
-                  <div class="_fila" style="width: 10.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div class="td-left">
                     {{ item.document_name }}
                   </div>
               </template>
 
               <template #header.supplier="{ column }">                
-                   <div class = "header-columna" style="text-align:center; white-space:normal;">
+                   <div class="th-center">
                       Nit/Cédula<br>Proveedor
                    </div>             
               </template>
               <template #item.supplier="{ item }">
-                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div class="td-left">
                     {{ item.supplier }}
                   </div>
               </template>
 
               <template #header.supplier_name="{ column }">
-                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Nombre del Proveedor
                   </div>
               </template>
               <template #item.supplier_name="{ item }">
-                  <div class="_fila" style="width: 27em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div class="td-left">
                     {{ item.supplier_name }}
                   </div>
               </template>
 
               <template #header.subtotal="{ column }">       
-                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Valor Parcial
                   </div>
               </template>
               <template #item.subtotal="{ item }">
-                <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">           
+                <div class="td-right">           
                     {{ formatCurrency((item.subtotal)) }} 
                 </div>
               </template>
 
               <template #header.vatvalue="{ column }">
-                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Valor Impuestos
                   </div>
               </template>
               <template #item.vatvalue="{ item }">
-                  <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                   
+                  <div class="td-right">                   
                     {{ formatCurrency(item.vatvalue) }} 
                   </div>
               </template>
 
               <template #header.total_purchase="{ column }">
-                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Valor Total
                   </div>
               </template>
               <template #item.total_purchase ="{ item }">
-                  <div class="_fila text-right" style="width: 7.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                    
+                  <div class="td-right">                    
                     {{ formatCurrency(item.total_purchase) }} 
                   </div>
               </template>
 
               <template #header.actions>
-                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                  <div class="th-center">
                    Acciones
                   </div>
               </template>
 
                 
               <template #item.actions="{ item }">
-                 <div style="display: flex; align-items: center; gap: 4px;">
+                 <div class="td-center">
                     <IconBtn>
                       <VIcon icon="tabler-file-type-xml" color="primary" @click="" />
                     </IconBtn>
@@ -695,5 +716,56 @@ import autoTable from 'jspdf-autotable'
        width: 10em !important;       
     }
  
- 
+/* ─── TABLA FACTURAS ──────────────────────────────────────────────── */
+
+  /* Filas de datos */
+  .tabla-facturas :deep(tbody tr td) {
+    font-size:   0.90rem !important;
+    color:       #0a0a0a !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 300 !important;
+    white-space: nowrap;
+  }
+
+  /* Headers */
+  .tabla-facturas :deep(thead tr th) {
+    font-size:   0.73rem !important;
+    color:       #ffffff !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 600 !important;
+  }
+
+  /* Columna cliente — única que puede wrappear */
+  .tabla-facturas :deep(tbody tr td) .col-cliente {
+    min-width: 180px;
+    max-width: 260px;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .tabla-facturas :deep(tbody tr td) .col-tipo {
+    min-width: 140px;
+    white-space: nowrap;
+  }
+
+  /* Responsive 1366px */
+  @media (max-width: 1366px) {
+    .tabla-facturas :deep(tbody tr td) {
+       font-size: 0.40rem !important; 
+    }
+  }
+
+  /* Apunta al div interno que Vuetify genera dentro de cada td */
+  .tabla-facturas :deep(.v-data-table__td-inner) {
+    font-size:   0.65rem !important;
+    color:       #0a0a0a !important;
+    font-family: 'Roboto', sans-serif !important;
+  }
+
+  .tabla-facturas :deep(.v-data-table__th-inner) {
+    font-size:   0.73rem !important;
+    color:       #ffffff !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 600 !important;
+  }
 </style>

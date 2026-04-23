@@ -254,30 +254,12 @@ import autoTable from 'jspdf-autotable'
         { title: 'Prefijo',                         key: 'prefix',          sortable: true },
         { title: 'Tipo Documento',                  key: 'document_name',   sortable: true },
         { title: 'Nit/Cédula',                      key: 'customer',        sortable: true, width: '12%'},
-        { title: 'Nombre del Cliente',              key: 'client_name',     sortable: true, width: '50%' },
+        { title: 'Nombre del Cliente',              key: 'client_name',     sortable: true, width: '40%' },
         { title: 'Valor Documento',                 key: 'subtotal',        sortable: true },        
         { title: 'Valor Impuestos',                 key: 'vatvalue',        sortable: true },
         { title: 'Total Documento',                 key: 'total_sale',      sortable: true },
         { title: 'Acciones',                        key: 'actions',         sortable: false, width: '15%' },
     ]
-
-     const cellProps = () => ({
-      style: {
-        fontSize: '0.78rem',
-        color: '#0a0a0a',
-        fontFamily: 'Roboto, sans-serif',
-        fontWeight: '400',
-      }
-    })
-
-    const headerProps = () => ({
-      style: {
-        fontSize: '0.78rem',
-        color: '#ffffff',
-        fontFamily: 'Roboto, sans-serif',
-        fontWeight: '600',
-      }
-    })
 
 </script>
 
@@ -361,120 +343,196 @@ import autoTable from 'jspdf-autotable'
           </VRow>
       </VCard>
       
+      <!-- <section v-if="facturas && facturas.length"> -->
       <section v-if="yaBusco && facturas && facturas.length"> 
-        <VCard>
-          <div class="table-responsive">
-            <VDataTable
-              v-model:model-value="selectedRows"
-              v-model:items-per-page="itemsPerPage"
-              v-model:page="page"               
-              :headers="headers"
-              :items="facturasFiltradas"
-              item-value="id"               
-              :search="searchQuery"
-              :cell-props="cellProps"
-              :header-props="headerProps"
-              class="text-body-2 tabla-facturas" 
-              fixed-header
-              density="compact"
-            >        
+            <VCard>
+              <VDataTable
+                v-model:model-value="selectedRows"
+                v-model:items-per-page="itemsPerPage"
+                v-model:page="page"               
+                :headers="headers"
+                :items="facturasFiltradas"
+                item-value="id"               
+                :search="searchQuery"
+                class="text-body-2" 
+                fixed-header
+                density="compact"
+              >        
               
-              <template #header.id><div class="th-center">#Id</div></template>
+              <template #header.id="{ column }">
+                <div class = "header-columna" style="text-align:center; white-space:normal;">
+                    #Id
+                </div>
+              </template>
               <template #item.id="{ item }">
-                <div class="td-right">{{ item.id }}</div>
-              </template>
-
-              <template #header.date_issue><div class="th-center">Fecha<br>Documento</div></template>
-              <template #item.date_issue="{ item }">
-                <div class="td-center">{{ item.date_issue }}</div>
-              </template>
-
-              <template #header.number><div class="th-center">Número<br>Factura</div></template>
-              <template #item.number="{ item }">
-                <div class="td-right">{{ item.number }}</div>
-              </template>
-
-              <template #header.prefix><div class="th-center">Prefijo</div></template>
-              <template #item.prefix="{ item }">
-                <div class="td-left">{{ item.prefix }}</div>
-              </template>
-
-              <template #header.document_name><div class="th-center">Tipo<br>Documento</div></template>
-              <template #item.document_name="{ item }">
-                <div class="td-left">{{ item.document_name }}</div>
-              </template>
-
-              <template #header.customer><div class="th-center">Nit/Cédula<br>Cliente</div></template>
-              <template #item.customer="{ item }">
-                <div class="td-left">{{ item.customer }}</div>
-              </template>
-
-              <template #header.client_name><div class="th-center">Nombre del Cliente</div></template>
-              <template #item.client_name="{ item }">
-                <div class="td-left">{{ item.client_name }}</div>
-              </template>
-
-              <template #header.subtotal><div class="th-center">Valor<br>Parcial</div></template>
-              <template #item.subtotal="{ item }">
-                <div class="td-right">{{ formatCurrency(item.subtotal) }}</div>
-              </template>
-
-              <template #header.vatvalue><div class="th-center">Valor<br>Impuestos</div></template>
-              <template #item.vatvalue="{ item }">
-                <div class="td-right">{{ formatCurrency(item.vatvalue) }}</div>
-              </template>
-
-              <template #header.total_sale><div class="th-center">Valor<br>Total</div></template>
-              <template #item.total_sale="{ item }">
-                <div class="td-right">{{ formatCurrency(item.total_sale) }}</div>
-              </template>
-
-              <template #header.actions><div class="td-center">Acciones</div></template>
-              <template #item.actions="{ item }">
-                <div class="td-center">
-                <!-- <div class="td-actions" style="display: flex; align-items: center"> -->
-                  <IconBtn>
-                    <VIcon icon="tabler-file-type-xml" color="primary" @click="" />
-                  </IconBtn>
+                <div class="_fila text-right" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.id }}
                 </div>
               </template>
 
-              <!-- Slot Bottom -->
-              <template #bottom>
-                <VDivider />
-                <VRow class="mt-2 mx-0 pb-2 align-center">     
-                  <VCol cols="12" md="4">
-                    <div class="text-caption text-medium-emphasis ps-4">
-                      Mostrando
-                      <strong>{{ (currentPage - 1) * perPage + 1 }}</strong>–
-                      <strong>{{ Math.min(currentPage * perPage, totalregistros) }}</strong>
-                      de <strong>{{ totalregistros }}</strong> registros
-                    </div>
-                  </VCol>
-                  <VCol cols="12" md="4" class="d-flex justify-center pagination-wrapper"> 
-                    <VPagination
-                      v-model="page"
-                      :length="Math.ceil(totalregistros / perPage)"
-                      rounded="circle"
-                      size="large"
-                      :total-visible="5"
-                    />
-                  </VCol>
-                  <VCol cols="12" md="4">
-                    <div class="text-caption text-medium-emphasis ps-4 text-end">
-                      Total Documentos $:
-                      <strong class="text-primary">{{ formatCurrency(totalInvoices) }}</strong>
-                    </div>
-                    <div class="text-caption text-medium-emphasis ps-4 text-end">
-                      Total Iva $:
-                      <strong class="text-error">{{ formatCurrency(totalIva) }}</strong>
-                    </div>
-                  </VCol>
-                </VRow>           
-              </template>                
-            </VDataTable>
-          </div>
-        </VCard>        
+              <template #header.date_issue="{ column }">
+                <div class = "header-columna" style="text-align:center; white-space:normal;">
+                    Fecha<br>Documento
+                </div>
+              </template>
+              <template #item.date_issue="{ item }">
+                <div class="_fila text-center" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.date_issue }}
+                </div>
+              </template>
+
+              <template #header.number="{ column }">
+                  <div class = "header-columna" style="text-align:center; white-space:normal;">
+                    Número<br>Factura
+                  </div>
+              </template>
+              <template #item.number="{ item }">
+                  <div class="_fila text-right" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.number }}
+                  </div>
+              </template>
+
+              <template #header.prefix="{ column }">
+                  <div class = "header-columna" style="text-align:center; white-space:normal;">
+                   Prefijo
+                  </div>
+              </template>
+              <template #item.prefix="{ item }">
+                  <div class="_fila" style="width: 6.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.prefix }}
+                  </div>
+              </template>
+
+              <template #header.document_name="{ column }">
+                  <div class = "header-columna" style="text-align:center; white-space:normal;">
+                   Tipo<br>Documento
+                  </div>
+              </template>
+              <template #item.document_name="{ item }">
+                  <div class="_fila" style="width: 10.0em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.document_name }}
+                  </div>
+              </template>
+
+              <template #header.customer="{ column }">
+                   <div class = "header-columna" style="text-align:center; white-space:normal;">
+                      Nit/Cédula<br>Cliente
+                   </div>             
+              </template>
+              <template #item.customer="{ item }">
+                  <div class="_fila" style="width: 6.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.customer }}
+                  </div>
+              </template>
+
+              <template #header.client_name="{ column }">
+                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                   Nombre del Cliente
+                  </div>
+              </template>
+              <template #item.client_name="{ item }">
+                  <div class="_fila" style="width: 27em; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                    {{ item.client_name }}
+                  </div>
+              </template>
+
+              <template #header.subtotal="{ column }">       
+                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                   Valor Parcial
+                  </div>
+              </template>
+              <template #item.subtotal="{ item }">
+                <div class="_fila text-right" style="width: 6.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">           
+                    {{ formatCurrency((item.subtotal)) }} 
+                </div>
+              </template>
+
+              <template #header.vatvalue="{ column }">
+                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                   Valor Impuestos
+                  </div>
+              </template>
+              <template #item.vatvalue="{ item }">
+                  <div class="_fila text-right" style="width: 6.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                   
+                    {{ formatCurrency(item.vatvalue) }} 
+                  </div>
+              </template>
+
+              <template #header.total_sale="{ column }">
+                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                   Valor Total
+                  </div>
+              </template>
+              <template #item.total_sale="{ item }">
+                  <div class="_fila text-right" style="width: 6.5em; white-space: normal; word-wrap: break-word; line-height: 1.2;">                    
+                    {{ formatCurrency(item.total_sale) }} 
+                  </div>
+              </template>
+
+              <template #header.actions>
+                  <div class="header-columna" style="text-align:center; white-space:normal;">
+                   Acciones
+                  </div>
+              </template>
+
+                
+              <template #item.actions="{ item }">
+                 <div style="display: flex; align-items: center; gap: 4px;">
+                    <IconBtn>
+                      <VIcon icon="tabler-file-type-xml" color="primary" @click="" />
+                    </IconBtn>
+                    <!-- <IconBtn>
+                      <VIcon icon="tabler-file-type-pdf" color="error" @click="" />
+                    </IconBtn>   
+                    <IconBtn>
+                      <VIcon icon="tabler-mail" color="warning" @click="abrirDialogoEmail(item)" />
+                    </IconBtn> -->
+                 </div>
+              </template>
+
+                <!-- Slot Bottom Personalizado -->
+                <template #bottom>
+                  <VDivider />
+                  <VRow class="mt-2 mx-0 pb-2 align-center">     
+                      <VCol cols="12" md="4">
+                          <div class="text-caption text-medium-emphasis ps-4">
+                              Mostrando
+                              <strong>{{ (currentPage - 1) * perPage + 1 }}</strong>–
+                              <strong>{{ Math.min(currentPage * perPage, totalregistros) }}</strong>
+                              de <strong>{{ totalregistros }}</strong> registros
+                           </div>
+                      </VCol>
+                      <VCol cols="12" md="4" class="d-flex justify-center pagination-wrapper"> 
+                           <VPagination
+                                v-model="page"
+                                :length="Math.ceil(totalregistros / perPage)"
+                                rounded="circle"
+                                size="large"
+                                :total-visible="5"
+                           />
+                       </VCol>
+                       <VCol cols="12" md="4">
+                          <div class="text-caption text-medium-emphasis ps-4 text-end">
+                              Total Documentos $:
+                              <strong class="text-primary">{{ formatCurrency(totalInvoices) }}</strong>
+                              <!-- <strong>{{ (currentPage - 1) * perPage + 1 }}</strong>–
+                              <strong>{{ Math.min(currentPage * perPage, totalInvoices) }}</strong>
+                              de <strong>{{ totalInvoices }}</strong> registros -->
+                           </div>
+                           <div class="text-caption text-medium-emphasis ps-4 text-end">
+                              Total Iva $:
+                              <strong class="text-error">{{ formatCurrency(totalIva) }}</strong>
+                              <!-- <strong>{{ (currentPage - 1) * perPage + 1 }}</strong>–
+                              <strong>{{ Math.min(currentPage * perPage, totalInvoices) }}</strong>
+                              de <strong>{{ totalInvoices }}</strong> registros -->
+                           </div>
+                       </VCol>
+                  </VRow>           
+                </template>                
+              </VDataTable>
+
+             
+            </VCard>        
       </section>
 
      
@@ -640,110 +698,59 @@ import autoTable from 'jspdf-autotable'
     }
    
     /* Contenedor con scroll horizontal en pantallas pequeñas */
- .table-responsive {
-  overflow-x: auto;
-  width: 100%;
-}
-
-.th-center {
-  text-align: center;
-  white-space: normal;
-  line-height: 1.3;
-  font-weight: 600;
-}
-
-.td-left,
-.td-right,
-.td-center {
-  line-height: 1.3;
-  white-space: nowrap; /* ← clave: evita que los números se partan */
-}
-
-.td-right  { text-align: right; }
-.td-center { text-align: center; }
-.td-left   { text-align: left; }
-
-.td-actions {
-  display: flex;
-  align-items: center;
-  gap: 4px;
-}
-
-/* Columnas numéricas — nunca se parten */
-.col-numero {
-  min-width: 90px;
-  white-space: nowrap;
-}
-
-/* Columna cliente — única que puede wrappear */
-.col-cliente {
-  min-width: 180px;
-  max-width: 95%;
-  white-space: normal;
-  word-break: break-word;
-}
-
-.col-tipo {
-  min-width: 120px;
-  white-space: nowrap;
-}
-
-@media (max-width: 1366px) {
-  .tabla-facturas {
-    font-size: 0.75rem;
-  }
-}
-
-/* ─── TABLA FACTURAS ──────────────────────────────────────────────── */
-  /* Filas de datos */
-  .tabla-facturas :deep(tbody tr td) {
-    font-size:   0.90rem !important;
-    color:       #0a0a0a !important;
-    font-family: 'Roboto', sans-serif !important;
-    font-weight: 300 !important;
-    white-space: nowrap;
-  }
-
-  /* Headers */
-  .tabla-facturas :deep(thead tr th) {
-    font-size:   0.73rem !important;
-    color:       #ffffff !important;
-    font-family: 'Roboto', sans-serif !important;
-    font-weight: 600 !important;
-  }
-
-  /* Columna cliente — única que puede wrappear */
-  .tabla-facturas :deep(tbody tr td) .col-cliente {
-    min-width: 180px;
-    max-width: 260px;
-    white-space: normal;
-    word-break: break-word;
-  }
-
-  .tabla-facturas :deep(tbody tr td) .col-tipo {
-    min-width: 140px;
-    white-space: nowrap;
-  }
-
-  /* Responsive 1366px */
-  @media (max-width: 1366px) {
-    .tabla-facturas :deep(tbody tr td) {
-       font-size: 0.40rem !important; 
+    .table-responsive {
+      overflow-x: auto;
+      width: 100%;
     }
-  }
 
-  /* Apunta al div interno que Vuetify genera dentro de cada td */
-  .tabla-facturas :deep(.v-data-table__td-inner) {
-    font-size:   0.65rem !important;
-    color:       #0a0a0a !important;
-    font-family: 'Roboto', sans-serif !important;
-  }
+    /* Headers */
+    .th-center {
+      text-align: center;
+      white-space: normal;
+      line-height: 1.3;
+      font-weight: 600;
+    }
 
-  .tabla-facturas :deep(.v-data-table__th-inner) {
-    font-size:   0.73rem !important;
-    color:       #ffffff !important;
-    font-family: 'Roboto', sans-serif !important;
-    font-weight: 600 !important;
-  }
+    /* Celdas base */
+    .td-left,
+    .td-right,
+    .td-center {
+      white-space: normal;
+      word-break: break-word;
+      line-height: 1.3;
+    }
+
+    .td-right  { text-align: right; }
+    .td-center { text-align: center; }
+    .td-left   { text-align: left; }
+
+    .td-actions {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    /* Columnas con ancho controlado — se achican en pantallas pequeñas */
+    .col-cliente {
+      min-width: 160px;
+      max-width: 220px;
+    }
+
+    .col-tipo {
+      min-width: 100px;
+      max-width: 140px;
+    }
+
+    /* Tabla compacta en 1366px */
+    @media (max-width: 1366px) {
+      .tabla-facturas {
+        font-size: 0.78rem;
+      }
+
+      .col-cliente {
+        min-width: 130px;
+        max-width: 180px;
+      }
+    }
 
 </style>

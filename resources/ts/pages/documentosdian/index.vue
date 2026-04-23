@@ -186,6 +186,24 @@ import { VRow } from 'vuetify/components'
     showDialogEmail.value  = true
   }
 
+   const cellProps = () => ({
+      style: {
+        fontSize: '0.78rem',
+        color: '#0a0a0a',
+        fontFamily: 'Roboto, sans-serif',
+        fontWeight: '400',
+      }
+    })
+
+    const headerProps = () => ({
+      style: {
+        fontSize: '0.78rem',
+        color: '#ffffff',
+        fontFamily: 'Roboto, sans-serif',
+        fontWeight: '600',
+      }
+    })
+
 </script>
 
  <template>
@@ -247,7 +265,9 @@ import { VRow } from 'vuetify/components'
                 item-value="id"
                 show-select
                 :search-field="searchQuery"   
-                class="text-no-wrap text-body-2 company-table capitalize"
+                :cell-props="cellProps"
+                :header-props="headerProps"
+                class="text-no-wrap text-body-2 company-table capitalize tabla-facturas"
                 @update:options="updateOptions"
               > 
               
@@ -449,6 +469,59 @@ import { VRow } from 'vuetify/components'
   {
     height: 250px !important; /* Ajusta a tu necesidad */
   }
+
+  /* ─── TABLA FACTURAS ──────────────────────────────────────────────── */
+  /* Filas de datos */
+  .tabla-facturas :deep(tbody tr td) {
+    font-size:   0.90rem !important;
+    color:       #0a0a0a !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 300 !important;
+    white-space: nowrap;
+  }
+
+  /* Headers */
+  .tabla-facturas :deep(thead tr th) {
+    font-size:   0.73rem !important;
+    color:       #ffffff !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 600 !important;
+  }
+
+  /* Columna cliente — única que puede wrappear */
+  .tabla-facturas :deep(tbody tr td) .col-cliente {
+    min-width: 180px;
+    max-width: 260px;
+    white-space: normal;
+    word-break: break-word;
+  }
+
+  .tabla-facturas :deep(tbody tr td) .col-tipo {
+    min-width: 140px;
+    white-space: nowrap;
+  }
+
+  /* Responsive 1366px */
+  @media (max-width: 1366px) {
+    .tabla-facturas :deep(tbody tr td) {
+       font-size: 0.40rem !important; 
+    }
+  }
+
+  /* Apunta al div interno que Vuetify genera dentro de cada td */
+  .tabla-facturas :deep(.v-data-table__td-inner) {
+    font-size:   0.65rem !important;
+    color:       #0a0a0a !important;
+    font-family: 'Roboto', sans-serif !important;
+  }
+
+  .tabla-facturas :deep(.v-data-table__th-inner) {
+    font-size:   0.73rem !important;
+    color:       #ffffff !important;
+    font-family: 'Roboto', sans-serif !important;
+    font-weight: 600 !important;
+  }
+
   
  
 </style>

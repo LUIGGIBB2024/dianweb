@@ -268,6 +268,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    'infodianreal-enviados1': RouteRecordInfo<
+      'infodianreal-enviados1',
+      '/infodianreal/enviados_1',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     'infodianreal-estadisticaanual': RouteRecordInfo<
       'infodianreal-estadisticaanual',
       '/infodianreal/estadisticaanual',
@@ -565,6 +572,12 @@ declare module 'vue-router/auto-routes' {
     'resources/ts/pages/infodianreal/enviados.vue': {
       routes:
         | 'infodianreal-enviados'
+      views:
+        | never
+    }
+    'resources/ts/pages/infodianreal/enviados_1.vue': {
+      routes:
+        | 'infodianreal-enviados1'
       views:
         | never
     }
