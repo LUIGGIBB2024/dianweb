@@ -142,7 +142,7 @@ import { VRow } from 'vuetify/components'
       <VCard class="mb-2 py-3 px-4">
           <VRow class="align-center">
             <VCol cols="12" md="3" class="d-flex align-center mt-0">
-              <h3 class="text-primary mb-0">Consultar Nómina Electrónica </h3>            
+              <h4 class="text-primary mb-0">Consultar Nómina Electrónica </h4>            
             </VCol>
 
             <VCol cols="12" md="2">
