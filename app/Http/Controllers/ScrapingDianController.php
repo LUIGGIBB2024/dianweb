@@ -285,6 +285,8 @@ class ScrapingDianController extends Controller
         $endpoint = "http://194.163.159.64:8000/descargar-dian";
         $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
+        $urlDian = html_entity_decode($url, ENT_QUOTES, 'UTF-8');
+
         try {
             $response = Http::withoutVerifying()
                 ->timeout(180)
@@ -300,7 +302,7 @@ class ScrapingDianController extends Controller
                     'fechahasta'             => $request->fechahasta,
                     'type'                   => "2",
                     'headless'               => true,
-                    'url_dian'               => $url,
+                    'url_dian'               => $urlDian,
                     'datos_cufe'             => $compras,
                     'codigointerno'          => $codigointerno,
                 ]);
