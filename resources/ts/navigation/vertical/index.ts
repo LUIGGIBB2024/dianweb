@@ -95,6 +95,7 @@ const menu_saas: NavItem_Saas[] =  [
     roles: ['admin', 'operador'],    
     children: [
       { title: 'Cargar Información',to:{name:'infodianreal-cargar'}, icon: { icon: 'tabler-upload', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
+      { title: 'Cargar Detalle',to:{name:'infodianreal-cargardetalle'}, icon: { icon: 'tabler-upload', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
       { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
       { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18, color: 'error' }, roles: ['admin'] },  
       { title: 'Procesar Iva', to: { name: 'infodianreal-procesariva' }, icon: { icon: 'tabler-brand-databricks', size: 18, color: 'error' }, roles: ['admin'] },   
@@ -134,6 +135,7 @@ const menu_phx: NavItem_Saas[] =  [
     roles: ['admin', 'operador'],    
     children: [
       { title: 'Cargar Información',to:{name:'infodianreal-cargar'}, icon: { icon: 'tabler-upload', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
+      { title: 'Cargar Detalle',to:{name:'infodianreal-cargardetalle'}, icon: { icon: 'tabler-upload', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
       { title: 'Documentos Enviados',to:{name:'infodianreal-enviados'}, icon: { icon: 'tabler-arrows-maximize', size: 18, color: 'error' }, roles: ['admin', 'operador',]},
       { title: 'Documentos Recibidos', to: { name: 'infodianreal-recibidos' }, icon: { icon: 'tabler-arrows-minimize', size: 18, color: 'error' }, roles: ['admin'] },  
       { title: 'Procesar Iva', to: { name: 'infodianreal-procesariva' }, icon: { icon: 'tabler-brand-databricks', size: 18, color: 'error' }, roles: ['admin'] },   

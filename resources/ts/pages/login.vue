@@ -65,6 +65,7 @@ const handleLogin = async () => {
     })
 
     console.log('Login exitoso:', data)
+    const url_token_info = ref('https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094%7C77193886&amp;rk=901148547&amp;token=560d3a3c-c689-40e9-9eed-f5edce77ddd8')
 
     // ✅ 1. Limpiar TODO el localStorage antes de escribir la nueva sesión
     //       Esto evita que queden residuos de la sesión anterior
@@ -80,6 +81,7 @@ const handleLogin = async () => {
     localStorage.setItem('nit_empresa', data.nit_empresa)
     localStorage.setItem('representante_legal', data.representante_legal)
     localStorage.setItem('tipo_de_usuario', data.user['type'])
+    localStorage.setItem('dian_token_info', url_token_info.value)
 
     window.company_user = data.company_name
 

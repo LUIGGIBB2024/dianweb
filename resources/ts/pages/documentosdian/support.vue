@@ -67,7 +67,7 @@ import { VRow } from 'vuetify/components'
       { title: 'Fecha Documento', key: 'date_issue', sortable: true },
       { title: 'Número de Documento', key: 'number', sortable: true, width: '6px'},
       { title: 'Prefijo', key: 'prefix', sortable: true,  },
-      { title: 'Tipo Documento', key: 'document_name', sortable: true,},
+      { title: 'Tipo Documento', key: 'document_name', sortable: true,width: '30%'},
       { title: 'Nit/Cédula', key: 'customer', sortable: true },
       { title: 'Nombre del Cliente/Proveedor', key: 'client_name', sortable: true, width: '35%'},
       { title: 'Valor Documento', key: 'sale', sortable: true },
@@ -260,7 +260,7 @@ import { VRow } from 'vuetify/components'
                 </template>  
 
                 <template #item.document_name="{ item }">
-                  <div style="width: 130px; white-space: normal; word-wrap: break-word; line-height: 1.2;">
+                  <div style="width: 150px !important; white-space: normal; word-wrap: break-word; line-height: 1.2;">
                     {{ item.document_name }}
                   </div>
                 </template>

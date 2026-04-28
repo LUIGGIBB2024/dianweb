@@ -261,6 +261,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    'infodianreal-cargardetalle': RouteRecordInfo<
+      'infodianreal-cargardetalle',
+      '/infodianreal/cargardetalle',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     'infodianreal-enviados': RouteRecordInfo<
       'infodianreal-enviados',
       '/infodianreal/enviados',
@@ -566,6 +573,12 @@ declare module 'vue-router/auto-routes' {
     'resources/ts/pages/infodianreal/cargar.vue': {
       routes:
         | 'infodianreal-cargar'
+      views:
+        | never
+    }
+    'resources/ts/pages/infodianreal/cargardetalle.vue': {
+      routes:
+        | 'infodianreal-cargardetalle'
       views:
         | never
     }
