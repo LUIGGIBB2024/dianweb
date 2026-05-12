@@ -176,7 +176,7 @@ import { VRow } from 'vuetify/components'
                         isEsperando.value   = false
                         tokenRecibido.value = true
                         tokenDian.value     = data.token
-                        localStorage.setItem('dian_token_info', data.token)
+                        localStorage.setItem('dian_token_info', data.url_completa)
                         urlCompletaDian.value = data.url_completa
                         break
 
