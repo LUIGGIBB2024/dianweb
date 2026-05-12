@@ -2,11 +2,12 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Notifications\Notifiable;
 
-class InvoiceDetail extends Model
+use Illuminate\Database\Eloquent\Model;
+
+class PurchaseDetail extends Model
 {
     use HasFactory, Notifiable; // 👈 ESTE trait es el que añade createToken()
 
@@ -19,7 +20,7 @@ class InvoiceDetail extends Model
         'number',
         'prefix',
         'document_name',
-        'customer',
+        'supplier',
         'date_issue',
         'product',
         'name',
@@ -34,13 +35,13 @@ class InvoiceDetail extends Model
         'valuediscount2',
         'state',
         'companies_id',
-        'sales_invoices_id',
+        'purchases_invoices_id',
     ];
 
     // 🔗 Relación: un detalle de factura pertenece a una factura de venta
-    public function salesInvoice()
+    public function purchaseInvoice()
     {
-        return $this->belongsTo(SalesInvoice::class, 'sales_invoices_id');
+        return $this->belongsTo(PurchasesInvoice::class, 'purchases_invoices_id');
     }
 
     // 🔗 Relación: un detalle de factura pertenece a una empresa
