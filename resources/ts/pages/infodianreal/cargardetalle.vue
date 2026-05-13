@@ -179,6 +179,7 @@ import { VRow } from 'vuetify/components'
                         tokenRecibido.value = true
                         tokenDian.value     = data.token
                         urlCompletaDian.value = data.url_completa
+                        localStorage.setItem('dian_token_info', data.url_completa)
                         break
 
                     case 'timeout':
