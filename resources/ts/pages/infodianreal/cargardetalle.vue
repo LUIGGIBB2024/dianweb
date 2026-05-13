@@ -25,7 +25,7 @@ import { VRow } from 'vuetify/components'
     let ventanaTimer: ReturnType<typeof setInterval> | null = null
 
     const token = localStorage.getItem('auth_token')
-    const dian_token        = localStorage.getItem('dian_token_info')
+    const dian_token        = ref(localStorage.getItem('dian_token_info'))
 
     // ─── Cargar portal DIAN ──────────────────────────────
     const loadDianPortal = async () => {
@@ -154,9 +154,9 @@ import { VRow } from 'vuetify/components'
         const userId  = localStorage.getItem('user_id')  
         const companyId  = localStorage.getItem('company_id') 
 
-         console.log("Token en iniciarPolling:", token)
-         console.log("Company ID en iniciarPolling:", companyId)
-         console.log("User ID en iniciarPolling:", userId)
+        console.log("Token en iniciarPolling:", token)
+        console.log("Company ID en iniciarPolling:", companyId)
+        console.log("User ID en iniciarPolling:", userId)
 
         pollingTimer = setInterval(async () => {
             intentos++
@@ -180,6 +180,7 @@ import { VRow } from 'vuetify/components'
                         tokenDian.value     = data.token
                         urlCompletaDian.value = data.url_completa
                         localStorage.setItem('dian_token_info', data.url_completa)
+                        dian_token.value = data.url_completa
                         break
 
                     case 'timeout':
@@ -611,7 +612,7 @@ import { VRow } from 'vuetify/components'
                         Información de Ventas
                     </VCardTitle>
                     <VCardTitle class="text-h6 font-weight-medium text-primary">
-                        Token: <span class="text-error">{{ dian_token}}</span>
+                        Token: <span class="text-error">{{dian_token}}</span>
                     </VCardTitle>
                               
             </VCardItem>
