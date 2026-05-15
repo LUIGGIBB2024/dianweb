@@ -305,7 +305,7 @@ class ScrapingDianController extends Controller
                     'url_dian'               => $urlDian,
                     'datos_cufe'             => $compras,
                     'codigointerno'          => $codigointerno,
-                    'companies_id'           => $company->id,
+                    'companies_id'           => $request->company_id,
                 ]);
         } catch (\Illuminate\Http\Client\ConnectionException $e) {
             return response()->json([
