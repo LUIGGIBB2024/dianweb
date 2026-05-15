@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('purchase_details', function (Blueprint $table) {
             $table->id();
-            $table->string('number', 20)->nullable();
+            $table->decimal('number', 20)->nullable();
             $table->string('prefix', 20)->nullable();
             $table->string('document_name', 20)->nullable();
             $table->string('supplier', 20)->nullable();

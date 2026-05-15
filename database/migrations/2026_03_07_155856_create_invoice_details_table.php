@@ -14,7 +14,7 @@ return new class extends Migration
     {
         Schema::create('invoice_details', function (Blueprint $table) {
             $table->id();
-            $table->string('number', 20)->nullable();
+            $table->decimal('number', 20)->nullable();
             $table->string('prefix', 20)->nullable();
             $table->string('customer', 20)->nullable();
             $table->dateTime('date_issue')->nullable()->index();
