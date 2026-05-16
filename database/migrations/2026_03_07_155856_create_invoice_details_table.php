@@ -16,6 +16,7 @@ return new class extends Migration
             $table->id();
             $table->decimal('number', 20)->nullable();
             $table->string('prefix', 20)->nullable();
+            $table->string('document_name', 20)->nullable();
             $table->string('customer', 20)->nullable();
             $table->dateTime('date_issue')->nullable()->index();
             $table->string('product', 20)->nullable();

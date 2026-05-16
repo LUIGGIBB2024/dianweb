@@ -271,7 +271,7 @@ class ScrapingDianController extends Controller
         $fechahasta = $request->fechahasta;
         $codigointerno =  Auth::user()->code_n8n;
         //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=abe167ee-c7c5-4cba-be6b-0f28ff25679d";
-        $compras = PurchasesInvoice::select('id', 'date_issue', 'cufe')
+        $compras = PurchasesInvoice::select('id', 'date_issue', 'cufe', 'document_name')
             ->whereBetween('date_issue', [$fechadesde, $fechahasta])->get();
 
         // return response()->json([
@@ -368,7 +368,7 @@ class ScrapingDianController extends Controller
         $fechahasta = $request->fechahasta;
         $codigointerno =  Auth::user()->code_n8n;
         //$url = "https://catalogo-vpfe.dian.gov.co/User/AuthToken?pk=10910094|77193886&rk=901148547&token=abe167ee-c7c5-4cba-be6b-0f28ff25679d";
-        $ventas = SalesInvoice::select('id', 'date_issue', 'cufe')
+        $ventas = SalesInvoice::select('id', 'date_issue', 'cufe', 'document_name')
             ->whereBetween('date_issue', [$fechadesde, $fechahasta])->get();
 
         // return response()->json([
