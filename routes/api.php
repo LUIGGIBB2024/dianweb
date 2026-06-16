@@ -6,6 +6,8 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CompanyController;
 use App\Http\Controllers\ControlController;
 use App\Http\Controllers\DianController;
+use App\Http\Controllers\DianEventController;
+use App\Http\Controllers\DianEventoController;
 use App\Http\Controllers\ScrapingController;
 use App\Http\Controllers\ScrapingDianController;
 use App\Http\Controllers\UserController;
@@ -74,11 +76,18 @@ Route::group(['middleware' => ['auth:sanctum']], function () {
     Route::post('/dian/timeout',         [DianController::class, 'timeout']);
     Route::post('/dian/documentos-enviados', [DianController::class, 'documentosEnviados']);
     Route::post('/dian/documentos-recibidos', [DianController::class, 'documentosRecibidos']);
+    Route::post('/dian/recepcion-facturas', [DianController::class, 'recepcionFacturas']);
+    //Route::post('/dian/procesar-eventos', [DianController::class, 'procesarEventos']);
     Route::post('/dian/procesar-iva', [DianController::class, 'procesarIva']);
     Route::post('/dian/estadistica-anual', [DianController::class, 'estadisticaAnual']);
     Route::post('/dian/validar-facturas', [DianController::class, 'validarFacturas']);
     Route::post('/dian/consolidar-info', [DianController::class, 'consolidarInfo']);
     Route::post('/n8n/webhook',       [DianController::class, 'webHook']);
+
+    //Route::post('/dian/procesar-eventos', [DianEventoController::class, 'procesarEventos']);
+    //Route::post('/dian/estado-eventos',   [DianEventoController::class, 'estadoEventos']);
+    Route::post('/dian/procesar-eventos', [DianEventController::class, 'process']);
+    Route::post('/dian/estado-eventos',   [DianEventController::class, 'estado']);
 });
 
 Route::post('/dian/recibir-token', [DianController::class, 'recibirToken']);

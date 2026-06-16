@@ -411,7 +411,6 @@ class ScrapingDianController extends Controller
             ], 408);
         }
 
-
         if ($response->successful()) {
             $rawRecords = collect($response->json('data') ?? []);
 

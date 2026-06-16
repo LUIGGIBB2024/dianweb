@@ -43,8 +43,9 @@ const authThemeImg = useGenerateImageVariant(
   authV2LoginIllustrationDark,
   authV2LoginIllustrationBorderedLight,
   authV2LoginIllustrationBorderedDark,
-  true
+  true,
 )
+
 const authThemeMask = useGenerateImageVariant(authV2MaskLight, authV2MaskDark)
 
 // --- Función de Login ---
@@ -56,6 +57,7 @@ const handleLogin = async () => {
     if (!form.value.email || !form.value.password) {
       errorMessage.value = 'Debes ingresar tu correo y contraseña.'
       isLoading.value = false
+
       return
     }
 
@@ -65,6 +67,7 @@ const handleLogin = async () => {
     })
 
     console.log('Login exitoso:', data)
+
     const url_token_info = ref('Not Info')
 
     // ✅ 1. Limpiar TODO el localStorage antes de escribir la nueva sesión
@@ -73,6 +76,7 @@ const handleLogin = async () => {
 
     // ✅ 2. Escribir los nuevos valores
     localStorage.setItem('auth_token', data.token)
+    localStorage.setItem('company_token', data.token)
     localStorage.setItem('company_name', data.company_name)
     localStorage.setItem('user_name', data.user_name)
     localStorage.setItem('user_id', data.user_id)
@@ -80,25 +84,24 @@ const handleLogin = async () => {
     localStorage.setItem('url_n8n', data.url_n8n)
     localStorage.setItem('nit_empresa', data.nit_empresa)
     localStorage.setItem('representante_legal', data.representante_legal)
-    localStorage.setItem('tipo_de_usuario', data.user['type'])
-    localStorage.setItem('dian_token_info', url_token_info.value)
+    localStorage.setItem('tipo_de_usuario', data.user.type)
+    localStorage.setItem('company_token', data.company_token)
 
     window.company_user = data.company_name
 
-    const tipoUsuario = data.user['type'] // ✅ 3. Leer directo de `data`, NO de localStorage
+    const tipoUsuario = data.user.type // ✅ 3. Leer directo de `data`, NO de localStorage
 
     console.log('🧭 Tipo usuario:', tipoUsuario)
 
     // ✅ 4. Usar await en router.push para asegurarse que la navegación
     //       ocurra DESPUÉS de que todo lo anterior esté listo
 
-    if (tipoUsuario === 'SuperAdmin') {
-      window.location.href = '/dashboard'        // ← recarga completa, limpia todo
-    } else if (tipoUsuario === 'Cliente SaaS') {
+    if (tipoUsuario === 'SuperAdmin')
+      window.location.href = '/dashboard' // ← recarga completa, limpia todo
+    else if (tipoUsuario === 'Cliente SaaS')
       window.location.href = '/dashboard-saas'
-    } else if (tipoUsuario === 'Cliente Phx') {
+    else if (tipoUsuario === 'Cliente Phx')
       window.location.href = '/dashboard-saas'
-    }
 
     // if (tipoUsuario === 'SuperAdmin') {
     //   await router.push({ name: 'dashboard' })
@@ -111,15 +114,15 @@ const handleLogin = async () => {
     //   console.warn('Tipo de usuario no reconocido:', tipoUsuario)
     //   errorMessage.value = 'Tipo de usuario no válido.'
     // }
-
-  } catch (error: any) {
+  }
+  catch (error: any) {
     errorMessage.value = error.response?.data?.message || 'Credenciales incorrectas. Intenta de nuevo.'
-    console.log("Soy Error:", errorMessage.value)
-  } finally {
+    console.log('Soy Error:', errorMessage.value)
+  }
+  finally {
     isLoading.value = false
   }
 }
-
 </script>
 
 <template>
@@ -130,9 +133,15 @@ const handleLogin = async () => {
     </div>
   </a>
 
-  <VRow no-gutters class="auth-wrapper bg-surface">
+  <VRow
+    no-gutters
+    class="auth-wrapper bg-surface"
+  >
     <!-- Imagen lateral -->
-    <VCol md="8" class="d-none d-md-flex">
+    <VCol
+      md="8"
+      class="d-none d-md-flex"
+    >
       <div class="position-relative bg-background w-100 me-0">
         <div
           class="d-flex align-center justify-center w-100 h-100"
@@ -151,18 +160,28 @@ const handleLogin = async () => {
           alt="auth-footer-mask"
           height="280"
           width="100"
-        />
+        >
       </div>
     </VCol>
 
     <!-- Formulario -->
-    <VCol cols="12" md="4" class="auth-card-v2 d-flex align-center justify-center">
-      <VCard flat :max-width="500" class="mt-12 mt-sm-0 pa-6">
+    <VCol
+      cols="12"
+      md="4"
+      class="auth-card-v2 d-flex align-center justify-center"
+    >
+      <VCard
+        flat
+        :max-width="500"
+        class="mt-12 mt-sm-0 pa-6"
+      >
         <VCardText>
           <h4 class="text-h4 mb-1">
             Bienvenido a <span class="text-capitalize">{{ themeConfig.app.title }}</span> ! 👋🏻
           </h4>
-          <p class="mb-0">Inicia sesión en tu cuenta</p>
+          <p class="mb-0">
+            Inicia sesión en tu cuenta
+          </p>
         </VCardText>
 
         <VCardText>
@@ -202,9 +221,7 @@ const handleLogin = async () => {
                   @click:append-inner="isPasswordVisible = !isPasswordVisible"
                 />
 
-                <div
-                  class="d-flex align-center flex-wrap justify-space-between my-6"
-                >
+                <div class="d-flex align-center flex-wrap justify-space-between my-6">
                   <VCheckbox
                     v-model="form.remember"
                     label="Recordarme"
@@ -228,7 +245,10 @@ const handleLogin = async () => {
               </VCol>
 
               <!-- Crear cuenta -->
-              <VCol cols="12" class="text-body-1 text-center">
+              <VCol
+                cols="12"
+                class="text-body-1 text-center"
+              >
                 <span class="d-inline-block">¿Eres nuevo en la plataforma?</span>
                 <a
                   class="text-primary ms-1 d-inline-block text-body-1"
@@ -238,14 +258,20 @@ const handleLogin = async () => {
                 </a>
               </VCol>
 
-              <VCol cols="12" class="d-flex align-center">
+              <VCol
+                cols="12"
+                class="d-flex align-center"
+              >
                 <VDivider />
                 <span class="mx-4">o</span>
                 <VDivider />
               </VCol>
 
               <!-- Proveedores -->
-              <VCol cols="12" class="text-center">
+              <VCol
+                cols="12"
+                class="text-center"
+              >
                 <AuthProvider />
               </VCol>
             </VRow>

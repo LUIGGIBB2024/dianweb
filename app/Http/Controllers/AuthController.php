@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Company;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -24,6 +25,7 @@ class AuthController extends Controller
 
         //return response()->json(['message' => $request->email . " - 300 - " . $request->password]);
 
+        $f_company = Company::find(Auth::user()->company->id);
         return response()->json([
             'message' => 'Login exitoso',
             'user' => $user,
@@ -34,7 +36,8 @@ class AuthController extends Controller
             'url_n8n' => Auth::user()->company->endpoint2,
             'nit_empresa' => Auth::user()->company->nit,
             'representante_legal' => Auth::user()->company->representativeid,
-            'user_name' => $username
+            'user_name' => $username,
+            'company_token' => $f_company->token,
         ]);
     }
 

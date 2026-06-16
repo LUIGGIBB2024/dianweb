@@ -343,6 +343,53 @@ class DianController extends Controller
         );
     }
 
+    public function recepcionFacturas(Request $request): JsonResponse
+    {
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+
+        $compras = PurchasesInvoice::select(
+            'id',
+            'date_issue',
+            'expiration_date',
+            'number',
+            'prefix',
+            'document_name',
+            'supplier',
+            'supplier_name',
+            'subtotal',
+            'discounts',
+            'total_purchase',
+            'vatvalue',
+            'retefuente',
+            'reteiva',
+            'reteica',
+            'cufe',
+            'evento1',
+            'evento2',
+            'evento3',
+            DB::raw('0 as selected'),
+            'state',
+        )
+            ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+            ->where('companies_id', $request->input('company_id'))
+            ->where('state_evento', "<>", "Completado")
+            ->orderBy('date_issue')
+            ->get();
+
+        return response()->json(
+            [
+                'status'           => '200',
+                'message'          => 'Mostrando documentos recibidos de la DIAN entre ' . $desdefecha . ' y ' . $hastafecha,
+                'TotalDocumentos' => $compras->count(),
+                'TotalValor'      => $compras->sum('total_purchase'),
+                'TotalIva'        => $compras->sum('vatvalue'),
+                'data'            => $compras,
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
     public function procesarIva(Request $request): JsonResponse
     {
         $desdefecha = $request->input('fechadesde');
@@ -488,7 +535,7 @@ class DianController extends Controller
 
         $desdefecha = $request->input('fechadesde');
         $hastafecha = $request->input('fechahasta');
-   
+
         $company = Company::where('id', $request->input('company_id'))->get();
 
         $ventasmen = SalesInvoice::select(
@@ -542,6 +589,80 @@ class DianController extends Controller
                 'company'         => $company,
                 'ventasmen'       => $ventasmen,
                 'comprasmen'      => $comprasmen,
+            ],
+            Response::HTTP_ACCEPTED
+        );
+    }
+
+    public function procesarEventos(Request $request): JsonResponse
+    {
+        $desdefecha = $request->input('fechadesde');
+        $hastafecha = $request->input('fechahasta');
+
+        return response()->json(
+            [
+                'status'                 => '200',
+                'message'                => 'Mostrando Información de Ivas - Fechas entre ' . $desdefecha . ' y ' . $hastafecha,
+                'data'                   => $request->all(),
+
+            ],
+            Response::HTTP_ACCEPTED
+        );
+
+        // $ventas = SalesInvoice::select(
+        //     'id',
+        //     'date_issue',
+        //     'expiration_date',
+        //     'number',
+        //     'prefix',
+        //     'document_name',
+        //     'customer',
+        //     'client_name',
+        //     'subtotal',
+        //     'discounts',
+        //     'total_sale',
+        //     'vatvalue',
+        //     'retefuente',
+        //     'reteiva',
+        //     'reteica',
+        //     'impoconsumo',
+        //     'cufe',
+        //     'state'
+        // )
+        //     ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+        //     ->where('companies_id', $request->input('company_id'))
+        //     ->orderBy('date_issue')
+        //     ->get();
+
+        // $compras = PurchasesInvoice::select(
+        //     'id',
+        //     'date_issue',
+        //     'expiration_date',
+        //     'number',
+        //     'prefix',
+        //     'document_name',
+        //     'supplier',
+        //     'supplier_name',
+        //     'subtotal',
+        //     'discounts',
+        //     'total_purchase',
+        //     'vatvalue',
+        //     'retefuente',
+        //     'reteiva',
+        //     'reteica',
+        //     'cufe',
+        //     'state'
+        // )
+        //     ->whereBetween('date_issue', [$desdefecha, $hastafecha])
+        //     ->where('companies_id', $request->input('company_id'))
+        //     ->orderBy('date_issue')
+        //     ->get();
+
+        return response()->json(
+            [
+                'status'                 => '200',
+                'message'                => 'Mostrando Información de Ivas - Fechas entre ' . $desdefecha . ' y ' . $hastafecha,
+
             ],
             Response::HTTP_ACCEPTED
         );

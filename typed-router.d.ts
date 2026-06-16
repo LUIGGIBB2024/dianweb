@@ -296,6 +296,13 @@ declare module 'vue-router/auto-routes' {
       Record<never, never>,
       | never
     >,
+    'infodianreal-recepcion': RouteRecordInfo<
+      'infodianreal-recepcion',
+      '/infodianreal/recepcion',
+      Record<never, never>,
+      Record<never, never>,
+      | never
+    >,
     'infodianreal-recibidos': RouteRecordInfo<
       'infodianreal-recibidos',
       '/infodianreal/recibidos',
@@ -603,6 +610,12 @@ declare module 'vue-router/auto-routes' {
     'resources/ts/pages/infodianreal/procesariva.vue': {
       routes:
         | 'infodianreal-procesariva'
+      views:
+        | never
+    }
+    'resources/ts/pages/infodianreal/recepcion.vue': {
+      routes:
+        | 'infodianreal-recepcion'
       views:
         | never
     }
