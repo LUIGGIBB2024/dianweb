@@ -64,7 +64,7 @@ class CompanyController extends Controller
         // ]);
     }
 
-    public function store1(Request $request)
+    public function store2(Request $request)
     {
 
         $data = $request->validate([
@@ -92,7 +92,7 @@ class CompanyController extends Controller
         return response()->json(['message' => 'Empresa creada exitosamente', 'company' => $company]);
     }
 
-    public function store(Request $request)
+    public function store1(Request $request)
     {
         Log::info('ENTRANDO A STORE', ['method' => $request->method()]);
         $data = $request->validate([
@@ -141,6 +141,56 @@ class CompanyController extends Controller
         ], 201);
     }
 
+    public function store(Request $request)
+    {
+        Log::info('ENTRANDO A STORE', ['method' => $request->method()]);
+
+        $data = $request->validate([
+            'nit'              => 'required|string|max:20',
+            'dv'               => 'nullable|string|max:1',
+            'representativeid' => 'nullable|string|max:20',
+            'name'             => 'required|string|max:255',
+            'address'          => 'nullable|string|max:255',
+            'email'            => 'nullable|email|max:255',
+            'dian_email'       => 'nullable|email|max:255',
+            'phone'            => 'nullable|string|max:20',
+            'city'             => 'nullable|string|max:100',
+            'endpoint1'        => 'nullable|string|max:255',
+            'endpoint2'        => 'nullable|string|max:255',
+            'endpoint3'        => 'nullable|string|max:255',
+            'token'            => 'nullable|string|max:255',
+            'certificatename'  => 'nullable|string|max:255',
+            'certificatekey'   => 'nullable|string|max:255',
+            'date_from'        => 'nullable',
+            'date_to'          => 'nullable',
+            // CAMBIO AQUÍ: Usamos 'extensions' en lugar de 'mimes'
+            'certificate_file' => 'nullable|file|extensions:pfx,p12,pem,crt,cer|max:2048',
+        ]);
+
+        // Guardar el archivo si viene en el request
+        if ($request->hasFile('certificate_file')) {
+            $nit      = $request->input('nit');
+            $file     = $request->file('certificate_file');
+            $fileName = $file->getClientOriginalName();
+
+            // Guarda en: storage/app/certificates/{nit}/{nombreOriginal}
+            $path = $file->storeAs("certificates/{$nit}", $fileName);
+
+            // Guardar el nombre/ruta del certificado
+            $data['certificatename'] = $fileName;
+        }
+
+        // Remover el archivo del array antes de crear el modelo
+        unset($data['certificate_file']);
+
+        $company = \App\Models\Company::create($data);
+
+        return response()->json([
+            'message' => 'Empresa creada exitosamente',
+            'company' => $company,
+        ], 201);
+    }
+
     public function update(Request $request, $id)
     {
         Log::info('ENTRANDO A UPDATE', ['id' => $id, 'method' => $request->method()]);
@@ -172,7 +222,7 @@ class CompanyController extends Controller
             'endpoint3'        => 'nullable|string|max:255',
             'certificatename'  => 'nullable|string|max:255',
             'certificatekey'   => 'nullable|string|max:255',
-            'certificate_file' => 'nullable|file|max:2048',
+            'certificate_file' => 'nullable|file|mimes:pfx,p12,pem,crt,cer|max:2048',
             'token'            => 'nullable|string|max:255',
             'date_from'        => 'nullable',
             'date_to'          => 'nullable',
