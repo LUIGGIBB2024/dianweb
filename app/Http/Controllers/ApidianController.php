@@ -493,6 +493,8 @@ class ApidianController extends Controller
             $nit = trim($info_control->nit);
             $endpoint = "{$endpoint}/download/{$nit}/Attachment-{$prefix}{$numberdocument}.xml/BASE64";
 
+            //dd($endpoint);
+
             $endpoint = preg_replace('/\\s+/', '', $endpoint);
 
             $response = Http::withHeaders([
@@ -520,7 +522,7 @@ class ApidianController extends Controller
                 'showacceptrejectbuttons' => 'boolean',
                 'email_cc_list' => 'array',
                 'email_cc_list.*.email' => 'email',
-                'base64graphicrepresentation' => 'required|string',
+                // 'base64graphicrepresentation' => 'required|string',
             ]);
 
             //return response()->json(['message' => 'Estoy Aquí 222', 'number' => $validated, 'id_company' => $id_company, 'endpoint' => $endpoint, 'token' => $token], 200);
