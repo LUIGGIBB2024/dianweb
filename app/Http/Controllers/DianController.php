@@ -186,6 +186,8 @@ class DianController extends Controller
         $endpoint = preg_replace('/\\s+/', '', $company->endpoint2);
 
         $response = Http::withoutVerifying()
+            ->timeout(90) // Tiempo máximo total: 1 minuto
+            ->connectTimeout(90) // Tiempo máximo para conectar
             ->withHeaders([
                 'Content-Type' => 'application/json; charset=UTF-8',
                 'Accept'       => 'application/json',
